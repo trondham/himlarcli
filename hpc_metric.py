@@ -72,6 +72,24 @@ def action_get_measures():
                 output[k] += measurement[0][2]
                 print measurement
 
+def action_get_cpu_util():
+    start = himutils.get_date(options.start, date.today() - timedelta(days=1))
+    stop = himutils.get_date(options.end, date.today() + timedelta(days=1))
+    host = nc.get_host(nc.get_fqdn(options.host))
+    if not host:
+        himutils.sys_error('Could not find valid host %s' % options.host)
+
+    search_opts = dict(all_tenants=1, host=host.hypervisor_hostname)
+    instances = nc.get_all_instances(search_opts=search_opts)
+
+    gc = Gnocchi(options.config, debug=options.debug, log=logger)
+
+    for instance in instances:
+        cpu_util = gc.get_client().metric.get_measures('cpu_util',
+                                                       start=start,
+                                                       stop=stop)
+        print cpu_util
+        
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
 if not action:
