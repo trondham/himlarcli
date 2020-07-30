@@ -86,6 +86,7 @@ def action_get_cpu_util():
 
     for instance in instances:
         cpu_util = gc.get_client().metric.get_measures('cpu_util',
+                                                       resource_id=instance.id,
                                                        start=start,
                                                        stop=stop)
         print cpu_util
