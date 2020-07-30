@@ -1,13 +1,9 @@
 ---
 desc:             'Get metric from gnocchi'
 actions:
-  'instance':     'Get metric from instance'
   'list_samples': 'List all samples'
 
 opt_args:
-  'instance':
-    'metavar':  'instance'
-    'help':     'instance/server ID'
   '--domain':
     'dest':     'domain'
     'help':     'openstack domain to use'
