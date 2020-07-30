@@ -68,8 +68,7 @@ def action_get_cpu_util():
                                                        start=start,
                                                        stop=stop)
         for i in range (len(cpu_util)):
-            for j in range (len(cpu_util[i])):
-                cpu_util[i][j]=time.mktime(cpu_util[i][j].timetuple())
+            cpu_util[i][0]=time.mktime(cpu_util[i][0].timetuple())
 #            try:
 #                cpu_util[i]=time.mktime(cpu_util[i].timetuple())
 #            except ValueError:
