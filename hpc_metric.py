@@ -45,7 +45,7 @@ def action_instance():
 
 def action_list_samples():
     gc = Gnocchi(options.config, debug=options.debug, log=logger)
-    res = gc.get_list_samples()
+    res = gc.list_samples()
     print res
 
     
