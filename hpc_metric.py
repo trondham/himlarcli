@@ -62,7 +62,15 @@ def action_get_measures():
 
     for instance in instances:
         resources = gc.get_resource(resource_type='instance', resource_id=instance.id)
-        print resources
+        metrics = resources['metrics']
+        for k, v in metrics.iteritems():
+            measurement = gc.get_client().metric.get_measures(metric=v,
+                                                              aggregation='max',
+                                                              start=start,
+                                                              stop=stop)
+            if measurement:
+                output[k] += measurement[0][2]
+                print measurement
 
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
