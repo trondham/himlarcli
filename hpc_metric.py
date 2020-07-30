@@ -9,7 +9,7 @@ from himlarcli.gnocchi import Gnocchi
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
-from datetime import date, timedelta
+from datetime import date, timedelta, datetimem time
 from collections import defaultdict
 
 parser = Parser()
@@ -65,7 +65,11 @@ def action_get_cpu_util():
                                                        resource_id=instance.id,
                                                        start=start,
                                                        stop=stop)
-        print cpu_util.to_dict()
+        for i in range (len(cpu_util)):
+            if datetime.strptime(cpu_util[i], "%Y-%m-%d"):
+                cpu_util[i]=time.mktime(cpu_util[i].timetuple())
+
+        print cpu_util
         
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
