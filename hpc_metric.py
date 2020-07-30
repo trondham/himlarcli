@@ -66,8 +66,10 @@ def action_get_cpu_util():
                                                        start=start,
                                                        stop=stop)
         for i in range (len(cpu_util)):
-            if datetime.strptime(cpu_util[i], "%Y-%m-%d"):
+            try:
                 cpu_util[i]=time.mktime(cpu_util[i].timetuple())
+            except ValueError:
+                next
 
         print cpu_util
         
