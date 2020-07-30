@@ -48,7 +48,22 @@ def action_list_metrics():
     res = gc.list_metrics()
     print res
 
-    
+def action_get_measures():
+    start = himutils.get_date(options.start, date.today() - timedelta(days=1))
+    stop = himutils.get_date(options.end, date.today() + timedelta(days=1))
+    host = nc.get_host(nc.get_fqdn(options.host))
+    if not host:
+        himutils.sys_error('Could not find valid host %s' % options.host)
+
+    search_opts = dict(all_tenants=1, host=host.hypervisor_hostname)
+    instances = nc.get_all_instances(search_opts=search_opts)
+
+    gc = Gnocchi(options.config, debug=options.debug, log=logger)
+
+    for instance in instances:
+        resources = gc.get_resource(resource_type='instance', resource_id=instance.id)
+        print resources
+
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
 if not action:

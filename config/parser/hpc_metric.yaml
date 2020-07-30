@@ -2,7 +2,8 @@
 desc:             'Get metric from gnocchi'
 actions:
   'list_metrics': 'List all metrics'
-
+  'get_measures': 'Get measures'
+  
 opt_args:
   '--domain':
     'dest':     'domain'
@@ -14,3 +15,7 @@ opt_args:
   '--end':
     'dest':     end
     'help':     'end date (YYYY-MM-DD) Defaults to today'
+  '--host':
+    'dest':     host
+    'help':     'Hypervisor hostname, either hostname or FQDN'
+
