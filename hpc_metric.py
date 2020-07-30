@@ -9,7 +9,8 @@ from himlarcli.gnocchi import Gnocchi
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
-from datetime import date, timedelta, datetime, time
+from datetime import date, timedelta, datetime
+from time import mktime
 from collections import defaultdict
 
 parser = Parser()
