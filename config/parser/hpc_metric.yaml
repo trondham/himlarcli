@@ -2,7 +2,6 @@
 desc:             'Get metric from gnocchi'
 actions:
   'list_metrics': 'List all metrics'
-  'get_measures': 'Get measures'
   'get_cpu_util': 'foo'
   
 opt_args:
