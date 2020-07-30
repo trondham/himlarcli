@@ -67,14 +67,16 @@ def action_get_cpu_util():
                                                        aggregation='max',
                                                        start=start,
                                                        stop=stop)
+        timeseries = {}
         for i in range (len(cpu_util)):
-            cpu_util[i][0]=time.mktime(cpu_util[i][0].timetuple())
+            timeseries[time.mktime(cpu_util[i][0].timetuple())] = cpu_util[i][2]
+#            cpu_util[i][0]=time.mktime(cpu_util[i][0].timetuple())
 #            try:
 #                cpu_util[i]=time.mktime(cpu_util[i].timetuple())
 #            except ValueError:
 #                next
 
-        print cpu_util
+        print timeseries
         
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
