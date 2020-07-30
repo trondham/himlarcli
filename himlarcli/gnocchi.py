@@ -30,9 +30,9 @@ class Gnocchi(Client):
             self.log_error('Resource with ID %s not found!' % resource_id)
         return resource
 
-    def list_samples(self):
-        samples = self.client.samples.list()
-        return samples
+    def list_metrics(self):
+        metrics = self.client.metric.list()
+        return metrics
     
 #    def get_sample(self, resource_id
 #        def list_blacklists(self):

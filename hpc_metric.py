@@ -43,9 +43,9 @@ def action_instance():
             output[k] += measurement[0][2]
     printer.output_dict(output)
 
-def action_list_samples():
+def action_list_metrics():
     gc = Gnocchi(options.config, debug=options.debug, log=logger)
-    res = gc.list_samples()
+    res = gc.list_metrics()
     print res
 
     

@@ -1,7 +1,7 @@
 ---
 desc:             'Get metric from gnocchi'
 actions:
-  'list_samples': 'List all samples'
+  'list_metrics': 'List all metrics'
 
 opt_args:
   '--domain':
