@@ -12,6 +12,7 @@ from himlarcli import utils as himutils
 from datetime import date, timedelta, datetime
 from collections import defaultdict
 import time
+import pprint
 
 parser = Parser()
 options = parser.parse_args()
@@ -69,14 +70,15 @@ def action_get_cpu_util():
                                                        stop=stop)
         timeseries = {}
         for i in range (len(cpu_util)):
-            timeseries[time.mktime(cpu_util[i][0].timetuple())] = cpu_util[i][2]
+            timeseries[int(time.mktime(cpu_util[i][0].timetuple()))] = cpu_util[i][2]
 #            cpu_util[i][0]=time.mktime(cpu_util[i][0].timetuple())
 #            try:
 #                cpu_util[i]=time.mktime(cpu_util[i].timetuple())
 #            except ValueError:
 #                next
 
-        print timeseries
+        #print timeseries
+        timeseries.pprint()
         
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
