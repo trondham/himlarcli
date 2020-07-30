@@ -64,13 +64,16 @@ def action_get_cpu_util():
     for instance in instances:
         cpu_util = gc.get_client().metric.get_measures('cpu_util',
                                                        resource_id=instance.id,
+                                                       aggregation='max',
                                                        start=start,
                                                        stop=stop)
         for i in range (len(cpu_util)):
-            try:
-                cpu_util[i]=time.mktime(cpu_util[i].timetuple())
-            except ValueError:
-                next
+            for j in range (len(cpu_util[i])):
+                cpu_util[i][j]=time.mktime(cpu_util[i][j].timetuple())
+#            try:
+#                cpu_util[i]=time.mktime(cpu_util[i].timetuple())
+#            except ValueError:
+#                next
 
         print cpu_util
         
