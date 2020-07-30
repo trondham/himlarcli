@@ -78,7 +78,7 @@ def action_get_cpu_util():
 #                next
 
         #print timeseries
-        timeseries.pprint()
+        pprint.pprint(timeseries, width=1)
         
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
