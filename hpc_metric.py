@@ -10,7 +10,6 @@ from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
 from datetime import date, timedelta, datetime
-from time import mktime
 from collections import defaultdict
 
 parser = Parser()
@@ -68,7 +67,8 @@ def action_get_cpu_util():
                                                        stop=stop)
         for i in range (len(cpu_util)):
             try:
-                cpu_util[i]=time.mktime(cpu_util[i].timetuple())
+                #cpu_util[i]=time.mktime(cpu_util[i].timetuple())
+                cpu_util[i]=cpu_util[i].timestamp()
             except ValueError:
                 next
 
