@@ -53,6 +53,9 @@ def action_get_cpu_util():
                 continue
             timeseries[int(time.mktime(cpu_util[i][0].timetuple()))] = cpu_util[i][2]
         #print timeseries
+
+        foo = nc.get_instance(instance)
+        print foo
         pprint.pprint(timeseries, width=1)
         
 # Run local function with the same name as the action
