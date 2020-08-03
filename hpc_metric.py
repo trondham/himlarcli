@@ -50,7 +50,7 @@ def action_get_cpu_util():
         timeseries = {}
         for i in range (len(cpu_util)):
             if len(cpu_util[i]) < 3:
-                next
+                continue
             timeseries[int(time.mktime(cpu_util[i][0].timetuple()))] = cpu_util[i][2]
         #print timeseries
         pprint.pprint(timeseries, width=1)
