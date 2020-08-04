@@ -55,7 +55,7 @@ def action_get_cpu_util():
         #print timeseries
 
         foo = nc.get_instance(instance)
-        #print foo.to_dict()
+        print foo.to_dict()
         print foo.name
         print foo.id
         pprint.pprint(timeseries, width=1)
