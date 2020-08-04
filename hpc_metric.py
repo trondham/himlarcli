@@ -55,9 +55,13 @@ def action_get_cpu_util():
         #print timeseries
 
         foo = nc.get_instance(instance)
-        print foo.to_dict()
-        print foo.name
+        #print foo.to_dict()
+        print "Name: %s" % foo.name
         print foo.id
+        print foo.user_id
+        print foo.flavor
+        print foo.tenant_id
+        print foo.status
         pprint.pprint(timeseries, width=1)
         
 # Run local function with the same name as the action
