@@ -59,7 +59,7 @@ def action_get_cpu_util():
         print "Name:       %s" % foo.name
         print "ID:         %s" % foo.id
         print "User ID:    %s" % foo.user_id
-        print "Flavor:     %s" % foo.flavor
+        print "Flavor:     %s" % foo.flavor.original_name
         print "Project ID: %s" % foo.tenant_id
         print "Status:     %s" % foo.status
         pprint.pprint(timeseries, width=1)
