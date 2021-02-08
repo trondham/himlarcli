@@ -88,7 +88,11 @@ class Parser(object):
 
     def __autoload(self):
         """ Load parser config from yaml. """
-        parser_config = utils.load_config('config/parser/%s.yaml' % self.name)
+        config_file = 'config/parser/{}.yaml'.format(self.name)
+        parser_config = utils.load_config(config_file)
+        if not parser_config:
+            msg = "Parser: not found {}".format(config_file)
+            utils.sys_error(msg, 1)
         if 'desc' in parser_config:
             self.desc = parser_config['desc']
         if 'actions' in parser_config:
@@ -113,15 +117,13 @@ class Parser(object):
                                     dest='config',
                                     metavar='config.ini',
                                     action='store',
-                                    default='/etc/himlarcli/config.ini',
-                                    help='path to ini file with config')
+                                    help='override config.ini path')
         elif self.SHOW['config']:
             self.parser.add_argument('-c',
                                      dest='config',
                                      metavar='config.ini',
                                      action='store',
-                                     default='/etc/himlarcli/config.ini',
-                                     help='path to ini file with config')
+                                     help='override config.ini path')
 
     def __add_debug(self):
         if self.SHOW['debug'] and self.parsers:

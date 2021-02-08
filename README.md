@@ -22,7 +22,7 @@ Use virtualenv:
 cd himlarcli
 virtualenv .
 source bin/activate
-pip install --upgrade setuptools
+pip install setuptools==44.1.1
 python setup.py develop
 pip install -r requirements.txt
 ```
@@ -33,10 +33,16 @@ Requirements
 ```
 yum install -y python-virtualenv PyYAML openldap-devel openssl-devel gcc
 ```
-After virtualenv run 
+After virtualenv run
 ```
 pip install --upgrade setuptools
 ```
+
+### Config file
+
+All script should have the `-c` option to set a custom config file. If this is
+not set it will look for  `config.ini` in the root of himlarcli and then in
+`/etc/himlarcli`
 
 ### pylint
 
@@ -45,6 +51,7 @@ To check new or updated python files run:
 ```
 pytlint <script>.py
 ```
+or to run the full test travis uses with `test.sh`
 
 #### disable
 
@@ -60,6 +67,24 @@ This is for use with himlar in vagrant.
 
 Use config.ini.example and remember to change keystone_cachain: with
 path to root CA used in vagrant
+
+If you have a `config.ini` in the himlarcli root directory it will use this
+automatically in all scripts.
+
+#### Dataporten access
+
+If the vagrant installation is setup with support for Dataporten login
+you can use `access.py` to provision the user and project without the need
+to install the access node:
+
+```
+./access.py push --email <feide-email> --password <password>
+./access.py pop --debug
+```
+
+exit the last script after the user is created.
+
+*NOTE*: Make sure the rabbitmq section is present in your config.ini first!
 
 #### Hosts
 

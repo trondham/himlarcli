@@ -14,6 +14,7 @@ import urllib
 import urllib2
 from string import Template
 import socket
+from tabulate import tabulate
 
 def get_client(name, options, logger, region=None):
     if region:
@@ -57,20 +58,30 @@ def append_to_file(filename, text):
     f.write("%s\n" % text)
     f.close()
 
+def append_to_logfile(filename, date, region, text1, text2):
+    filename = get_abs_path(filename)
+    f = open(filename, 'a+')
+    f.write("%s, %s, %s, %s\n" % (date, region, text1, text2))
+    f.close()
+
 def get_config(config_path):
     if not os.path.isfile(config_path):
-        logging.critical("Could not find config file: %s" %config_path)
+        logging.critical("Could not find config file: %s", config_path)
         sys.exit(1)
     config = ConfigParser.ConfigParser()
     config.read(config_path)
     return config
+
+def get_current_date(format='%Y-%m-%dT%H:%M:%S.%f%z'):
+    current_date = datetime.now()
+    return current_date.strftime(format)
 
 def get_date(datestr, default, format='%d.%m.%Y'):
     if datestr:
         try:
             return datetime.strptime(datestr, format).date()
         except ValueError:
-            sys_error('date format %s not valid for %s' % (format,datestr), 1)
+            sys_error('date format %s not valid for %s' % (format, datestr), 1)
     else:
         return default
 
@@ -207,6 +218,23 @@ def load_config(configfile, log=None):
             print(exc)
             config = None
     return config
+
+def get_instance_table(instances, columns=None, tablefmt='simple'):
+    if not columns:
+        columns = ['status', 'region']
+    tables = list()
+    for i in instances:
+        instance = [i['name']]
+        for k, v in i.iteritems():
+            if k in columns:
+                instance.append(v)
+        tables.append(instance)
+
+    header = ['NAME']
+    for k in next(iter(instances)):
+        if k in columns:
+            header.append(k.upper())
+    return tabulate(tables, headers=header, tablefmt=tablefmt)
 
 def download_file(target, source, logger, checksum_type=None, checksum_url=None, content_length=1000):
     """ Download a file from a source url """
