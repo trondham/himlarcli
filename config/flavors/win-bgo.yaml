@@ -1,33 +1,33 @@
 ---
-# D1 flavor - more disk than default
+# Win flavor in bgo
 public: false
 properties:
   hw_rng:allowed: 'True'
   hw_rng:rate_bytes: 1000000
   hw_rng:rate_period: 60
-#  aggregate_instance_extra_specs:type: 's== windows'
-d1: # (4x)
-  'd1.small':
+  aggregate_instance_extra_specs:type: 's== windows'
+win:
+  'win.small':
     vcpus: 1
     ram: 2048
     disk: 40
-  'd1.medium': # [1-4-40] (updated)
+  'win.medium':
     vcpus: 1
     ram: 4096
     disk: 40
-  'd1.large': # [2-8-60] (updated)
+  'win.large':
     vcpus: 2
     ram: 8192
     disk: 60
-  'd1.xlarge': # [4-16-80] (new)
+  'win.xlarge':
     vcpus: 4
     ram: 16384
     disk: 80
-  'd1.2xlarge': # [8-32-80] (new)
+  'win.2xlarge':
     vcpus: 8
     ram: 32768
     disk: 80
-  'd1.4xlarge': # [16-64-80] (new)
+  'win.4xlarge':
     vcpus: 16
     ram: 65536
     disk: 80

@@ -5,6 +5,7 @@ from datetime import date
 import ConfigParser
 import logging
 import logging.config
+import inspect
 #import warnings
 import yaml
 import hashlib
@@ -58,11 +59,16 @@ def append_to_file(filename, text):
     f.write("%s\n" % text)
     f.close()
 
-def append_to_logfile(filename, date, region, text1, text2):
+def append_to_logfile(filename, date, region, text1, text2, text3):
     filename = get_abs_path(filename)
-    f = open(filename, 'a+')
-    f.write("%s, %s, %s, %s\n" % (date, region, text1, text2))
-    f.close()
+    try:
+        f = open(filename, 'a+')
+        try:
+            f.write("%s, %s, %s, %s, %s\n" % (date, region, text1, text2, text3))
+	finally:
+            f.close()
+    except IOError as exc:
+        logger.warn('=> ERROR: could not append to logfile %s' % exc)
 
 def get_config(config_path):
     if not os.path.isfile(config_path):
@@ -108,7 +114,12 @@ def get_logger(name, config, debug, log=None):
         except (ConfigParser.NoOptionError, ConfigParser.NoSectionError):
             path = '/opt/himlarcli/'
         mylog = setup_logger(name, debug, path)
-    mylog.debug('=> logger config loaded from logging.yaml')
+        if not os.environ.get('VIRTUAL_ENV'):
+            caller = inspect.stack()[1][1].replace('/opt/himlarcli', '')
+        else:
+            caller = inspect.stack()[1][1].replace(os.environ.get('VIRTUAL_ENV'), '')
+        mylog.debug('=> logger startet from %s at %s', caller, datetime.now())
+        mylog.debug('=> logger config loaded from logging.yaml')
     return mylog
 
 def is_virtual_env():
@@ -254,7 +265,12 @@ def download_file(target, source, logger, checksum_type=None, checksum_url=None,
             return None
     if checksum_type and checksum_url:
         checksum = checksum_file(target, checksum_type)
-        response = urllib2.urlopen(checksum_url)
+        try:
+            response = urllib2.urlopen(checksum_url)
+        except urllib2.HTTPError as exc:
+            logger.debug('=> {}'.format(exc))
+            logger.debug('=> unable to download checksum {}'.format(checksum_url))
+            return None
         checksum_all = response.read()
         if checksum not in checksum_all:
             logger.debug("=> checksum failed: %s" % checksum)

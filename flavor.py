@@ -9,6 +9,7 @@ from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
 from collections import OrderedDict
+import glob
 
 parser = Parser()
 options = parser.parse_args()
@@ -27,8 +28,8 @@ else:
 
 def action_list():
     for region in regions:
-        nc = Nova(options.config, debug=options.debug, log=logger, region=region)
-        flavors = nc.get_flavors(filters=options.flavor)
+        nc = himutils.get_client(Nova, options, logger, region)
+        flavors = nc.get_flavors(class_filter=options.flavor)
         outputs = ['name', 'vcpus', 'ram', 'disk']
         header = 'flavors in %s (%s)' % (region, ', '.join(outputs))
         printer.output_dict({'header': header})
@@ -40,8 +41,8 @@ def action_list():
 
 def action_instances():
     for region in regions:
-        nc = Nova(options.config, debug=options.debug, log=logger, region=region)
-        flavors = nc.get_flavors(filters=options.flavor)
+        nc = himutils.get_client(Nova, options, logger, region)
+        flavors = nc.get_flavors(class_filter=options.flavor)
 
         printer.output_dict({'header': 'Instance list %s (id, name, flavor)' % region})
         status = dict({'total': 0})
@@ -98,38 +99,57 @@ def action_update():
             for project_id in projects:
                 all_projects.add(project_id.tenant_id)
         for project in all_projects:
-            nc.update_flavor_access(filters=options.flavor,
+            nc.update_flavor_access(class_filter=options.flavor,
                                     project_id=project,
                                     action='grant')
 
 def action_purge():
+    q = 'Purge flavors from class {} in region(s) {}'.format(options.flavor, ','.join(regions))
+    if not himutils.confirm_action(q):
+        return
     for region in regions:
         flavors = get_flavor_config(region)
-        nc = Nova(options.config, debug=options.debug, log=logger, region=region)
-        nc.set_dry_run(options.dry_run)
-        print 'Purge %s flavors in %s' % (options.flavor, region)
-        nc.purge_flavors(options.flavor, flavors)
+        nc = himutils.get_client(Nova, options, logger, region)
+        nc.debug_log('Start purge of flavor class {} from region {}'.format(options.flavor, region))
+        result = nc.purge_flavors(class_filter=options.flavor, flavors=flavors)
+        if result:
+            printer.output_msg('Purged flavors of class {} from region {}'
+                               .format(options.flavor, region))
+        else:
+            printer.output_msg('Nothing to purge from region {}'.format(region))
+
+def action_delete():
+    q = 'Delete flavor class {} in region(s) {}'.format(options.flavor, ','.join(regions))
+    if not himutils.confirm_action(q):
+        return
+    for region in regions:
+        nc = himutils.get_client(Nova, options, logger, region)
+        nc.debug_log('Start delete all {} from region {}'.format(options.flavor, region))
+        result = nc.delete_flavors(class_filter=options.flavor)
+        if result:
+            printer.output_msg('Deleted all {} from region {}'.format(options.flavor, region))
+        else:
+            printer.output_msg('Nothing to delete from region {}'.format(region))
 
 def action_grant():
     for region in regions:
-        nc = Nova(options.config, debug=options.debug, log=logger, region=region)
-        nc.set_dry_run(options.dry_run)
-        update_access(nc, 'grant', region)
-        print "Grant access to %s for %s in %s" % (options.flavor,
-                                                   options.project, region)
+        nc = himutils.get_client(Nova, options, logger, region)
+        result = update_access(nc, 'grant', region)
+        if result:
+            printer.output_msg("Grant access to {} for {} in {}"
+                               .format(options.flavor, options.project, region))
 
 def action_revoke():
     for region in regions:
-        nc = Nova(options.config, debug=options.debug, log=logger, region=region)
-        nc.set_dry_run(options.dry_run)
-        update_access(nc, 'revoke', region)
-        print "Revoke access to %s for %s in %s" % (options.flavor,
-                                                    options.project, region)
+        nc = himutils.get_client(Nova, options, logger, region)
+        result = update_access(nc, 'revoke', region)
+        if result:
+            printer.output_msg("Revoke access to {} for {} in {}"
+                               .format(options.flavor, options.project, region))
 
 def action_list_access():
     for region in regions:
-        nc = Nova(options.config, debug=options.debug, log=logger, region=region)
-        nc.set_dry_run(options.dry_run)
+        nc = himutils.get_client(Nova, options, logger, region)
         access = nc.get_flavor_access(filters=options.flavor)
         header = 'access to %s flavor in %s' % (options.flavor, region)
         printer.output_dict({'header': header})
@@ -144,6 +164,15 @@ def action_list_access():
                     himutils.sys_error('project not found %s' % project_id.tenant_id, 0)
                     continue
         printer.output_dict(output)
+
+def action_available_flavors():
+    path = '/opt/himlarcli/config/flavors/*.yaml'
+    files = glob.glob(path)
+    for file in files:
+        f = open(file, 'r')
+        print(file)
+        print(f.readlines()[1])
+        f.close()
 
 def get_flavor_config(region):
     # First look for region version of flavor config, then the default one
@@ -160,14 +189,21 @@ def get_flavor_config(region):
 
 def update_access(nc, access_action, region):
     flavors = get_flavor_config(region)
+    if options.flavor in flavors and not flavors[options.flavor]:
+        return False
     if 'public' in flavors and flavors['public']:
         himutils.sys_error('grant or revoke will not work on public flavors!')
     project = kc.get_project_by_name(options.project)
     if not project:
         himutils.sys_error('project not found %s' % project)
-    nc.update_flavor_access(filters=options.flavor,
-                            project_id=project.id,
-                            action=access_action)
+    result = nc.update_flavor_access(class_filter=options.flavor,
+                                     project_id=project.id,
+                                     action=access_action)
+    if not result:
+        himutils.sys_error('Update access for {} failed. Check debug log'
+                           .format(options.flavor), 0)
+        return False
+    return True
 
 # Run local function with the same name as the action (Note: - => _)
 action = locals().get('action_' + options.action.replace('-', '_'))

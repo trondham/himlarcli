@@ -288,7 +288,10 @@ class Nova(Client):
             Version: 2020-09
         """
         if instance.status == 'ACTIVE' and not self.dry_run:
-            instance.stop()
+            try:
+                instance.stop()
+            except novaclient.exceptions.Conflict as e:
+                self.log_error(e)
         if instance.status == 'ACTIVE':
             self.debug_log('stop instance {}'.format(instance.id))
 
@@ -298,7 +301,10 @@ class Nova(Client):
             Version: 2020-09
         """
         if instance.status == 'SHUTOFF' and not self.dry_run:
-            instance.start()
+            try:
+                instance.start()
+            except novaclient.exceptions.Conflict as e:
+                self.log_error(e)
         if instance.status == 'SHUTOFF':
             self.debug_log('start instance {}'.format(instance.id))
 
@@ -316,6 +322,20 @@ class Nova(Client):
                 time.sleep(5)
             else:
                 self.logger.debug('=> DRY-RUN: delete instance %s (%s)' % (i.name, project.name))
+
+    def delete_instance(self, instance):
+        """
+            Wrapper for delete instance
+            Version: 2021-03
+        """
+        self.debug_log('Delete instance with id %s' % (instance.id))
+        try:
+            if not self.dry_run:
+                instance.delete()
+        except Exception as e:
+            self.debug_log('failed to delete instance {}'.format(instance.id))
+            self.log_error(e)
+        #time.sleep(5)
 
 #################################### QUOTA ####################################
 
@@ -480,49 +500,78 @@ class Nova(Client):
                     except novaclient.exceptions.BadRequest as e:
                         self.logger.debug('=> %s', e)
 
-    def get_flavors(self, filters=None, sort_key='memory_mb', sort_dir='asc'):
+    def get_flavors(self, class_filter=None, sort_key='memory_mb', sort_dir='asc'):
         """
-        Get flavors. Use filter to get flavor class, e.g. m1
+            Get flavor list. Without filter all flavors will be returned
+            Version: 2021-3
+            :param class_filter: flavor class, e.g. m1 or vgpu.m1.
+            :rtype: List of novaclient.v2.flavors.Flavor
         """
         flavors = self.client.flavors.list(detailed=True,
                                            is_public=None,
                                            sort_key=sort_key,
                                            sort_dir=sort_dir)
         flavors_filtered = list()
-        if filters:
-            for flavor in flavors:
-                if filters in flavor.name:
-                    self.logger.debug('=> added %s to list' % flavor.name)
-                    flavors_filtered.append(flavor)
-                else:
-                    self.logger.debug('=> %s filterd out of list' % flavor.name)
-            return flavors_filtered
-        else:
-            return flavors
+        for flavor in flavors:
+            if not class_filter:
+                flavors_filtered.append(flavor)
+                continue
+            flavor_class = flavor.name.rsplit('.', 1)[0]
+            if class_filter == flavor_class:
+                self.logger.debug('=> added %s to list' % flavor.name)
+                flavors_filtered.append(flavor)
+            else:
+                self.logger.debug('=> %s filterd out of list' % flavor.name)
+        return flavors_filtered
 
-    def purge_flavors(self, filters, flavors):
+    def purge_flavors(self, class_filter, flavors):
         """
-        Purge flavors not defined in flavor list
+            Purge flavors not defined in flavor list
+            Version: 2021-3
+            :param class_filter: flavor class, e.g. m1 or vgpu.m1.
+            :rtype: Boolean
         """
-        dry_run_txt = 'DRY-RUN: ' if self.dry_run else ''
-        current_flavors = self.get_flavors(filters)
+        current_flavors = self.get_flavors(class_filter=class_filter)
+        purged = False
         for flavor in current_flavors:
-            if flavor.name not in flavors[filters]:
+            if flavor.name not in flavors[class_filter]:
+                self.debug_log('delete flavor {}'.format(flavor.name))
                 if not self.dry_run:
                     self.client.flavors.delete(flavor.id)
-                self.logger.debug('=> %sdelete flavor %s' %
-                                  (dry_run_txt, flavor.name))
+                purged = True
+        return purged
 
-    def update_flavor_access(self, filters, project_id, action):
+    def delete_flavors(self, class_filter):
         """
-        Grant or revoke access to flavor from project
+            Delete all flavor of a class
+            Version: 2021-3
+            :param class_filter: flavor class, e.g. m1 or vgpu.m1.
+            :rtype: Boolean
+        """
+        current_flavors = self.get_flavors(class_filter=class_filter)
+        deleted = False
+        for flavor in current_flavors:
+            self.debug_log('delete flavor {}'.format(flavor.name))
+            if not self.dry_run:
+                self.client.flavors.delete(flavor.id)
+            deleted = True
+        return deleted
+
+    def update_flavor_access(self, class_filter, project_id, action):
+        """
+            Grant or revoke access to flavor from project
+            :param class_filter: flavor class, e.g. m1 or vgpu.m1.
+            Version: 2021-3
         """
         dry_run_txt = 'DRY-RUN: ' if self.dry_run else ''
         if action == 'revoke':
             action_func = 'remove_tenant_access'
         else:
             action_func = 'add_tenant_access'
-        flavors = self.get_flavors(filters)
+        flavors = self.get_flavors(class_filter=class_filter)
+        access_updated = False
+        if not flavors:
+            self.debug_log('no flavors match class {}'.format(class_filter))
         for flavor in flavors:
             try:
                 if not self.dry_run:
@@ -530,13 +579,14 @@ class Nova(Client):
                                                                     project_id)
                 self.logger.debug('=> %s%s access to %s' %
                                   (dry_run_txt, action, flavor.name))
-
+                access_updated = True
             except novaclient.exceptions.Conflict:
                 self.logger.debug('=> access exsists for %s' %
                                   (flavor.name))
             except novaclient.exceptions.NotFound:
                 self.logger.debug('=> unable to %s %s' %
                                   (action, flavor.name))
+        return access_updated
 
     def get_flavor_access(self, filters):
         flavors = self.get_flavors(filters)

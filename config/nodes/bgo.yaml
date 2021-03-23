@@ -171,26 +171,32 @@ nodes:
   compute-epyc-45:
     mac: f4:02:70:d3:42:02
     hostgroup: 14
-  compute-hpc-46:
+  compute-epyc-46:
     mac: f4:02:70:d7:8c:ea
     hostgroup: 14
-  compute-hpc-47:
+  compute-epyc-47:
     mac: f4:02:70:d3:42:70
     hostgroup: 14
-  compute-hpc-48:
+  compute-epyc-48:
     mac: f4:02:70:d3:42:0c
     hostgroup: 14
-  compute-hpc-49:
+  compute-epyc-49:
     mac: f4:02:70:cd:da:de
     hostgroup: 14
-  compute-hpc-50:
+  compute-epyc-50:
     mac: f4:02:70:cd:de:86
     hostgroup: 14
-  compute-hpc-51:
+  compute-epyc-51:
     mac: f4:02:70:d0:04:e0
     hostgroup: 14
   compute-vgpu-52:
     mac: f0:d4:e2:e6:ae:d2
+    hostgroup: 14
+  compute-vgpu-53:
+    mac: 34:48:ed:f9:59:c2
+    hostgroup: 14
+  compute-gpu1-54:
+    mac: 34:48:ed:f9:5a:de
     hostgroup: 14
   compute-epyc-55:
     mac: 70:b5:e8:d0:b0:a8
@@ -501,6 +507,18 @@ nodes:
     hostgroup: 13
   storage-v2d-39:
     mac: 20:04:0f:fb:a5:46
+    hostgroup: 13
+  storage-v2d-40:
+    mac: 34:48:ed:f9:84:d2
+    hostgroup: 13
+  storage-v2d-41:
+    mac: 34:48:ed:f9:84:f2
+    hostgroup: 13
+  storage-v2d-42:
+    mac: 34:48:ed:f9:5d:e2
+    hostgroup: 13
+  storage-v2d-43:
+    mac: 34:48:ed:f9:58:b2
     hostgroup: 13
   telemetry-01:
     compute_profile: xlarge

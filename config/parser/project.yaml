@@ -33,7 +33,7 @@ opt_args:
     'dest':     'filter'
     'help':     'filter by project type'
     'default':  'all'
-    'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'course', 'test', 'hpc']
+    'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'vgpu', 'test', 'hpc']
   '-a':
     'sub':      ['create']
     'dest':     'admin'
@@ -80,3 +80,10 @@ opt_args:
     'action':   'store_const'
     'const':    true
     'default':  False
+  '-n':
+    'sub':      [ 'show-quota' ]
+    'dest':     'service'
+    'metavar':  'service type'
+    'help':     'openstack service type'
+    'choices':  ['all', 'nova', 'cinder', 'neutron']
+    'default':  'all'
