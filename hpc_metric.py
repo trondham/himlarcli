@@ -42,11 +42,16 @@ def action_get_cpu_util():
     gc = Gnocchi(options.config, debug=options.debug, log=logger)
 
     for instance in instances:
-        cpu_util = gc.get_client().metric.get_measures('cpu_util',
-                                                       resource_id=instance.id,
-                                                       aggregation='max',
-                                                       start=start,
-                                                       stop=stop)
+        try:
+            cpu_util = gc.get_client().metric.get_measures('cpu_util',
+                                                           resource_id=instance.id,
+                                                           aggregation='max',
+                                                           start=start,
+                                                           stop=stop)
+        except:
+            print "ERROR: cpu_util not found."
+            continue
+        
         timeseries = {}
         for i in range (len(cpu_util)):
             if len(cpu_util[i]) < 3:
