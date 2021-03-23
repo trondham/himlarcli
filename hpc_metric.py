@@ -57,7 +57,7 @@ def action_get_cpu_util():
             if len(cpu_util[i]) < 3:
                 continue
             timeseries[int(time.mktime(cpu_util[i][0].timetuple()))] = cpu_util[i][2]
-        #print timeseries
+        print timeseries
 
         try:
             foo = nc.get_instance(instance)
