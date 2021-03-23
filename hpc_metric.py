@@ -43,13 +43,13 @@ def action_get_cpu_util():
 
     for instance in instances:
         try:
-            cpu_util = gc.get_client().metric.get_measures('cpu_util',
+            cpu_util = gc.get_client().metric.get_measures('memory.usage',
                                                            resource_id=instance.id,
                                                            aggregation='max',
                                                            start=start,
                                                            stop=stop)
         except:
-            print "ERROR: cpu_util not found."
+            print "ERROR: cpu_util (memory.usage) not found."
             continue
         
         timeseries = {}
