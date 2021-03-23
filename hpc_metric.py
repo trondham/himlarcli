@@ -59,15 +59,18 @@ def action_get_cpu_util():
             timeseries[int(time.mktime(cpu_util[i][0].timetuple()))] = cpu_util[i][2]
         #print timeseries
 
-        foo = nc.get_instance(instance)
-        #print foo.to_dict()
-        print "Name:       %s" % foo.name
-        print "ID:         %s" % foo.id
-        print "User ID:    %s" % foo.user_id
-        print "Flavor:     %s" % foo.flavor['original_name']
-        print "Project ID: %s" % foo.tenant_id
-        print "Status:     %s" % foo.status
-        pprint.pprint(timeseries, width=1)
+        try:
+            foo = nc.get_instance(instance)
+            #print foo.to_dict()
+            print "Name:       %s" % foo.name
+            print "ID:         %s" % foo.id
+            print "User ID:    %s" % foo.user_id
+            print "Flavor:     %s" % foo.flavor['original_name']
+            print "Project ID: %s" % foo.tenant_id
+            print "Status:     %s" % foo.status
+            pprint.pprint(timeseries, width=1)
+        except:
+            continue
         
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
