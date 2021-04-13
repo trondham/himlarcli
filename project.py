@@ -205,7 +205,8 @@ def action_trond():
         print "  ID:   %s" % project.id
         print "  Type: %s" % project_type
         print "  Description: "
-        print textwrap.fill(project.description, 50).indent(4)
+        print "    \n".join(wrap(project.description, 50))
+        #print textwrap.fill(project.description, 50).indent(4)
         print
         count += 1
 
