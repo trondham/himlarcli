@@ -200,14 +200,15 @@ def action_trond():
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
 
+        instances_total = 0
         for region in regions:
             novaclient = himutils.get_client(Nova, options, logger, region)
-            instances = novaclient.get_project_instances(project_id=project.id)
-            instances_count = 0
+            instances[region] = novaclient.get_project_instances(project_id=project.id)
             for i in instances:
-                ++instances_count
+                instances_total += 1
+                
 
-        print "Project: %s  [%d instances]" % (project.name, instances_count)
+        print "Project: %s  [%d instances]" % (project.name, instances_total)
         print "---------------------------------------------------------------------------"
         print "  ID:    %s" % project.id
         print "  Admin: %s" % project_admin
@@ -215,8 +216,9 @@ def action_trond():
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
         print "  Instances: "
 
-        for i in instances:
-            print "             %s  %s  %s" % (i.id, region, i.name)
+        for region in regions:
+            for i in instances[region]:
+                print "             %s  %s  %s" % (i.id, region, i.name)
         count += 1
 
     printer.output_dict({'header': 'Project list count', 'count': count})
