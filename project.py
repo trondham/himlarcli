@@ -204,7 +204,7 @@ def action_trond():
             novaclient = himutils.get_client(Nova, options, logger, region)
             instances = novaclient.get_project_instances(project_id=project.id)
 
-        print "Project: %s  [%s instances]" % (project.name, instances.len())
+        print "Project: %s  [%d instances]" % (project.name, instances.count())
         print "---------------------------------------------------------------------------"
         print "  ID:    %s" % project.id
         print "  Admin: %s" % project_admin
@@ -217,7 +217,7 @@ def action_trond():
         count += 1
 
     printer.output_dict({'header': 'Project list count', 'count': count})
-    print "Number of projects: %d" % projects.len()
+    print "Number of projects: %d" % projects.count()
     
 def action_show_access():
     project = ksclient.get_project_by_name(project_name=options.project)
