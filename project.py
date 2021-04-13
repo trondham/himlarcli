@@ -205,7 +205,8 @@ def action_trond():
         print "  ID:   %s" % project.id
         print "  Type: %s" % project_type
         print "  Description: "
-        print textwrap.fill(project.description, 70)
+        print textwrap.fill(project.description, 50).indent(4)
+        print
         count += 1
 
     printer.output_dict({'header': 'Project list count', 'count': count})    
