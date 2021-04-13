@@ -195,6 +195,7 @@ def action_trond():
     if options.filter and options.filter != 'all':
         search_filter['type'] = options.filter
     projects = ksclient.get_projects(**search_filter)
+    instances = dict()
     count = 0
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
