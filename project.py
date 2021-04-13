@@ -207,7 +207,7 @@ def action_trond():
         print "  Description: "
         print textwrap.fill(project.description, 70)
         count += 1
-        printer.output_dict(output_project, sort=True, one_line=True)
+
     printer.output_dict({'header': 'Project list count', 'count': count})    
     
 def action_show_access():
