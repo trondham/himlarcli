@@ -195,7 +195,7 @@ def action_trond():
         search_filter['type'] = options.filter
     projects = ksclient.get_projects(**search_filter)
     count = 0
-    printer.output_dict({'header': 'Project list (id, name, type, admin)'})
+    printer.output_dict({'header': 'Project list (id, name, type, admin, desc)'})
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         output_project = {
