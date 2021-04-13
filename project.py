@@ -198,11 +198,12 @@ def action_trond():
     printer.output_dict({'header': 'Project list (id, name, type, admin, desc)'})
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
+        project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
         output_project = {
             'id': project.id,
             'name': project.name,
             'type': project_type,
-            'admin': project.admin,
+            'admin': project_admin,
             'desc': project.description,
         }
         count += 1
