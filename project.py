@@ -204,7 +204,7 @@ def action_trond():
         for region in regions:
             novaclient = himutils.get_client(Nova, options, logger, region)
             instances[region] = novaclient.get_project_instances(project_id=project.id)
-            for i in instances:
+            for i in instances[region]:
                 instances_total += 1
                 
 
