@@ -30,7 +30,7 @@ opt_args:
     'dest':     'enddate'
     'help':     'set end date for projects (DD.MM.YYYY)'
   '-f':
-    'sub':      ['list']
+    'sub':      ['list', 'trond']
     'dest':     'filter'
     'help':     'filter by project type'
     'default':  'all'
