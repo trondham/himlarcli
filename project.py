@@ -216,10 +216,10 @@ def action_trond():
         print "  Type:  %s" % project_type
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
         print "  Instances: "
-
         for region in regions:
             for i in instances[region]:
                 print "             %s  %s  %s" % (i.id, region, i.name)
+        print
         count += 1
 
     printer.output_dict({'header': 'Project list count', 'count': count})
