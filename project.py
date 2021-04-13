@@ -200,17 +200,24 @@ def action_trond():
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
 
-        print "Project: %s  [%s]" % (project.name, project_admin)
+        for region in regions:
+            novaclient = himutils.get_client(Nova, options, logger, region)
+            instances = novaclient.get_project_instances(project_id=project.id)
+
+        print "Project: %s  [%s instances]" % (project.name, instances.len())
         print "---------------------------------------------------------------------------"
-        print "  ID:   %s" % project.id
-        print "  Type: %s" % project_type
-        #print "  Description: "
-        print "\n               ".join(textwrap.wrap("  Description: " + project.description, 50))
-        #print textwrap.fill(project.description, 50).indent(4)
-        print
+        print "  ID:    %s" % project.id
+        print "  Admin: %s" % project_admin
+        print "  Type:  %s" % project_type
+        print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
+        print "  Instances: "
+
+        for i in instances:
+            print "             %s  %s  %s" % (i.id, region, i.name)
         count += 1
 
-    printer.output_dict({'header': 'Project list count', 'count': count})    
+    printer.output_dict({'header': 'Project list count', 'count': count})
+    print "Number of projects: %d" % projects.len()
     
 def action_show_access():
     project = ksclient.get_project_by_name(project_name=options.project)
