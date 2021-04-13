@@ -200,12 +200,12 @@ def action_trond():
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
 
-        print "Project: %s  [%s]\n" % (project.name, project_admin)
-        print "---------------------------------------------------------------------------\n"
-        print "  ID:          %s\n" % project.id
-        print "  Type:        %s\n" % project_type
+        print "Project: %s  [%s]" % (project.name, project_admin)
+        print "---------------------------------------------------------------------------"
+        print "  ID:   %s" % project.id
+        print "  Type: %s" % project_type
         print "  Description: "
-        print textwrap.fill(strs, 70)
+        print textwrap.fill(project.description, 70)
         count += 1
         printer.output_dict(output_project, sort=True, one_line=True)
     printer.output_dict({'header': 'Project list count', 'count': count})    
