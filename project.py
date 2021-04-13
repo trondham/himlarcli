@@ -189,6 +189,26 @@ def action_list():
         printer.output_dict(output_project, sort=True, one_line=True)
     printer.output_dict({'header': 'Project list count', 'count': count})
 
+def action_trond():
+    search_filter = dict()
+    if options.filter and options.filter != 'all':
+        search_filter['type'] = options.filter
+    projects = ksclient.get_projects(**search_filter)
+    count = 0
+    printer.output_dict({'header': 'Project list (id, name, type, admin)'})
+    for project in projects:
+        project_type = project.type if hasattr(project, 'type') else '(unknown)'
+        output_project = {
+            'id': project.id,
+            'name': project.name,
+            'type': project_type,
+            'admin': project.admin,
+            'desc': project.description,
+        }
+        count += 1
+        printer.output_dict(output_project, sort=True, one_line=True)
+    printer.output_dict({'header': 'Project list count', 'count': count})    
+    
 def action_show_access():
     project = ksclient.get_project_by_name(project_name=options.project)
     if not project:
