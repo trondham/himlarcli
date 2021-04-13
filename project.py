@@ -215,10 +215,11 @@ def action_trond():
         print "  Admin: %s" % project_admin
         print "  Type:  %s" % project_type
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
-        print "  Instances: "
-        for region in regions:
-            for i in instances[region]:
-                print "             %s  %s  %s" % (i.id, region, i.name)
+        if instances_total > 0:
+            print "  Instances: "
+            for region in regions:
+                for i in instances[region]:
+                    print "             %s  %s  %s" % (i.id, region, i.name)
         print
         count += 1
 
