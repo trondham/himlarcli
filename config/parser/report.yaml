@@ -1,0 +1,15 @@
+---
+desc:   'Reports for NREC'
+actions:
+  'list':         'List projects. Use -f to filter result by project type'
+opt_args:
+  '--domain':
+    'dest':     'domain'
+    'help':     'openstack domain to use'
+    'default':  'Dataporten'
+  '-f':
+    'sub':      ['list']
+    'dest':     'filter'
+    'help':     'filter by project type'
+    'default':  'all'
+    'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'vgpu', 'test', 'hpc']
