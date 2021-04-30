@@ -95,6 +95,7 @@ def action_list():
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
+        project_created = project.createdate if hasattr(project, 'createdate') else '(unknown)'
         project_roles = ksclient.list_roles(project_name=project)
 
         instances_total = 0
@@ -115,7 +116,7 @@ def action_list():
         print "  ID:    %s" % project.id
         print "  Admin: %s" % project_admin
         print "  Type:  %s" % project_type
-        print "  Created: %s" % project.createdate
+        print "  Created: %s" % project_created
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
         if instances_total > 0:
             print "  Instances: "
