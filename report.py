@@ -116,6 +116,13 @@ def action_list():
         print "  ID:    %s" % project.id
         print "  Admin: %s" % project_admin
         print "  Type:  %s" % project_type
+
+        if len(project_roles) > 0:
+            print "  Users: "
+            #printer.output_dict({'header': 'Roles in project %s' % project})
+            for role in project_roles:
+                printer.output_dict(role, sort=True, one_line=True)
+
         print "  Created: %s" % project_created
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
         if instances_total > 0:
