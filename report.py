@@ -124,7 +124,7 @@ def action_list():
                 #printer.output_dict(role, sort=True, one_line=True)
                 #user = role.group.replace('-group', '')
                 #print "    %s" % user
-                print role
+                print role.group
 
         print "  Created: %s" % project_created
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
