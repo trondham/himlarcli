@@ -122,8 +122,9 @@ def action_list():
             #printer.output_dict({'header': 'Roles in project %s' % project})
             for role in project_roles:
                 #printer.output_dict(role, sort=True, one_line=True)
-                user = role.group.replace('-group', '')
-                print "    %s" % user
+                #user = role.group.replace('-group', '')
+                #print "    %s" % user
+                print role
 
         print "  Created: %s" % project_created
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
@@ -152,8 +153,6 @@ def action_list():
             print(x)
         print
 
-        print project
-        print project_roles
         count += 1
 
     printer.output_dict({'header': 'Project list count', 'count': count})
