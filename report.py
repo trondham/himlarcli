@@ -57,17 +57,18 @@ def action_list():
 
         print "Project: %s  [%d instances]" % (project.name, instances_total)
         print "---------------------------------------------------------------------------"
-        print "  ID:    %s" % project.id
-        print "  Type:  %s" % project_type
-        print "  Admin: %s" % project_admin
+        print "  ID:      %s" % project.id
+        print "  Type:    %s" % project_type
+        print "  Created: %s" % project.createdate
+        print "  Admin:   %s" % project_admin
 
         if len(roles) > 0:
             print "  Users: "
-            printer.output_dict({'header': 'Roles in project %s' % project})
+            #printer.output_dict({'header': 'Roles in project %s' % project})
             for role in roles:
                 printer.output_dict(role, sort=True, one_line=True)
 
-        print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
+        print "\n                 ".join(textwrap.wrap("  Description: " + project.description, 60))
 
         if instances_total > 0:
             print "  Instances: "
