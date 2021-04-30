@@ -117,13 +117,9 @@ def action_list():
         print '=' * 80
 
         print "  Metadata:"
-        y.add_rows(
-            [
-                ['ID:', project.id]
-                ['Admin:', project_admin]
-                ['Type:', project_type]
-            ]
-        )
+        y.add_row(['ID:', project.id])
+        y.add_row(['Admin:', project_admin])
+        y.add_row(['Type:', project_type])
         print(y)
         
         print "  ID:    %s" % project.id
