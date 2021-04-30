@@ -115,6 +115,7 @@ def action_list():
         print "  ID:    %s" % project.id
         print "  Admin: %s" % project_admin
         print "  Type:  %s" % project_type
+        print "  Created: %s" % project.createdate
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
         if instances_total > 0:
             print "  Instances: "
