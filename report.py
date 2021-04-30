@@ -142,7 +142,7 @@ def action_list():
         print
 
         print project
-        print roles
+        print project_roles
         count += 1
 
     printer.output_dict({'header': 'Project list count', 'count': count})
