@@ -121,7 +121,9 @@ def action_list():
             print "  Users: "
             #printer.output_dict({'header': 'Roles in project %s' % project})
             for role in project_roles:
-                printer.output_dict(role, sort=True, one_line=True)
+                #printer.output_dict(role, sort=True, one_line=True)
+                user = role.group.replace('-group', '')
+                print "    %s" % user
 
         print "  Created: %s" % project_created
         print "\n               ".join(textwrap.wrap("  Description: " + project.description, 60))
