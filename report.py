@@ -95,6 +95,7 @@ def action_list():
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
+        project_roles = ksclient.list_roles(project_name=project)
 
         instances_total = 0
         for region in regions:
@@ -103,7 +104,7 @@ def action_list():
             for i in instances[region]:
                 instances_total += 1
 
-        outputs = ['id', 'name', 'region', 'flavor', 'image']
+        outputs = ['id', 'name', 'region', 'flavor', 'image (status)']
         x = PrettyTable()
         x.field_names = outputs
         x.align['id'] = 'l'
@@ -139,6 +140,9 @@ def action_list():
 
             print(x)
         print
+
+        print project
+        print roles
         count += 1
 
     printer.output_dict({'header': 'Project list count', 'count': count})
