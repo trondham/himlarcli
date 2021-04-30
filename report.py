@@ -122,9 +122,9 @@ def action_list():
         meta_array = []
         meta_array.append(['ID:', project.id])
         y.add_row(meta_array)
-        meta_array.append('Admin:', project_admin])
+        meta_array.append(['Admin:', project_admin])
         y.add_row(meta_array)
-        meta_array.append('Type:', project_type])
+        meta_array.append(['Type:', project_type])
         y.add_row(meta_array)
         print(y)
         
