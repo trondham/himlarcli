@@ -105,27 +105,25 @@ def action_list():
             for i in instances[region]:
                 instances_total += 1
 
-        outputs = ['id', 'name', 'region', 'flavor', 'image (status)']
         x = PrettyTable()
-        x.field_names = outputs
+        x.field_names = ['id', 'name', 'region', 'flavor', 'image (status)']
         x.align['id'] = 'l'
         x.align['name'] = 'l'
 
-        #outputs2 = ['','']
         y = PrettyTable()
-        #y.field_names = outputs2
+        y.field_names = ['Meta','Value']
 
         print "PROJECT: %s  [%d instances]" % (project.name, instances_total)
         print '=' * 80
 
         print "  Metadata:"
-        meta_array = []
-        meta_array.append(['ID:', project.id])
-        y.add_row(meta_array)
-        meta_array.append(['Admin:', project_admin])
-        y.add_row(meta_array)
-        meta_array.append(['Type:', project_type])
-        y.add_row(meta_array)
+        y.add_rows(
+            [
+                ['ID:', project.id]
+                ['Admin:', project_admin]
+                ['Type:', project_type]
+            ]
+        )
         print(y)
         
         print "  ID:    %s" % project.id
