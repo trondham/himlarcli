@@ -111,23 +111,20 @@ def action_list():
         x.align['id'] = 'l'
         x.align['name'] = 'l'
 
-        outputs2 = ['','']
+        #outputs2 = ['','']
         y = PrettyTable()
-        y.field_names = outputs2
+        #y.field_names = outputs2
 
         print "PROJECT: %s  [%d instances]" % (project.name, instances_total)
         print '=' * 80
 
         print "  Metadata:"
         meta_array = []
-        meta_array.append('ID:')
-        meta_array.append(project.id)
+        meta_array.append(['ID:', project.id])
         y.add_row(meta_array)
-        meta_array.append('Admin:')
-        meta_array.append(project_admin)
+        meta_array.append('Admin:', project_admin])
         y.add_row(meta_array)
-        meta_array.append('Type:')
-        meta_array.append(project_type)
+        meta_array.append('Type:', project_type])
         y.add_row(meta_array)
         print(y)
         
