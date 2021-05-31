@@ -111,7 +111,9 @@ def action_list():
         x.align['name'] = 'l'
 
         y = PrettyTable()
-        y.field_names = ['Meta','Value']
+        y.field_names = ['meta','value']
+        x.align['meta'] = 'r'
+        x.align['value'] = 'l'
 
         print "PROJECT: %s  [%d instances]" % (project.name, instances_total)
         print '=' * 80
@@ -120,6 +122,7 @@ def action_list():
         y.add_row(['ID:', project.id])
         y.add_row(['Admin:', project_admin])
         y.add_row(['Type:', project_type])
+        y.add_row(['Created:', project_created])
         print(y)
         
         print "  ID:    %s" % project.id
