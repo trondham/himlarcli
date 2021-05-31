@@ -7,7 +7,7 @@ nodes:
     compute_resource: controller-06
   builder-01:
     compute_profile: medium
-    compute_resource: controller-04
+    compute_resource: controller-08
     compute_attributes:
       volumes_attributes:
         '1':
@@ -19,14 +19,50 @@ nodes:
       - name:           'installdevice'
         value:          'vda'
   cephmon-01:
-    compute_profile: xlarge
-    compute_resource: controller-05
+    hostgroup: 1
+    mac: ec:f4:bb:cc:ce:f4
+#  cephmon-01:
+#    compute_profile: 2xlarge
+#    compute_resource: controller-05
+#    compute_attributes:
+#      volumes_attributes:
+#        '1':
+#          allocation:   '0G'
+#          pool_name:    'masstorage'
+#          capacity:     '30G'
+#          format_type:  'qcow2'
+#    host_parameters_attributes:
+#      - name:           'installdevice'
+#        value:          'vda'
+#  cephmon-02:
+#    hostgroup: 1
+#    mac: ec:f4:bb:cc:d1:54
   cephmon-02:
-    compute_profile: xlarge
+    compute_profile: 2xlarge
     compute_resource: controller-06
+    compute_attributes:
+      volumes_attributes:
+        '1':
+          allocation:   '0G'
+          pool_name:    'masstorage'
+          capacity:     '30G'
+          format_type:  'qcow2'
+    host_parameters_attributes:
+      - name:           'installdevice'
+        value:          'vda'
   cephmon-03:
-    compute_profile: xlarge
+    compute_profile: 2xlarge
     compute_resource: controller-07
+    compute_attributes:
+      volumes_attributes:
+        '1':
+          allocation:   '0G'
+          pool_name:    'masstorage'
+          capacity:     '30G'
+          format_type:  'qcow2'
+    host_parameters_attributes:
+      - name:           'installdevice'
+        value:          'vda'
   cephmon-object-01:
     compute_profile: large
     compute_resource: controller-05
@@ -219,8 +255,6 @@ nodes:
   console-01:
     compute_profile: medium
     compute_resource: controller-05
-#  controller-01:
-#    mac: ec:f4:bb:cc:ce:f4
 #  controller-02:
 #    mac: ec:f4:bb:cc:d1:54
 #  controller-03:
@@ -244,7 +278,7 @@ nodes:
     compute_resource: controller-06
   dashboard-mgmt-01:
     compute_profile: small
-    compute_resource: controller-04
+    compute_resource: controller-08
   db-global-01:
     compute_profile: small
     compute_resource: controller-06
@@ -281,7 +315,7 @@ nodes:
     compute_resource: controller-07
   logger-01:
     compute_profile: xlarge
-    compute_resource: controller-04
+    compute_resource: controller-08
     compute_attributes:
       volumes_attributes:
         '1':
@@ -304,7 +338,7 @@ nodes:
           format_type:  'qcow2'
   monitor-01:
     compute_profile: large
-    compute_resource: controller-04
+    compute_resource: controller-08
     compute_attributes:
       volumes_attributes:
         '1':
@@ -365,7 +399,7 @@ nodes:
     hostgroup: 7
   proxy-01:
     compute_profile: small
-    compute_resource: controller-04
+    compute_resource: controller-08
     compute_attributes:
       volumes_attributes:
         '1':
@@ -384,10 +418,13 @@ nodes:
     compute_resource: controller-07
   resolver-02:
     compute_profile: small
-    compute_resource: controller-04
+    compute_resource: controller-08
   rgw-01:
     compute_profile: medium
     compute_resource: controller-05
+  sec-01:
+    compute_profile: small
+    compute_resource: controller-08
   status-01:
     compute_profile: small
     compute_resource: controller-06

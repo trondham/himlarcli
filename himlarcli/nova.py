@@ -630,12 +630,22 @@ class Nova(Client):
                                              search_opts=search_opts)
         return instances
 
-    def __get_all_instances(self, search_opts=None):
+    def __get_all_instances(self, search_opts=None, per_page=1000):
         if not search_opts:
             search_opts = dict(all_tenants=1)
         try:
-            instances = self.client.servers.list(detailed=True,
-                                                 search_opts=search_opts)
+            marker = None
+            instances = list()
+            while True:
+                i = self.client.servers.list(detailed=True,
+                                             search_opts=search_opts,
+                                             marker=marker,
+                                             limit=per_page)
+                instances += i
+                if len(i) >= per_page:
+                    marker = i[-1].id # marker is the last element
+                else:
+                    break # end of loop
         except novaclient.exceptions.ClientException as e:
             self.log_error(e)
             return list()
