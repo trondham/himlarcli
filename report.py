@@ -1,4 +1,4 @@
-!/usr/bin/env python
+#!/usr/bin/env python
 from himlarcli.keystone import Keystone
 from himlarcli.nova import Nova
 from himlarcli.cinder import Cinder
