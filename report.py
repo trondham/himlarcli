@@ -124,7 +124,7 @@ def action_list():
         y.add_row(['Type:', project_type])
         y.add_row(['Created:', project_created])
         print(y)
-        
+
         print "  ID:    %s" % project.id
         print "  Admin: %s" % project_admin
         print "  Type:  %s" % project_type
@@ -160,7 +160,7 @@ def action_list():
                     array.append(i.flavor["original_name"])
                     array.append("%s (%s)" % (image_name, image_status))
                     x.add_row(array)
-                    #print "             %s  %s %s %s/%s %s" % (i.id, region, i.flavor["original_name"], image_name, image_status, i.name)         
+                    #print "             %s  %s %s %s/%s %s" % (i.id, region, i.flavor["original_name"], image_name, image_status, i.name)
 
             print(x)
         print
@@ -169,7 +169,7 @@ def action_list():
 
     printer.output_dict({'header': 'Project list count', 'count': count})
 
-    
+
 # Run local function with the same name as the action (Note: - => _)
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
