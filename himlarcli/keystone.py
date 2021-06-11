@@ -3,6 +3,7 @@ from himlarcli.cinder import Cinder
 from himlarcli.nova import Nova
 from himlarcli.neutron import Neutron
 from himlarcli.glance import Glance
+from himlarcli.designate import Designate
 from keystoneclient.v3 import client as keystoneclient
 import keystoneauth1.exceptions as exceptions
 import random
@@ -270,12 +271,22 @@ class Keystone(Client):
             return None
         if not region:
             region = self.find_regions()
+
+        # Delete DNS zones
+        deleted_zones = self.__delete_zones(project)
+
         # Delete instances
         self.__delete_instances(project, region)
+
+        # Revoke shared image memberships
+        revoked_images = self.__revoke_image_shares(project, region)
+
         # Delete images
         self.__delete_images(project, region)
+
         # Delete security groups
         self.__delete_security_groups(project, region)
+
         # Delete volume
         self.__delete_volumes(project, region)
 
@@ -813,6 +824,56 @@ class Keystone(Client):
         for region in regions:
             nc = self._get_client(Nova, region)
             nc.delete_project_instances(project, self.dry_run)
+
+    def __delete_zones(self, project):
+        """ Use designateclient to delete all zones belonging to a project
+            version: 2021-06 """
+
+        # Initiate Designate object
+        dc = self._get_client(Designate)
+
+        # Get a list of zones belonging to project
+        zones = dc.list_project_zones(project.id)
+
+        # Delete the zones, collecting the names of the deleted zones
+        deleted_zones = []
+        for zone in zones:
+            if not self.dry_run:
+                dc.delete_project_zone(zone['id'], project.id)
+            self.debug_log('DELETED zone: {}'. format(zone['name']))
+            deleted_zones.append(zone['name'])
+
+        # Return a list of deleted zone names
+        return deleted_zones
+
+    def __revoke_image_shares(self, project, region):
+        """ Use glanceclient to revoke membership for any shared images that
+            are shared to this project, for all regions
+            version: 2021-06 """
+        regions = [region] if not isinstance(region, list) else region
+        for region in regions:
+            gc = self._get_client(Glance, region)
+
+            # Find all shared images
+            filters = {
+                'member_status': 'accepted',
+                'visibility':    'shared'
+            }
+            images = gc.get_images(filters=filters)
+
+            # Remove image member status for images shared to this project
+            revoked_images = []
+            for image in images:
+                members = gc.get_image_access(image_id=image.id)
+                for member in members:
+                    if member.member_id == project.id:
+                        if not self.dry_run:
+                            gc.set_image_access(image_id=image.id, project_id=project.id, action='revoke')
+                        self.debug_log('REVOKED access to image: {} ({})'. format(image.name, region))
+                        revoked_images.append("%s (%s)" % (image.name, region))
+
+            # Return a list of revoked images
+            return revoked_images
 
     def __delete_images(self, project, region):
         """ Use glanceclient to delete all private images for a project in
