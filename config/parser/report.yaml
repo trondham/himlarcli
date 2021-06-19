@@ -2,6 +2,7 @@
 desc:   'Reports for NREC'
 actions:
   'list':         'List projects. Use -f to filter result by project type'
+  'show':         'Show a single project'
 opt_args:
   '--domain':
     'dest':     'domain'
@@ -13,3 +14,7 @@ opt_args:
     'help':     'filter by project type'
     'default':  'all'
     'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'vgpu', 'test', 'hpc']
+  'project':
+   'sub':       ['show']
+   'metavar':   'project'
+
