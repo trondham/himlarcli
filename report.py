@@ -288,7 +288,7 @@ def __print_instances(project):
     # Print Instances table
     if instances_total > 0:
         table_instances = PrettyTable()
-        table_instances.field_names = ['id', 'name', 'region', 'flavor', 'image (status)']
+        table_instances.field_names = ['id', 'name', 'region', 'flavor', 'image [status]']
         table_instances.align['id'] = 'l'
         table_instances.align['name'] = 'l'
         table_instances.align['region'] = 'l'
@@ -315,7 +315,7 @@ def __print_instances(project):
                 row.append(i.name)
                 row.append(region)
                 row.append(i.flavor["original_name"])
-                row.append("%s (%s)" % (image_name, image_status))
+                row.append("%s [%s]" % (image_name, image_status))
                 table_instances.add_row(row)
         print "\n  Instances (%d): " % instances_total
         print(table_instances)
