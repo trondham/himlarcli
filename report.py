@@ -244,7 +244,7 @@ def __print_zones(project):
         print "\n  Zones (%d): " % len(zones)
         print(table_zones)
     else:
-        print "\n  Zones: NONE"
+        print "  (Found 0 zones)"
 
 def __print_volumes(project):
     volumes_total = 0
@@ -273,7 +273,7 @@ def __print_volumes(project):
         print "\n  Volumes (%d): " % volumes_total
         print(table_volumes)
     else:
-        print "\n  Volumes: NONE"
+        print "  (Found 0 volumes)"
 
 def __print_instances(project):
     instances_total = 0
@@ -320,7 +320,7 @@ def __print_instances(project):
         print "\n  Instances (%d): " % instances_total
         print(table_instances)
     else:
-        print "\n  Instances: NONE"
+        print "  (Found 0 instances)"
 
 
 # Run local function with the same name as the action (Note: - => _)
