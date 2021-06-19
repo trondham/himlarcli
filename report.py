@@ -93,11 +93,15 @@ def __print_metadata(project):
     table_metadata.add_row(['Created:', project_created])
     table_metadata.add_row(['Description:', project.description])
     if len(project_roles) > 0:
-        users = []
+        users = dict()
+        users['user'] = []
+        users['object'] = []
         for role in project_roles:
             user = role['group'].replace('-group', '')
-            users.append(user)
-        table_metadata.add_row(['Users:', "\n".join(users)])
+            users[role['role']].append(user)
+        table_metadata.add_row(['Users:', "\n".join(users['user'])])
+        if len(users['object']) > 0:
+            table_metadata.add_row(['Object Users:', "\n".join(users['object'])])
     print(table_metadata)
 
 def __print_zones(project):
@@ -135,13 +139,15 @@ def __print_volumes(project):
     # Print Volumes table
     if volumes_total > 0:
         table_volumes = PrettyTable()
-        table_volumes.field_names = ['id', 'size', 'region']
+        table_volumes.field_names = ['id', 'size', 'type', 'status', 'region']
         table_volumes.align['id'] = 'l'
         table_volumes.align['size'] = 'r'
+        table_volumes.align['type'] = 'l'
+        table_volumes.align['status'] = 'l'
         table_volumes.align['region'] = 'l'
         for region in regions:
             for volume in volumes[region]:
-                table_volumes.add_row([volume.id, "%d GiB" % volume.size, region])
+                table_volumes.add_row([volume.id, "%d GiB" % volume.size, volume.volume_type, volume.status, region])
         print "\n  Volumes (%d): " % volumes_total
         print(table_volumes)
 
