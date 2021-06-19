@@ -169,8 +169,6 @@ def action_list():
     if options.filter and options.filter != 'all':
         search_filter['type'] = options.filter
     projects = ksclient.get_projects(**search_filter)
-    instances = dict()
-    volumes = dict()
 
     # Project counter
     count = 0
@@ -239,8 +237,8 @@ def __print_zones(project):
         print(table_zones)
 
 def __print_volumes(project):
-    # Counter
     volumes_total = 0
+    volumes = dict()
 
     # Get Volumes
     for region in regions:
@@ -266,8 +264,8 @@ def __print_volumes(project):
         print(table_volumes)
 
 def __print_instances(project):
-    # Counter
     instances_total = 0
+    instances = dict()
 
     # Get Instances
     for region in regions:
