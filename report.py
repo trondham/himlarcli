@@ -38,9 +38,10 @@ def action_show():
     if not project:
         himutils.sys_error('No project found with name %s' % options.project)
     __print_metadata(project)
-    __print_zones(project)
-    __print_volumes(project)
-    __print_instances(project)
+    if options.detail:
+        __print_zones(project)
+        __print_volumes(project)
+        __print_instances(project)
 
 def action_list():
     search_filter = dict()
@@ -54,9 +55,10 @@ def action_list():
     # Loop through projects
     for project in projects:
         __print_metadata(project)
-        __print_zones(project)
-        __print_volumes(project)
-        __print_instances(project)
+        if options.detail:
+            __print_zones(project)
+            __print_volumes(project)
+            __print_instances(project)
 
         # Print some vertical space and increase project counter
         print "\n\n"
@@ -70,12 +72,23 @@ def action_user():
         print "%s is not a valid user. Please check your spelling or case." % options.user
         sys.exit(1)
     user = ksclient.get_user_objects(email=options.user, domain=options.domain)
-    for project in user[projects]:
-        __print_metadata(project)
-        __print_zones(project)
-        __print_volumes(project)
-        __print_instances(project)
 
+    # Project counter
+    count = 0
+
+    for project in user['projects']:
+        __print_metadata(project)
+        if options.detail:
+            __print_zones(project)
+            __print_volumes(project)
+            __print_instances(project)
+
+        # Print some vertical space and increase project counter
+        print "\n\n"
+        count += 1
+
+    # Finally print out number of projects
+    printer.output_dict({'header': 'Project list count', 'count': count})
 
 #---------------------------------------------------------------------
 # Helper functions

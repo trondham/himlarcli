@@ -15,6 +15,13 @@ opt_args:
     'help':     'filter by project type'
     'default':  'all'
     'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'vgpu', 'test', 'hpc']
+  '--detail':
+    'sub':      ['list','show','user']
+    'dest':     'detail'
+    'help':     'show details about project resource consumtion'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
   'project':
    'sub':       ['show']
    'metavar':   'project'
