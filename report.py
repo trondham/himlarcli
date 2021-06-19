@@ -73,7 +73,11 @@ def __print_metadata(project):
     project_type = project.type if hasattr(project, 'type') else '(unknown)'
     project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
     project_created = project.createdate if hasattr(project, 'createdate') else '(unknown)'
+    project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
     project_roles = ksclient.list_roles(project_name=project.name)
+
+    # Make project create date readable
+    project_created = re.sub(r'T\d\d:\d\d:\d\d.\d\d\d\d\d\d', '', project_created)
 
     # Print header for project
     print "PROJECT: %s" % project.name
@@ -91,6 +95,7 @@ def __print_metadata(project):
     table_metadata.add_row(['Admin:', project_admin])
     table_metadata.add_row(['Type:', project_type])
     table_metadata.add_row(['Created:', project_created])
+    table_metadata.add_row(['Enddate:', project_enddate])
     table_metadata.add_row(['Description:', project.description])
     if len(project_roles) > 0:
         users = dict()
