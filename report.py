@@ -214,7 +214,7 @@ def __print_metadata(project):
         for role in project_roles:
             user = role['group'].replace('-group', '')
             users.append(user)
-            table_metadata.add_row(['Users:', "\n".join(users)])
+        table_metadata.add_row(['Users:', "\n".join(users)])
     print(table_metadata)
 
 def __print_zones(project):
