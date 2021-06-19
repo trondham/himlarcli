@@ -243,8 +243,6 @@ def __print_zones(project):
             table_zones.add_row([zone['id'], zone['name']])
         print "\n  Zones (%d): " % len(zones)
         print(table_zones)
-    else:
-        print "  (Found 0 zones)"
 
 def __print_volumes(project):
     volumes_total = 0
@@ -272,8 +270,6 @@ def __print_volumes(project):
                 table_volumes.add_row([volume.id, "%d GiB" % volume.size, region])
         print "\n  Volumes (%d): " % volumes_total
         print(table_volumes)
-    else:
-        print "  (Found 0 volumes)"
 
 def __print_instances(project):
     instances_total = 0
@@ -302,14 +298,18 @@ def __print_instances(project):
             # Initiate Glance object
             gc = himutils.get_client(Glance, options, logger)
             for i in instances[region]:
-                filters = {'id': i.image['id']}
-                image = gc.find_image(filters=filters, limit=1)
-                if len(image) == 1:
-                    image_name = image[0]['name']
-                    image_status = image[0]['status']
-                else:
+                if 'id' not in i.image:
                     image_name = '(unknown)'
                     image_status = '(unknown)'
+                else:
+                    filters = {'id': i.image['id']}
+                    image = gc.find_image(filters=filters, limit=1)
+                    if len(image) == 1:
+                        image_name = image[0]['name']
+                        image_status = image[0]['status']
+                    else:
+                        image_name = '(unknown)'
+                        image_status = '(unknown)'
                 row = []
                 row.append(i.id)
                 row.append(i.name)
@@ -319,8 +319,6 @@ def __print_instances(project):
                 table_instances.add_row(row)
         print "\n  Instances (%d): " % instances_total
         print(table_instances)
-    else:
-        print "  (Found 0 instances)"
 
 
 # Run local function with the same name as the action (Note: - => _)
