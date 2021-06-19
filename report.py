@@ -164,6 +164,15 @@ if not regions:
 #    # Finally print out number of projects
 #    printer.output_dict({'header': 'Project list count', 'count': count})
 
+def action_show():
+    project = ksclient.get_project_by_name(project_name=options.project)
+    if not project:
+        himutils.sys_error('No project found with name %s' % options.project)
+    __print_metadata(project)
+    __print_zones(project)
+    __print_volumes(project)
+    __print_instances(project)
+
 def action_list():
     search_filter = dict()
     if options.filter and options.filter != 'all':
