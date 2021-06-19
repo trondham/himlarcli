@@ -293,7 +293,7 @@ def __print_instances(project):
         table_instances.align['name'] = 'l'
         table_instances.align['region'] = 'l'
         table_instances.align['flavor'] = 'l'
-        table_instances.align['image (status)'] = 'l'
+        table_instances.align['image [status]'] = 'l'
         for region in regions:
             # Initiate Glance object
             gc = himutils.get_client(Glance, options, logger)
