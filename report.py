@@ -65,6 +65,17 @@ def action_list():
     # Finally print out number of projects
     printer.output_dict({'header': 'Project list count', 'count': count})
 
+def action_user():
+    if not ksclient.is_valid_user(email=options.user, domain=options.domain):
+        print "%s is not a valid user. Please check your spelling or case." % options.user
+        sys.exit(1)
+    user = ksclient.get_user_objects(email=options.user, domain=options.domain)
+    for project in user[projects]:
+        __print_metadata(project)
+        __print_zones(project)
+        __print_volumes(project)
+        __print_instances(project)
+
 
 #---------------------------------------------------------------------
 # Helper functions

@@ -3,6 +3,7 @@ desc:   'Reports for NREC'
 actions:
   'list':         'List projects. Use -f to filter result by project type'
   'show':         'Show a single project'
+  'user':         'Show projects for user'
 opt_args:
   '--domain':
     'dest':     'domain'
@@ -17,4 +18,7 @@ opt_args:
   'project':
    'sub':       ['show']
    'metavar':   'project'
+  'user':
+   'sub':       ['user']
+   'metavar':   'user'
 
