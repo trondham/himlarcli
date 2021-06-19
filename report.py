@@ -299,7 +299,7 @@ def __print_instances(project):
             gc = himutils.get_client(Glance, options, logger)
             for i in instances[region]:
                 if 'id' not in i.image:
-                    image_name = 'N/A'
+                    image_name = 'UNKNOWN'
                     image_status = 'N/A'
                 else:
                     filters = {'id': i.image['id']}
@@ -308,7 +308,7 @@ def __print_instances(project):
                         image_name = image[0]['name']
                         image_status = image[0]['status']
                     else:
-                        image_name = 'N/A'
+                        image_name = 'UNKNOWN'
                         image_status = 'N/A'
                 row = []
                 row.append(i.id)
