@@ -179,7 +179,7 @@ def __print_volumes(project):
     # Get Volumes
     for region in regions:
         # Initiate Cinder object
-        cc = himutils.get_client(Cinder, options, logger)
+        cc = himutils.get_client(Cinder, options, logger, region)
 
         # Get a list of volumes in project
         volumes[region] = cc.get_volumes(detailed=True, search_opts={'project_id': project.id})
@@ -207,7 +207,7 @@ def __count_volumes(project):
     # Get Volumes
     for region in regions:
         # Initiate Cinder object
-        cc = himutils.get_client(Cinder, options, logger)
+        cc = himutils.get_client(Cinder, options, logger, region)
 
         # Get a count of volumes in project
         volumes[region] = len(cc.get_volumes(search_opts={'project_id': project.id}))
