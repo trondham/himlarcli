@@ -221,6 +221,9 @@ def __print_metadata(project):
     print(table_metadata)
 
 def __print_zones(project):
+    # Initiate Designate object
+    dc = himutils.get_client(Designate, options, logger)
+
     # Get Zones
     zones = dc.list_project_zones(project.id)
 
