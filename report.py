@@ -131,6 +131,13 @@ def __print_metadata(project):
         table_metadata.add_row(['Users:', "\n".join(users['user'])])
         if len(users['object']) > 0:
             table_metadata.add_row(['Object Users:', "\n".join(users['object'])])
+    if not options.detail:
+        table_metadata.add_row(['# zones:', __count_zones(project)])
+        volumes       = __count_volumes(project)
+        instances     = __count_instances(project)
+        volume_str    = ', '.join(volumes[regions])
+        instances_str = ''
+        table_metadata.add_row(['# volumes:', volumes_str])
     print(table_metadata)
 
 def __print_zones(project):
@@ -150,6 +157,15 @@ def __print_zones(project):
             table_zones.add_row([zone['id'], zone['name']])
         print "\n  Zones (%d): " % len(zones)
         print(table_zones)
+
+def __count_zones(project):
+    # Initiate Designate object
+    dc = himutils.get_client(Designate, options, logger)
+
+    # Get Zones
+    zones = dc.list_project_zones(project.id)
+
+    return len(zones)
 
 def __print_volumes(project):
     volumes_total = 0
@@ -179,6 +195,19 @@ def __print_volumes(project):
                 table_volumes.add_row([volume.id, "%d GiB" % volume.size, volume.volume_type, volume.status, region])
         print "\n  Volumes (%d): " % volumes_total
         print(table_volumes)
+
+def __count_volumes(project):
+    volumes = dict()
+
+    # Get Volumes
+    for region in regions:
+        # Initiate Cinder object
+        cc = himutils.get_client(Cinder, options, logger)
+
+        # Get a count of volumes in project
+        volumes[region] = len(cc.get_volumes(search_opts={'project_id': project.id}))
+
+    return volumes
 
 def __print_instances(project):
     instances_total = 0
@@ -228,6 +257,19 @@ def __print_instances(project):
                 table_instances.add_row(row)
         print "\n  Instances (%d): " % instances_total
         print(table_instances)
+
+def __count_instances(project):
+    instances = dict()
+
+    # Get Instances
+    for region in regions:
+        # Initiate Nova object
+        nc = himutils.get_client(Nova, options, logger, region)
+
+        # Get a list of instances in project
+        instances[region] = len(nc.get_project_instances(project_id=project.id))
+
+    return instances
 
 
 #=====================================================================
