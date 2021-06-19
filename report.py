@@ -181,7 +181,7 @@ def __print_instances(project):
         table_instances.align['image [status]'] = 'l'
         for region in regions:
             # Initiate Glance object
-            gc = himutils.get_client(Glance, options, logger)
+            gc = himutils.get_client(Glance, options, logger, region)
             for i in instances[region]:
                 if 'id' not in i.image:
                     image_name = 'UNKNOWN'
