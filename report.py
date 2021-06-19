@@ -175,15 +175,14 @@ def action_list():
 
     # Loop through projects
     for project in projects:
-        project_type = project.type if hasattr(project, 'type') else '(unknown)'
-        project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
-        project_created = project.createdate if hasattr(project, 'createdate') else '(unknown)'
-        project_roles = ksclient.list_roles(project_name=project.name)
-
         __print_metadata(project)
         __print_zones(project)
         __print_volumes(project)
         __print_instances(project)
+
+        # Print some vertical space and increase project counter
+        print "\n\n"
+        count += 1
 
     # Finally print out number of projects
     printer.output_dict({'header': 'Project list count', 'count': count})
