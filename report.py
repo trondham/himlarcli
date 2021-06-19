@@ -132,12 +132,17 @@ def __print_metadata(project):
         if len(users['object']) > 0:
             table_metadata.add_row(['Object Users:', "\n".join(users['object'])])
     if not options.detail:
-        table_metadata.add_row(['# zones:', __count_zones(project)])
-        volumes       = __count_volumes(project)
-        instances     = __count_instances(project)
-        volume_str    = ', '.join(volumes[regions])
-        instances_str = ''
-        table_metadata.add_row(['# volumes:', volumes_str])
+        zones     = __count_zones(project)
+        volumes   = __count_volumes(project)
+        instances = __count_instances(project)
+        volume_list   = []
+        instance_list = []
+        for region in regions:
+            volume_list.append("%d (%s)" % (volumes[region], region))
+            instance_list.append("%d (%s)" % (instances[region], region))
+        table_metadata.add_row(['Zones:', zones])
+        table_metadata.add_row(['Volumes:', ', '.join(volume_list)])
+        table_metadata.add_row(['Instances:', ', '.join(instance_list)])
     print(table_metadata)
 
 def __print_zones(project):
