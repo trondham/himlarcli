@@ -243,6 +243,8 @@ def __print_zones(project):
             table_zones.add_row([zone['id'], zone['name']])
         print "\n  Zones (%d): " % len(zones)
         print(table_zones)
+    else:
+        print "\n  Zones: NONE"
 
 def __print_volumes(project):
     volumes_total = 0
@@ -270,6 +272,8 @@ def __print_volumes(project):
                 table_volumes.add_row([volume.id, "%d GiB" % volume.size, region])
         print "\n  Volumes (%d): " % volumes_total
         print(table_volumes)
+    else:
+        print "\n  Volumes: NONE"
 
 def __print_instances(project):
     instances_total = 0
@@ -315,6 +319,8 @@ def __print_instances(project):
                 table_instances.add_row(row)
         print "\n  Instances (%d): " % instances_total
         print(table_instances)
+    else:
+        print "\n  Instances: NONE"
 
 
 # Run local function with the same name as the action (Note: - => _)
