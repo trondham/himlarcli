@@ -55,8 +55,6 @@ def action_list():
 
     # Loop through projects
     for project in projects:
-        if options.admin and project.admin != options.user:
-            continue
         __print_metadata(project)
         if options.detail:
             __print_zones(project)
@@ -80,6 +78,8 @@ def action_user():
     count = 0
 
     for project in user['projects']:
+        if options.admin and project.admin != options.user:
+            continue
         __print_metadata(project)
         if options.detail:
             __print_zones(project)
