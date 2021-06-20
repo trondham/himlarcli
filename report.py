@@ -238,9 +238,11 @@ def __print_instances(project):
     # Print Instances table
     if instances_total > 0:
         table_instances = PrettyTable()
-        table_instances.field_names = ['id', 'name', 'region', 'flavor', 'image [status]']
+        table_instances.field_names = ['id', 'name', 'IPv4', 'IPv6',  'region', 'flavor', 'image [status]']
         table_instances.align['id'] = 'l'
         table_instances.align['name'] = 'l'
+        table_instances.align['IPv4'] = 'l'
+        table_instances.align['IPv6'] = 'l'
         table_instances.align['region'] = 'l'
         table_instances.align['flavor'] = 'l'
         table_instances.align['image [status]'] = 'l'
@@ -248,6 +250,16 @@ def __print_instances(project):
             # Initiate Glance object
             gc = himutils.get_client(Glance, options, logger, region)
             for i in instances[region]:
+                network = i.addresses.keys()[0] if len(i.addresses.keys()) > 0 else 'unknown'
+                ipv4_list = []
+                ipv6_list = []
+                for interface in i.addresses[network]:
+                    if interface['version'] == 4:
+                        ipv4_list.append(interface['addr'])
+                    if interface['version'] == 6:
+                        ipv6_list.append(interface['addr'])
+                ipv4_addresses = ", ".join(ipv4_list)
+                ipv6_addresses = ", ".join(ipv6_list)
                 if 'id' not in i.image:
                     image_name = 'UNKNOWN'
                     image_status = 'N/A'
@@ -263,6 +275,8 @@ def __print_instances(project):
                 row = []
                 row.append(i.id)
                 row.append(i.name)
+                row.append(ipv4_addresses)
+                row.append(ipv6_addresses)
                 row.append(region)
                 row.append(i.flavor["original_name"])
                 row.append("%s [%s]" % (image_name, image_status))
