@@ -9,6 +9,7 @@ from himlarcli.printer import Printer
 from himlarcli import utils as himutils
 from prettytable import PrettyTable
 import re
+import sys
 
 himutils.is_virtual_env()
 
@@ -54,6 +55,8 @@ def action_list():
 
     # Loop through projects
     for project in projects:
+        if options.admin and project.admin != options.user:
+            continue
         __print_metadata(project)
         if options.detail:
             __print_zones(project)
