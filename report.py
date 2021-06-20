@@ -147,6 +147,7 @@ def __print_metadata(project):
         images    = __count_images(project)
         instances = __count_instances(project)
         volume_list   = []
+        image_list    = []
         instance_list = []
         for region in regions:
             volume_list.append("%d (%s)" % (volumes[region], region))
