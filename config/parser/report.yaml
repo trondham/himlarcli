@@ -13,7 +13,7 @@ opt_args:
     'sub':      ['list']
     'dest':     'filter'
     'help':     'filter by project type'
-    'default':  'all'
+    'default':  'test'
     'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'vgpu', 'test', 'hpc']
   '--detail':
     'sub':      ['list','show','user']
