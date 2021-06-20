@@ -107,7 +107,11 @@ def __print_metadata(project):
     project_created = re.sub(r'T\d\d:\d\d:\d\d.\d\d\d\d\d\d', '', project_created)
 
     # Print header for project
-    print "PROJECT: %s" % project.name
+    if options.user and not options.admin:
+        prole = 'admin' if options.user == project.admin else 'member'
+        print "PROJECT: %s (%s)" % (project.name, prole)
+    else:
+        print "PROJECT: %s" % project.name
     print '=' * 80
 
     # Print project metadata
