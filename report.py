@@ -40,6 +40,8 @@ def action_show():
         himutils.sys_error('No project found with name %s' % options.project)
     __print_metadata(project)
     if options.detail:
+        __print images(project)
+        sys.exit(0)
         __print_zones(project)
         __print_volumes(project)
         __print_instances(project)
@@ -178,6 +180,50 @@ def __count_zones(project):
     zones = dc.list_project_zones(project.id)
 
     return len(zones)
+
+def __print_images(project):
+    images_total = 0
+    images = dict()
+
+    # Get Volumes
+    for region in regions:
+        # Initiate Glance object
+        gc = himutils.get_client(Cinder, options, logger, region)
+
+        # Get a list of volumes in project
+        filters = {'project_id': project.id}
+        image = gc.find_image(filters=filters, limit=1)
+        images[region] = gc.find_image(filters=filters, limit=1)
+        for i in images[region]:
+            images_total += 1
+
+    # Print Volumes table
+#    if volumes_total > 0:
+#        table_volumes = PrettyTable()
+#        table_volumes.field_names = ['id', 'size', 'type', 'status', 'region']
+#        table_volumes.align['id'] = 'l'
+#        table_volumes.align['size'] = 'r'
+#        table_volumes.align['type'] = 'l'
+#        table_volumes.align['status'] = 'l'
+#        table_volumes.align['region'] = 'l'
+#        for region in regions:
+#            for volume in volumes[region]:
+#                table_volumes.add_row([volume.id, "%d GiB" % volume.size, volume.volume_type, volume.status, region])
+#        print "\n  Volumes (%d): " % volumes_total
+#        print(table_volumes)
+
+def __count_images(project):
+    volumes = dict()
+
+    # Get Volumes
+    for region in regions:
+        # Initiate Cinder object
+        cc = himutils.get_client(Cinder, options, logger, region)
+
+        # Get a count of volumes in project
+        volumes[region] = len(cc.get_volumes(search_opts={'project_id': project.id}))
+
+    return volumes
 
 def __print_volumes(project):
     volumes_total = 0
