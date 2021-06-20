@@ -40,10 +40,9 @@ def action_show():
         himutils.sys_error('No project found with name %s' % options.project)
     __print_metadata(project)
     if options.detail:
-        __print images(project)
-        sys.exit(0)
         __print_zones(project)
         __print_volumes(project)
+        __print images(project)
         __print_instances(project)
 
 def action_list():
@@ -61,6 +60,7 @@ def action_list():
         if options.detail:
             __print_zones(project)
             __print_volumes(project)
+            __print images(project)
             __print_instances(project)
 
         # Print some vertical space and increase project counter
@@ -86,6 +86,7 @@ def action_user():
         if options.detail:
             __print_zones(project)
             __print_volumes(project)
+            __print images(project)
             __print_instances(project)
 
         # Print some vertical space and increase project counter
@@ -143,14 +144,17 @@ def __print_metadata(project):
     if not options.detail:
         zones     = __count_zones(project)
         volumes   = __count_volumes(project)
+        images    = __count_images(project)
         instances = __count_instances(project)
         volume_list   = []
         instance_list = []
         for region in regions:
             volume_list.append("%d (%s)" % (volumes[region], region))
+            image_list.append("%d (%s)" % (images[region], region))
             instance_list.append("%d (%s)" % (instances[region], region))
         table_metadata.add_row(['Zones:', zones])
         table_metadata.add_row(['Volumes:', ', '.join(volume_list)])
+        table_metadata.add_row(['Private Images:', ', '.join(image_list)])
         table_metadata.add_row(['Instances:', ', '.join(instance_list)])
     print(table_metadata)
 
@@ -185,45 +189,57 @@ def __print_images(project):
     images_total = 0
     images = dict()
 
-    # Get Volumes
+    # Get Images
     for region in regions:
         # Initiate Glance object
-        gc = himutils.get_client(Cinder, options, logger, region)
+        gc = himutils.get_client(Glance, options, logger, region)
 
         # Get a list of volumes in project
-        filters = {'project_id': project.id}
-        image = gc.find_image(filters=filters, limit=1)
-        images[region] = gc.find_image(filters=filters, limit=1)
+        filters = {'owner': project.id, 'visibility': 'private'}
+        images[region] = gc.find_image(filters=filters)
         for i in images[region]:
             images_total += 1
 
-    # Print Volumes table
-#    if volumes_total > 0:
-#        table_volumes = PrettyTable()
-#        table_volumes.field_names = ['id', 'size', 'type', 'status', 'region']
-#        table_volumes.align['id'] = 'l'
-#        table_volumes.align['size'] = 'r'
-#        table_volumes.align['type'] = 'l'
-#        table_volumes.align['status'] = 'l'
-#        table_volumes.align['region'] = 'l'
-#        for region in regions:
-#            for volume in volumes[region]:
-#                table_volumes.add_row([volume.id, "%d GiB" % volume.size, volume.volume_type, volume.status, region])
-#        print "\n  Volumes (%d): " % volumes_total
-#        print(table_volumes)
+    # Print Images table
+    if images_total > 0:
+        table_images = PrettyTable()
+        table_images.field_names = ['id', 'name', 'created', 'size', 'type', 'owner', 'status', 'region']
+        table_images.align['id'] = 'l'
+        table_images.align['name'] = 'l'
+        table_images.align['created'] = 'l'
+        table_images.align['size'] = 'r'
+        table_images.align['type'] = 'l'
+        table_images.align['owner'] = 'l'
+        table_images.align['status'] = 'l'
+        table_images.align['region'] = 'l'
+        for region in regions:
+            for image in images[region]:
+                image_type = image.image_type if hasattr(image, 'image_type') else 'n/a'
+                image_owner = image.owner_user_name if hasattr(image, 'owner_user_name') else 'n/a'
+                table_images.add_row([image.id,
+                                      image.name,
+                                      image.created_at,
+                                      "%d KiB" % (int(image.size) / 1024),
+                                      image_type,
+                                      image_owner,
+                                      image.status,
+                                      region])
+        print "\n  Private Images (%d): " % images_total
+        print(table_images)
 
 def __count_images(project):
-    volumes = dict()
+    images = dict()
 
-    # Get Volumes
+    # Get Images
     for region in regions:
-        # Initiate Cinder object
-        cc = himutils.get_client(Cinder, options, logger, region)
+        # Initiate Glance object
+        gc = himutils.get_client(Glance, options, logger, region)
 
-        # Get a count of volumes in project
-        volumes[region] = len(cc.get_volumes(search_opts={'project_id': project.id}))
+        # Get a list of volumes in project
+        filters = {'owner': project.id, 'visibility': 'private'}
+        images[region] = len(gc.find_image(filters=filters))
 
-    return volumes
+    return images
 
 def __print_volumes(project):
     volumes_total = 0
