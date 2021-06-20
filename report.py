@@ -42,7 +42,7 @@ def action_show():
     if options.detail:
         __print_zones(project)
         __print_volumes(project)
-        __print images(project)
+        __print_images(project)
         __print_instances(project)
 
 def action_list():
@@ -60,7 +60,7 @@ def action_list():
         if options.detail:
             __print_zones(project)
             __print_volumes(project)
-            __print images(project)
+            __print_images(project)
             __print_instances(project)
 
         # Print some vertical space and increase project counter
@@ -86,7 +86,7 @@ def action_user():
         if options.detail:
             __print_zones(project)
             __print_volumes(project)
-            __print images(project)
+            __print_images(project)
             __print_instances(project)
 
         # Print some vertical space and increase project counter
