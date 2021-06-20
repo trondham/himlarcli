@@ -155,7 +155,7 @@ def __print_metadata(project):
             instance_list.append("%d (%s)" % (instances[region], region))
         table_metadata.add_row(['Zones:', zones])
         table_metadata.add_row(['Volumes:', ', '.join(volume_list)])
-        table_metadata.add_row(['Private Images:', ', '.join(image_list)])
+        table_metadata.add_row(['Images:', ', '.join(image_list)])
         table_metadata.add_row(['Instances:', ', '.join(instance_list)])
     print(table_metadata)
 
@@ -225,7 +225,7 @@ def __print_images(project):
                                       image_owner,
                                       image.status,
                                       region])
-        print "\n  Private Images (%d): " % images_total
+        print "\n  Images (%d): " % images_total
         print(table_images)
 
 def __count_images(project):
