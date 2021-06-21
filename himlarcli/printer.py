@@ -131,17 +131,21 @@ class Printer(object):
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
         project_created = project.createdate if hasattr(project, 'createdate') else '(unknown)'
         project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
+        project_contact = project.contact if hasattr(project, 'contact') else 'None'
         project_roles = ksclient.list_roles(project_name=project.name)
 
         # Make project create date readable
         project_created = re.sub(r'T\d\d:\d\d:\d\d.\d\d\d\d\d\d', '', project_created)
 
+        # Disabled project?
+        status = "*** DISABLED *** " if not project.enabled else ''
+        
         # Print header for project
         if hasattr(options, 'user') and not options.admin:
             prole = 'admin' if options.user == project.admin else 'member'
-            print "PROJECT: %s (%s)" % (project.name, prole)
+            print "%sPROJECT: %s (%s)" % (status, project.name, prole)
         else:
-            print "PROJECT: %s" % project.name
+            print "PROJECT: %s" % (status, project.name)
         print '=' * 80
 
         # Print project metadata
