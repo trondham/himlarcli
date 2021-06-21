@@ -145,7 +145,7 @@ class Printer(object):
             prole = 'admin' if options.user == project.admin else 'member'
             print "%sPROJECT: %s (%s)" % (status, project.name, prole)
         else:
-            print "PROJECT: %s" % (status, project.name)
+            print "%sPROJECT: %s" % (status, project.name)
         print '=' * 80
 
         # Print project metadata
