@@ -122,7 +122,7 @@ class Printer(object):
             sys.exit(code)
 
     @staticmethod
-    def prettyprint_project_metadata(self, project, options):
+    def prettyprint_project_metadata(project, options):
         ksclient = Keystone(options.config, debug=options.debug)
         ksclient.set_dry_run(options.dry_run)
         ksclient.set_domain(options.domain)
@@ -181,10 +181,10 @@ class Printer(object):
             if len(users['object']) > 0:
                 table_metadata.add_row(['Object Users:', "\n".join(users['object'])])
         if not options.detail:
-            zones     = self.__count_project_zones(project)
-            volumes   = self.__count_project_volumes(project)
-            images    = self.__count_project_images(project)
-            instances = self.__count_project_instances(project)
+            zones     = __count_project_zones(project)
+            volumes   = __count_project_volumes(project)
+            images    = __count_project_images(project)
+            instances = __count_project_instances(project)
             volume_list   = []
             image_list    = []
             instance_list = []
@@ -199,7 +199,7 @@ class Printer(object):
         print(table_metadata)
 
     @staticmethod
-    def prettyprint_project_zones(self, project, options):
+    def prettyprint_project_zones(project, options):
         # Initiate Designate object
         dc = utils.get_client(Designate, options, logger)
 
@@ -218,7 +218,7 @@ class Printer(object):
             print(table_zones)
 
     @staticmethod
-    def prettyprint_project_images(self, project, options):
+    def prettyprint_project_images(project, options):
         images_total = 0
         images = dict()
 
@@ -262,7 +262,7 @@ class Printer(object):
             print(table_images)
 
     @staticmethod
-    def prettyprint_project_volumes(self, project, options):
+    def prettyprint_project_volumes(project, options):
         volumes_total = 0
         volumes = dict()
 
@@ -292,7 +292,7 @@ class Printer(object):
             print(table_volumes)
 
     @staticmethod
-    def prettyprint_project_instances(self, project, options):
+    def prettyprint_project_instances(project, options):
         instances_total = 0
         instances = dict()
 
@@ -355,7 +355,6 @@ class Printer(object):
             print "\n  Instances (%d): " % instances_total
             print(table_instances)
 
-    @staticmethod
     def __count_project_zones(project, options):
         # Initiate Designate object
         dc = utils.get_client(Designate, options, logger)
@@ -365,7 +364,6 @@ class Printer(object):
 
         return len(zones)
 
-    @staticmethod
     def __count_project_images(project, options):
         images = dict()
 
@@ -380,7 +378,6 @@ class Printer(object):
 
         return images
 
-    @staticmethod
     def __count_project_volumes(project, options):
         volumes = dict()
 
@@ -394,7 +391,6 @@ class Printer(object):
 
         return volumes
 
-    @staticmethod
     def __count_project_instances(project, options):
         instances = dict()
 
