@@ -122,7 +122,7 @@ class Printer(object):
             sys.exit(code)
 
     @staticmethod
-    def prettyprint_project_metadata(project, options):
+    def prettyprint_project_metadata(self, project, options):
         ksclient = Keystone(options.config, debug=options.debug)
         ksclient.set_dry_run(options.dry_run)
         ksclient.set_domain(options.domain)
@@ -199,7 +199,7 @@ class Printer(object):
         print(table_metadata)
 
     @staticmethod
-    def prettyprint_project_zones(project, options):
+    def prettyprint_project_zones(self, project, options):
         # Initiate Designate object
         dc = utils.get_client(Designate, options, logger)
 
@@ -218,7 +218,7 @@ class Printer(object):
             print(table_zones)
 
     @staticmethod
-    def prettyprint_project_images(project, options):
+    def prettyprint_project_images(self, project, options):
         images_total = 0
         images = dict()
 
@@ -262,7 +262,7 @@ class Printer(object):
             print(table_images)
 
     @staticmethod
-    def prettyprint_project_volumes(project, options):
+    def prettyprint_project_volumes(self, project, options):
         volumes_total = 0
         volumes = dict()
 
@@ -292,7 +292,7 @@ class Printer(object):
             print(table_volumes)
 
     @staticmethod
-    def prettyprint_project_instances(project, options):
+    def prettyprint_project_instances(self, project, options):
         instances_total = 0
         instances = dict()
 
