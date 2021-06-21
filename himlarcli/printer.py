@@ -181,10 +181,10 @@ class Printer(object):
             if len(users['object']) > 0:
                 table_metadata.add_row(['Object Users:', "\n".join(users['object'])])
         if not options.detail:
-            zones     = __count_project_zones(project)
-            volumes   = __count_project_volumes(project)
-            images    = __count_project_images(project)
-            instances = __count_project_instances(project)
+            zones     = self.__count_project_zones(project)
+            volumes   = self.__count_project_volumes(project)
+            images    = self.__count_project_images(project)
+            instances = self.__count_project_instances(project)
             volume_list   = []
             image_list    = []
             instance_list = []
