@@ -217,10 +217,11 @@ def __print_images(project):
             for image in images[region]:
                 image_type = image.image_type if hasattr(image, 'image_type') else 'n/a'
                 image_owner = image.owner_user_name if hasattr(image, 'owner_user_name') else 'n/a'
+                image_size = "%d KiB" % (int(image.size) / 1024) if isinstance(image.size, int) else 'n/a'
                 table_images.add_row([image.id,
                                       image.name,
                                       image.created_at,
-                                      "%d KiB" % (int(image.size) / 1024),
+                                      image_size,
                                       image_type,
                                       image_owner,
                                       image.status,
