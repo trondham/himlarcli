@@ -126,7 +126,6 @@ class Printer(object):
         ksclient = Keystone(options.config, debug=options.debug)
         ksclient.set_dry_run(options.dry_run)
         ksclient.set_domain(options.domain)
-        logger = ksclient.get_logger()
 
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
