@@ -34,12 +34,12 @@ def action_show():
     project = ksclient.get_project_by_name(project_name=options.project)
     if not project:
         utils.sys_error('No project found with name %s' % options.project)
-    prettyprint_project_metadata(project, options)
+    Printer.prettyprint_project_metadata(project, options)
     if options.detail:
-        prettyprint_project_zones(project, options)
-        prettyprint_project_volumes(project, options)
-        prettyprint_project_images(project, options)
-        prettyprint_project_instances(project, options)
+        Printer.prettyprint_project_zones(project, options)
+        Printer.prettyprint_project_volumes(project, options)
+        Printer.prettyprint_project_images(project, options)
+        Printer.prettyprint_project_instances(project, options)
 
 def action_list():
     search_filter = dict()
@@ -52,12 +52,12 @@ def action_list():
 
     # Loop through projects
     for project in projects:
-        prettyprint_project_metadata(project, options)
+        Printer.prettyprint_project_metadata(project, options)
         if options.detail:
-            prettyprint_project_zones(project, options)
-            prettyprint_project_volumes(project, options)
-            prettyprint_project_images(project, options)
-            prettyprint_project_instances(project, options)
+            Printer.prettyprint_project_zones(project, options)
+            Printer.prettyprint_project_volumes(project, options)
+            Printer.prettyprint_project_images(project, options)
+            Printer.prettyprint_project_instances(project, options)
 
         # Print some vertical space and increase project counter
         print "\n\n"
@@ -78,12 +78,12 @@ def action_user():
     for project in user['projects']:
         if options.admin and project.admin != options.user:
             continue
-        prettyprint_project_metadata(project, options)
+        Printer.prettyprint_project_metadata(project, options)
         if options.detail:
-            prettyprint_project_zones(project, options)
-            prettyprint_project_volumes(project, options)
-            prettyprint_project_images(project, options)
-            prettyprint_project_instances(project, options)
+            Printer.prettyprint_project_zones(project, options)
+            Printer.prettyprint_project_volumes(project, options)
+            Printer.prettyprint_project_images(project, options)
+            Printer.prettyprint_project_instances(project, options)
 
         # Print some vertical space and increase project counter
         print "\n\n"
