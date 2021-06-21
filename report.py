@@ -135,10 +135,13 @@ def __print_metadata(project):
         users = dict()
         users['user'] = []
         users['object'] = []
+        users['superuser'] = []
         for role in project_roles:
             user = role['group'].replace('-group', '')
             users[role['role']].append(user)
         table_metadata.add_row(['Users:', "\n".join(users['user'])])
+        if len(users['superuser']) > 0:
+            table_metadata.add_row(['Superusers:', "\n".join(users['superuser'])])
         if len(users['object']) > 0:
             table_metadata.add_row(['Object Users:', "\n".join(users['object'])])
     if not options.detail:
