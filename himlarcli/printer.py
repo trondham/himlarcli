@@ -158,6 +158,7 @@ class Printer(object):
         table_metadata.align['value'] = 'l'
         table_metadata.add_row(['ID:', project.id])
         table_metadata.add_row(['Admin:', project_admin])
+        table_metadata.add_row(['Contact:', project_contact])
         table_metadata.add_row(['Type:', project_type])
         table_metadata.add_row(['Created:', project_created])
         table_metadata.add_row(['Enddate:', project_enddate])
