@@ -121,6 +121,7 @@ class Printer(object):
         if code > 0:
             sys.exit(code)
 
+    @staticmethod
     def prettyprint_project_metadata(project, options):
         ksclient = Keystone(options.config, debug=options.debug)
         ksclient.set_dry_run(options.dry_run)
@@ -197,6 +198,7 @@ class Printer(object):
             table_metadata.add_row(['Instances:', ', '.join(instance_list)])
         print(table_metadata)
 
+    @staticmethod
     def prettyprint_project_zones(project, options):
         # Initiate Designate object
         dc = utils.get_client(Designate, options, logger)
@@ -215,6 +217,7 @@ class Printer(object):
             print "\n  Zones (%d): " % len(zones)
             print(table_zones)
 
+    @staticmethod
     def prettyprint_project_images(project, options):
         images_total = 0
         images = dict()
@@ -258,6 +261,7 @@ class Printer(object):
             print "\n  Images (%d): " % images_total
             print(table_images)
 
+    @staticmethod
     def prettyprint_project_volumes(project, options):
         volumes_total = 0
         volumes = dict()
@@ -287,6 +291,7 @@ class Printer(object):
             print "\n  Volumes (%d): " % volumes_total
             print(table_volumes)
 
+    @staticmethod
     def prettyprint_project_instances(project, options):
         instances_total = 0
         instances = dict()
