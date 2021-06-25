@@ -299,7 +299,7 @@ class Printer(object):
 
             # Get a list of instances in project
             instances[region] = nc.get_project_instances(project_id=project.id)
-            for i in instances[region]:
+            for instance in instances[region]:
                 instances_total += 1
 
         # Print Instances table
@@ -345,7 +345,7 @@ class Printer(object):
                         else:
                             image_name = 'UNKNOWN'
                             image_status = 'N/A'
-                    user = kc.get_by_id('user', instance.user_id):
+                    user = kc.get_by_id('user', instance.user_id)
                     owner = user.name if user else '(deleted-user)'
                     row = []
                     row.append(instance.id)
