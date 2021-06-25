@@ -123,16 +123,16 @@ class Printer(object):
 
     @staticmethod
     def prettyprint_project_metadata(project, options, logger, regions):
-        ksclient = Keystone(options.config, debug=options.debug)
-        ksclient.set_dry_run(options.dry_run)
-        ksclient.set_domain(options.domain)
+        kc = Keystone(options.config, debug=options.debug)
+        kc.set_dry_run(options.dry_run)
+        kc.set_domain(options.domain)
 
         project_type = project.type if hasattr(project, 'type') else '(unknown)'
         project_admin = project.admin if hasattr(project, 'admin') else '(unknown)'
         project_created = project.createdate if hasattr(project, 'createdate') else '(unknown)'
         project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
         project_contact = project.contact if hasattr(project, 'contact') else 'None'
-        project_roles = ksclient.list_roles(project_name=project.name)
+        project_roles = kc.list_roles(project_name=project.name)
 
         # Make project create date readable
         project_created = re.sub(r'T\d\d:\d\d:\d\d.\d\d\d\d\d\d', '', project_created)
@@ -345,10 +345,8 @@ class Printer(object):
                         else:
                             image_name = 'UNKNOWN'
                             image_status = 'N/A'
-                    if user = kc.get_by_id('user', instance.user_id):
-                        owner = user.name
-                    else:
-                        owner = '(deleted-user)'
+                    user = kc.get_by_id('user', instance.user_id):
+                    owner = user.name if user else '(deleted-user)'
                     row = []
                     row.append(instance.id)
                     row.append(instance.name)
