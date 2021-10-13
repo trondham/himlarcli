@@ -109,11 +109,11 @@ def action_vendorapi():
         projects_object  = json.dumps(data_project, indent = 4)
         instances_object = json.dumps(data_instance, indent = 4)
         print 'PROJECTS'
-        print '—————————————————————————————————————————————————————————————————————————————'
+        print '-----------------------------------------------------------------------------'
         print projects_object
         print
         print 'INSTANCES'
-        print '—————————————————————————————————————————————————————————————————————————————'
+        print '-----------------------------------------------------------------------------'
         print instances_object
 
 
