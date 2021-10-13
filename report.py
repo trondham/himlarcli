@@ -99,8 +99,8 @@ def action_vendorapi():
     data_instance = data[1]
     
     if options.outdir:
-        file_projects = options.outdir + "project.json"
-        file_instances = options.outdir + "instances.json"
+        file_projects = os.path.join(options.outdir, 'project.json')
+        file_instances = os.path.join(options.outdir, 'instances.json')
         with open(file_projects, "w") as outfile:
             json.dump(data_project, outfile)
         with open(file_instances, "w") as outfile:
@@ -133,9 +133,10 @@ def vendorapi_list():
     # Loop through projects
     for project in projects:
         contact = project.contact if hasattr(project, 'contact') else None
+        admin = project.admin if hasattr(project, 'admin') else None
         data_project[project.id] = {
             "project_name": project.name,
-            "project_admin": project.admin,
+            "project_admin": admin,
             "project_contact": contact
         }
         # Get Instances
