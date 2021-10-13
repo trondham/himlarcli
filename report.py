@@ -7,6 +7,7 @@ from prettytable import PrettyTable
 import re
 import sys
 import json
+import os
 
 utils.is_virtual_env()
 
