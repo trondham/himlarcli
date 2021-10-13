@@ -111,12 +111,19 @@ def action_vendorapi():
 def vendorapi_list():
     from himlarcli.nova import Nova
 
-    data = dict()
+    data_instance = dict()
+    data_project  = dict()
 
     projects = ksclient.get_projects()
 
     # Loop through projects
     for project in projects:
+        contact = project.contact if hasattr(project, 'contact') else None
+        data_project[project.id] = {
+            "project_name": project.name,
+            "project_admin": project.admin,
+            "project_contact": contact
+        }
         # Get Instances
         for region in regions:
             instances = dict()
@@ -127,14 +134,11 @@ def vendorapi_list():
             instances[region] = nc.get_project_instances(project_id=project.id)
             for instance in instances[region]:
                 contact = project.contact if hasattr(project, 'contact') else None
-                data[instance.id] = {
+                data_instance[instance.id] = {
                     "region": region,
-                    "project_name": project.name,
-                    "project_admin": project.admin,
-                    "project_contact": contact
                 }
 
-    return data
+    return data_project, data_instance
 
 #=====================================================================
 # Main program
