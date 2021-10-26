@@ -7,6 +7,7 @@ from prettytable import PrettyTable
 import re
 import sys
 import json
+import os
 
 utils.is_virtual_env()
 
@@ -95,12 +96,26 @@ def action_user():
 
 def action_vendorapi():
     data = vendorapi_list()
-    if options.outfile:
-        with open(options.outfile, "w") as outfile:
-            json.dump(data, outfile)
+    data_project  = data[0]
+    data_instance = data[1]
+    
+    if options.outdir:
+        file_projects = os.path.join(options.outdir, 'project.json')
+        file_instances = os.path.join(options.outdir, 'instances.json')
+        with open(file_projects, "w") as outfile:
+            json.dump(data_project, outfile)
+        with open(file_instances, "w") as outfile:
+            json.dump(data_instance, outfile)
     else:
-        json_object = json.dumps(data, indent = 4)
-        print json_object
+        projects_object  = json.dumps(data_project, indent = 4)
+        instances_object = json.dumps(data_instance, indent = 4)
+        print 'PROJECTS'
+        print '-----------------------------------------------------------------------------'
+        print projects_object
+        print
+        print 'INSTANCES'
+        print '-----------------------------------------------------------------------------'
+        print instances_object
 
 
 
@@ -119,9 +134,10 @@ def vendorapi_list():
     # Loop through projects
     for project in projects:
         contact = project.contact if hasattr(project, 'contact') else None
+        admin = project.admin if hasattr(project, 'admin') else None
         data_project[project.id] = {
             "project_name": project.name,
-            "project_admin": project.admin,
+            "project_admin": admin,
             "project_contact": contact
         }
         # Get Instances
