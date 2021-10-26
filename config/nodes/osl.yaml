@@ -31,14 +31,47 @@ nodes:
     compute_profile: medium
     compute_resource: controller-03
   cephmon-01:
+    hostgroup: 16
     compute_profile: xlarge
     compute_resource: controller-01
+    compute_attributes:
+      volumes_attributes:
+        '1':
+          allocation:   '0G'
+          pool_name:    'dirpool'
+          capacity:     '20G'
+          format_type:  'qcow2'
+    host_parameters_attributes:
+      - name:           'installdevice'
+        value:          'vda'
   cephmon-02:
+    hostgroup: 16
     compute_profile: xlarge
     compute_resource: controller-02
+    compute_attributes:
+      volumes_attributes:
+        '1':
+          allocation:   '0G'
+          pool_name:    'dirpool'
+          capacity:     '20G'
+          format_type:  'qcow2'
+    host_parameters_attributes:
+      - name:           'installdevice'
+        value:          'vda'
   cephmon-03:
+    hostgroup: 16
     compute_profile: xlarge
     compute_resource: controller-03
+    compute_attributes:
+      volumes_attributes:
+        '1':
+          allocation:   '0G'
+          pool_name:    'dirpool'
+          capacity:     '20G'
+          format_type:  'qcow2'
+    host_parameters_attributes:
+      - name:           'installdevice'
+        value:          'vda'
   compute-01:
     mac: ec:f4:bb:ce:20:0c
     hostgroup: 3
@@ -345,19 +378,19 @@ nodes:
     compute_resource: controller-02
   storage-01:
     mac: b0:83:fe:cd:6a:a4
-    hostgroup: 2
+    hostgroup: 20
   storage-02:
     mac: b0:83:fe:cd:28:f2
-    hostgroup: 2
+    hostgroup: 20
   storage-03:
     mac: b0:83:fe:cd:19:d6
-    hostgroup: 2
+    hostgroup: 20
   storage-04:
     mac: b0:83:fe:cd:31:a1
-    hostgroup: 2
+    hostgroup: 20
   storage-05:
     mac: b0:83:fe:cd:5b:8d
-    hostgroup: 2
+    hostgroup: 20
   storage-06:
     mac: d0:94:66:33:2d:b2
     hostgroup: 8
@@ -381,43 +414,43 @@ nodes:
     hostgroup: 10
   storage-v2h-13:
     mac: 48:dc:2d:10:92:8e
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-14:
     mac: 48:dc:2d:10:92:db
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-15:
     mac: 48:dc:2d:10:92:f0
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-16:
     mac: 48:dc:2d:10:92:aa
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-17:
     mac: 48:dc:2d:0f:8d:b3
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-18:
     mac: 48:dc:2d:10:92:9c
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-19:
     mac: 48:dc:2d:10:93:3a
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-20:
     mac: 48:dc:2d:10:93:2c
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-21:
     mac: 48:dc:2d:10:93:41
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-22:
     mac: 48:dc:2d:10:92:d4
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-23:
     mac: 48:dc:2d:10:92:64
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-24:
     mac: 48:dc:2d:10:92:72
-    hostgroup: 14
+    hostgroup: 21
   storage-v2h-25:
     mac: 48:dc:2d:10:92:fe
-    hostgroup: 14
+    hostgroup: 21
   telemetry-01:
     compute_profile: xlarge
     compute_resource: controller-03

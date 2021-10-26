@@ -171,7 +171,7 @@ nodes:
     hostgroup: 10
   compute-vgpu-35:
     mac: b0:26:28:f0:b4:58
-    hostgroup: 14
+    hostgroup: 16
   compute-clarino-36:
     mac: f4:02:70:d0:04:ee
     hostgroup: 14
@@ -198,46 +198,46 @@ nodes:
     hostgroup: 14
   compute-epyc-44:
     mac: f4:02:70:d9:6b:da
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-45:
     mac: f4:02:70:d3:42:02
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-46:
     mac: f4:02:70:d7:8c:ea
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-47:
     mac: f4:02:70:d3:42:70
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-48:
     mac: f4:02:70:d3:42:0c
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-49:
     mac: f4:02:70:cd:da:de
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-50:
     mac: f4:02:70:cd:de:86
     hostgroup: 14
   compute-epyc-51:
     mac: f4:02:70:d0:04:e0
-    hostgroup: 14
+    hostgroup: 16
   compute-vgpu-52:
     mac: f0:d4:e2:e6:ae:d2
-    hostgroup: 14
+    hostgroup: 16
   compute-vgpu-53:
     mac: 34:48:ed:f9:59:c2
-    hostgroup: 14
+    hostgroup: 16
   compute-gpu1-54:
     mac: 34:48:ed:f9:5a:de
     hostgroup: 14
   compute-epyc-55:
     mac: 70:b5:e8:d0:b0:a8
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-56:
     mac: 70:b5:e8:d0:b3:00
-    hostgroup: 14
+    hostgroup: 16
   compute-epyc-57:
     mac: 70:b5:e8:d0:ab:e8
-    hostgroup: 14
+    hostgroup: 16
   compute-58:
     mac: 34:48:ed:f9:6c:02
     hostgroup: 14
@@ -332,6 +332,9 @@ nodes:
           pool_name:    'dirpool'
           capacity:     '40G'
           format_type:  'qcow2'
+    host_parameters_attributes:
+      - name:           'installdevice'
+        value:          'vda'
   metric-01:
     compute_profile: xlarge
     compute_resource: controller-05
@@ -437,31 +440,31 @@ nodes:
     compute_resource: controller-06
   storage-01:
     mac: b0:83:fe:cd:64:7c
-    hostgroup: 2
+    hostgroup: 19
   storage-02:
     mac: b0:83:fe:cd:4b:39
-    hostgroup: 2
+    hostgroup: 19
   storage-03:
     mac: b0:83:fe:cd:61:3b
-    hostgroup: 2
+    hostgroup: 19
   storage-04:
     mac: b0:83:fe:cd:61:23
-    hostgroup: 2
+    hostgroup: 19
   storage-05:
     mac: b0:83:fe:cd:44:0f
-    hostgroup: 2
+    hostgroup: 19
   storage-v2d-06:
     mac: d0:94:66:19:c2:39
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-07:
     mac: d0:94:66:19:c1:eb
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-08:
     mac: b0:26:28:21:65:cc
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-09:
     mac: b0:26:28:21:6a:ca
-    hostgroup: 13
+    hostgroup: 16
   storage-dcache-10:
     mac: 20:04:0f:f4:75:a2
     hostgroup: 9
@@ -539,31 +542,31 @@ nodes:
     hostgroup: 9
   storage-v2d-35:
     mac: 20:04:0f:fb:a5:42
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-36:
     mac: 20:04:0f:fb:b2:c2
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-37:
     mac: 20:04:0f:fb:b3:5e
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-38:
     mac: 20:04:0f:fb:b3:5a
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-39:
     mac: 20:04:0f:fb:a5:46
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-40:
     mac: 34:48:ed:f9:84:d2
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-41:
     mac: 34:48:ed:f9:84:f2
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-42:
     mac: 34:48:ed:f9:5d:e2
-    hostgroup: 13
+    hostgroup: 16
   storage-v2d-43:
     mac: 34:48:ed:f9:58:b2
-    hostgroup: 13
+    hostgroup: 16
   telemetry-01:
     compute_profile: xlarge
     compute_resource: controller-05
