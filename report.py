@@ -98,7 +98,7 @@ def action_vendorapi():
     data = vendorapi_list()
     data_project  = data[0]
     data_instance = data[1]
-    
+
     if options.outdir:
         file_projects = os.path.join(options.outdir, 'project.json')
         file_instances = os.path.join(options.outdir, 'instances.json')
