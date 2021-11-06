@@ -1,4 +1,4 @@
-Dear user,
+Dear NREC user,
 
 This is a monthly reminder about resources (such as virtual machines,
 volumes etc.) you are currently using in NREC. The attached overview
@@ -13,12 +13,16 @@ resources are no longer needed, or there are adjustments needed for
 any of your projects, please consider the following:
 
 * Delete resources that are no longer needed
-* Contact support@uh-iaas.no if the project should be deleted
-* Contact support@uh-iaas.no if memberships should be adjusted
+* Contact support@uh-iaas.no to delete a project
+* Contact support@uh-iaas.no for project membership changes
+
+An overview of your NREC resources is attached to this email.
 
 For more details about NREC and contact information, please visit:
 https://docs.nrec.no/
 
+Don't hesitate to contact support@uh-iaas.no if you have questions!
+
 Best Regards,
 -- 
-NREC team <support@uh-iaas.no>
+NREC Team <support@uh-iaas.no>
