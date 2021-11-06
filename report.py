@@ -43,7 +43,6 @@ def action_show():
         sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
-    print "\n"
         
 def action_list():
     search_filter = dict()
@@ -126,8 +125,12 @@ def action_mail():
     # Attachment dict
     attachment = dict()
 
+    # Admin/member dict
+    admin = dict()
+    member = dict()
+    
     # Project counter
-    count = 0
+    project_counter = 0
 
     # Loop through projects
     for user in users:
@@ -137,6 +140,8 @@ def action_mail():
         this_user = ksclient.get_user_objects(email=user, domain=options.domain)
 
         attachment[user] = ''
+        admin_counter = 0
+        member_counter = 0
         for project in this_user['projects']:
             attachment[user] += Printer.prettyprint_project_metadata(project, options, logger, regions)
             attachment[user] += Printer.prettyprint_project_zones(project, options, logger)
@@ -144,9 +149,28 @@ def action_mail():
             attachment[user] += Printer.prettyprint_project_images(project, options, logger, regions)
             attachment[user] += Printer.prettyprint_project_instances(project, options, logger, regions)
 
-            # Print some vertical space and increase project counter
+            # Print some vertical space and increase counters
             attachment[user] += "\n\n"
-            count += 1
+            project_counter += 1
+            if project.admin == user:
+                admin_counter += 1
+            else:
+                member_counter += 1
+
+        admin = admin_counter
+        member = member_counter
+
+    for user in attachment:
+        # Create mail body, set headers and send mail
+        body_content = himutils.load_template(inputfile=options.template,
+                                              mapping={'admin_count': admin[user],
+                                                       'member_count': member[user],
+                                                       'full_report': attachment[user]},
+                                              log=logger)
+        mail = Mail(options.config, debug=False, log=logger)
+        mail.set_dry_run(options.dry_run)
+        mail.mail_user(body_content, subject, email)
+        mail.close()
 
     printer.output_dict(attachment)
 

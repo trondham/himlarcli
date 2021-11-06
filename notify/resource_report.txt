@@ -1,0 +1,22 @@
+Dear user,
+
+This is a monthly reminder about resources you are currently using in
+NREC. The overview below contains projects for which you are the
+administrator and projects where you are a member.
+
+* You are currently the administrator for $admin_count projects
+* You are currently a member of $member_count projects
+
+Please review the projects and the resources used:
+
+* Delete resources that are no longer needed
+* Contact support@uh-iaas.no if the project should be deleted
+* Contact support@uh-iaas.no if memberships should be adjusted
+
+For more details about NREC and contact information, please visit:
+https://docs.nrec.no
+
+$full_report
+
+--
+NREC team
