@@ -157,14 +157,14 @@ def action_mail():
             else:
                 member_counter += 1
 
-        admin = admin_counter
-        member = member_counter
+        admin[user] = admin_counter
+        member[user] = member_counter
 
     for user in attachment:
         # Create mail body, set headers and send mail
         body_content = utils.load_template(inputfile=options.template,
-                                           mapping={'admin_count': str(admin[user]),
-                                                    'member_count': str(member[user]),
+                                           mapping={'admin_count': admin[user],
+                                                    'member_count': member[user],
                                                     'full_report': attachment[user]},
                                            log=logger)
         mail = Mail(options.config, debug=False, log=logger)
