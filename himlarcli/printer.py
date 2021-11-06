@@ -122,7 +122,8 @@ class Printer(object):
             sys.exit(code)
 
     @staticmethod
-    def prettyprint_project_metadata(project, options, logger, regions):
+    def prettyprint_project_metadata(project, options, logger, regions, string=False):
+        output_string = ''
         kc = Keystone(options.config, debug=options.debug)
         kc.set_dry_run(options.dry_run)
         kc.set_domain(options.domain)
@@ -143,10 +144,20 @@ class Printer(object):
         # Print header for project
         if hasattr(options, 'user') and not options.admin:
             prole = 'admin' if options.user == project.admin else 'member'
-            print "%sPROJECT: %s (%s)" % (status, project.name, prole)
+            if string:
+                output_string += "%sPROJECT: %s (%s)" % (status, project.name, prole)
+            else:
+                print "%sPROJECT: %s (%s)" % (status, project.name, prole)
         else:
-            print "%sPROJECT: %s" % (status, project.name)
-        print '=' * 80
+            if string:
+                output_string += "%sPROJECT: %s" % (status, project.name)
+            else:
+                print "%sPROJECT: %s" % (status, project.name)
+
+        if string:
+            output_string += '=' * 80
+        else:
+            print '=' * 80
 
         # Print project metadata
         table_metadata = PrettyTable()
@@ -192,7 +203,15 @@ class Printer(object):
             table_metadata.add_row(['Volumes:', ', '.join(volume_list)])
             table_metadata.add_row(['Images:', ', '.join(image_list)])
             table_metadata.add_row(['Instances:', ', '.join(instance_list)])
-        print(table_metadata)
+
+        if string:
+            output_string += table_metadata.get_string()
+        else:
+            print(table_metadata)
+
+    if string:
+        return output_string
+
 
     @staticmethod
     def prettyprint_project_zones(project, options, logger):

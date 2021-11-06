@@ -9,7 +9,6 @@ import re
 import sys
 import json
 import os
-from io import StringIO
 
 utils.is_virtual_env()
 
@@ -128,33 +127,26 @@ def action_mail():
     # Project counter
     count = 0
 
-    # Preserve original stdout
-    old_stdout = sys.stdout
-
     # Loop through projects
     for user in users:
         if not '@' in user:
             continue
+        print "debug: %s" % user
         this_user = ksclient.get_user_objects(email=user, domain=options.domain)
 
+        attachment[user] = ''
         for project in this_user['projects']:
-            # Redirect output to string
-            out = StringIO()
-            sys.stdout = out
-            Printer.prettyprint_project_metadata(project, options, logger, regions)
-            Printer.prettyprint_project_zones(project, options, logger)
-            Printer.prettyprint_project_volumes(project, options, logger, regions)
-            Printer.prettyprint_project_images(project, options, logger, regions)
-            Printer.prettyprint_project_instances(project, options, logger, regions)
+            attachment[user] += Printer.prettyprint_project_metadata(project, options, logger, regions, string=True)
+            #attachment[user] += Printer.prettyprint_project_zones(project, options, logger, string=True)
+            #attachment[user] += Printer.prettyprint_project_volumes(project, options, logger, regions, string=True)
+            #attachment[user] += Printer.prettyprint_project_images(project, options, logger, regions, string=True)
+            #attachment[user] += Printer.prettyprint_project_instances(project, options, logger, regions, string=True)
 
             # Print some vertical space and increase project counter
-            print "\n\n"
+            attachment[user] += "\n\n"
             count += 1
 
             attachment[user] = out
-
-    # Restore original stdout
-    sys.stdout = old_stdout
 
     printer.output_dict(attachment)
 
