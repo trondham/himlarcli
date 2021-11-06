@@ -2,12 +2,14 @@
 from himlarcli.keystone import Keystone
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
+from himlarcli.mail import Mail
 from himlarcli import utils
 from prettytable import PrettyTable
 import re
 import sys
 import json
 import os
+from io import StringIO
 
 utils.is_virtual_env()
 
@@ -117,6 +119,44 @@ def action_vendorapi():
         print '-----------------------------------------------------------------------------'
         print instances_object
 
+def action_mail():
+    users = ksclient.list_users(domain=options.domain)
+
+    # Attachment dict
+    attachment = dict()
+
+    # Project counter
+    count = 0
+
+    # Preserve original stdout
+    old_stdout = sys.stdout
+
+    # Loop through projects
+    for user in users:
+        if not '@' in user:
+            continue
+        this_user = ksclient.get_user_objects(email=options.user, domain=options.domain)
+
+        for project in this_user['projects']:
+            # Redirect output to string
+            out = StringIO()
+            sys.stdout = out
+            Printer.prettyprint_project_metadata(project, options, logger, regions)
+            Printer.prettyprint_project_zones(project, options, logger)
+            Printer.prettyprint_project_volumes(project, options, logger, regions)
+            Printer.prettyprint_project_images(project, options, logger, regions)
+            Printer.prettyprint_project_instances(project, options, logger, regions)
+
+            # Print some vertical space and increase project counter
+            print "\n\n"
+            count += 1
+
+            attachment[user] = out
+
+    # Restore original stdout
+    sys.stdout = old_stdout
+
+    printer.output_dict(attachment)
 
 
 #---------------------------------------------------------------------
