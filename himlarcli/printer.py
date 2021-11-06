@@ -216,7 +216,7 @@ class Printer(object):
             table_zones.align['name'] = 'l'
             for zone in zones:
                 table_zones.add_row([zone['id'], zone['name']])
-            out_str += "\n  Zones (%d): " % len(zones)
+            out_str += "\n  Zones (%d): \n" % len(zones)
             out_str += table_zones.get_string()
 
         return out_str
