@@ -81,7 +81,7 @@ def action_user():
     for project in user['projects']:
         if options.admin and project.admin != options.user:
             continue
-        sys.stdout.write(Printer.prettyprint_project_metadata(project, options, logger, regions))
+        sys.stdout.write(Printer.prettyprint_project_metadata(project, options, logger, regions, options.user))
         if options.detail:
             sys.stdout.write(Printer.prettyprint_project_zones(project, options, logger))
             sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
@@ -153,7 +153,7 @@ def action_mail():
         admin_counter = 0
         member_counter = 0
         for project in this_user['projects']:
-            attachment[user] += Printer.prettyprint_project_metadata(project, options, logger, regions)
+            attachment[user] += Printer.prettyprint_project_metadata(project, options, logger, regions, user)
             attachment[user] += Printer.prettyprint_project_zones(project, options, logger)
             attachment[user] += Printer.prettyprint_project_volumes(project, options, logger, regions)
             attachment[user] += Printer.prettyprint_project_images(project, options, logger, regions)
