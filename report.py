@@ -43,7 +43,8 @@ def action_show():
         sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
-
+    print "\n"
+        
 def action_list():
     search_filter = dict()
     if options.filter and options.filter != 'all':
@@ -120,7 +121,8 @@ def action_vendorapi():
 
 def action_mail():
     users = ksclient.list_users(domain=options.domain)
-
+    options.detail = True
+    
     # Attachment dict
     attachment = dict()
 
