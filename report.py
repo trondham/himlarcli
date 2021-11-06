@@ -169,7 +169,7 @@ def action_mail():
                                            log=logger)
         mail = Mail(options.config, debug=False, log=logger)
         mail.set_dry_run(options.dry_run)
-        mail.mail_user(body_content, subject, email)
+        mail.mail_user(body_content, options.subject, user)
         mail.close()
 
     printer.output_dict(attachment)
