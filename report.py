@@ -134,6 +134,8 @@ def action_mail():
 
     # Loop through projects
     for user in users:
+        if user != 'trondham@uio.no':
+            continue
         if not '@' in user:
             continue
         print "debug: %s" % user
