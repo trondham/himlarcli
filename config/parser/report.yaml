@@ -18,14 +18,14 @@ opt_args:
     'default':  'test'
     'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'vgpu', 'test', 'hpc']
   '--detail':
-    'sub':      ['list','show','user']
+    'sub':      ['list','show','user','mail']
     'dest':     'detail'
     'help':     'show details about project resource consumtion'
     'action':   'store_const'
     'const':    true
     'default':  false
   '--admin':
-    'sub':      ['user']
+    'sub':      ['user','mail']
     'dest':     'admin'
     'help':     'Display only projects where user is admin'
     'action':   'store_const'
