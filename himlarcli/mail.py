@@ -64,7 +64,7 @@ class Mail(Client):
         return msg
 
     @staticmethod
-    def get_mime_text2(subject, body, fromaddr, cc=None, attachmment):
+    def get_mime_text2(subject, body, attachment, fromaddr, cc=None):
         mail = MIMEMultipart('alternative')
         mail.attach(MIMEText(body, 'plain'))
         mail.attach(MIMEText(attachment, 'plain'))
