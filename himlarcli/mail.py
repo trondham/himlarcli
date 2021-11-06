@@ -38,13 +38,6 @@ class Mail(Client):
             self.log_error(e)
 
     @staticmethod
-    def mail_attachment(msg, attachment):
-        mail = MIMEMultipart('alternative')
-        mail.attach(MIMEText(msg, 'plain'))
-        mail.attach(MIMEText(attachment, 'plain'))
-        return mail
-
-    @staticmethod
     def rt_mail(ticket, subject, msg):
         mail = MIMEMultipart('alternative')
         mail['References'] = 'RT-Ticket-%s@uninett.no' % ticket
@@ -69,6 +62,18 @@ class Mail(Client):
         if cc:
             msg['CC'] = cc
         return msg
+
+    @staticmethod
+    def get_mime_text2(subject, body, fromaddr, cc=None, attachmment):
+        mail = MIMEMultipart('alternative')
+        mail.attach(MIMEText(body, 'plain'))
+        mail.attach(MIMEText(attachment, 'plain'))
+        mail['Subject'] = subject
+        mail['From'] = fromaddr
+        mail['Reply-To'] = fromaddr #'support@uh-iaas.no'
+        if cc:
+            mail['CC'] = cc
+        return mail
 
     def mail_instance_owner(self, instances, body, subject, admin=False, options=['status']):
         if not self.ksclient:
