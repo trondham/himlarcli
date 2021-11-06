@@ -206,12 +206,9 @@ class Printer(object):
 
         if string:
             output_string += table_metadata.get_string()
+            return output_string
         else:
             print(table_metadata)
-
-    if string:
-        return output_string
-
 
     @staticmethod
     def prettyprint_project_zones(project, options, logger):
