@@ -43,7 +43,7 @@ def action_show():
         sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
-        
+
 def action_list():
     search_filter = dict()
     if options.filter and options.filter != 'all':
@@ -121,14 +121,14 @@ def action_vendorapi():
 def action_mail():
     users = ksclient.list_users(domain=options.domain)
     options.detail = True
-    
+
     # Attachment dict
     attachment = dict()
 
     # Admin/member dict
     admin = dict()
     member = dict()
-    
+
     # Project counter
     project_counter = 0
 
@@ -147,7 +147,7 @@ def action_mail():
         # projects is equal or less than 1
         if len(this_user['projects']) <= 1:
             continue
-        
+
         # Loop through projects collecting info
         attachment[user] = ''
         admin_counter = 0
