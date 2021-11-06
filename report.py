@@ -135,7 +135,7 @@ def action_mail():
     for user in users:
         if not '@' in user:
             continue
-        this_user = ksclient.get_user_objects(email=options.user, domain=options.domain)
+        this_user = ksclient.get_user_objects(email=user, domain=options.domain)
 
         for project in this_user['projects']:
             # Redirect output to string
