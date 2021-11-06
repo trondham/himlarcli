@@ -10,15 +10,15 @@ where you are a member.
 
 Please review the projects and the resources used. If some of the
 resources are no longer needed, or there are adjustments needed for
-any of your project, please consider the following:
+any of your projects, please consider the following:
 
 * Delete resources that are no longer needed
 * Contact support@uh-iaas.no if the project should be deleted
 * Contact support@uh-iaas.no if memberships should be adjusted
 
 For more details about NREC and contact information, please visit:
-https://docs.nrec.no
+https://docs.nrec.no/
 
 Best Regards,
---
-NREC team
+-- 
+NREC team <support@uh-iaas.no>
