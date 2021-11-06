@@ -142,7 +142,7 @@ class Printer(object):
         status = "*** DISABLED *** " if not project.enabled else ''
         
         # Print header for project
-        if hasattr(options, 'user') and not options.admin:
+        if (hasattr(options, 'user') or hasattr(options, 'mail')) and not options.admin:
             prole = 'admin' if options.user == project.admin else 'member'
             out_str += "%sPROJECT: %s (%s)\n" % (status, project.name, prole)
         else:
