@@ -187,8 +187,6 @@ def action_mail():
         mail.send_mail(user, msg, fromaddr)
         print "Spam sent to {}".format(user)
 
-    #printer.output_dict(attachment)
-
 
 #---------------------------------------------------------------------
 # Helper functions
