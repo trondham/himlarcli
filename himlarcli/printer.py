@@ -122,7 +122,7 @@ class Printer(object):
             sys.exit(code)
 
     @staticmethod
-    def prettyprint_project_metadata(project, options, logger, regions):
+    def prettyprint_project_metadata(project, options, logger, regions, user=None):
         out_str = ''
         kc = Keystone(options.config, debug=options.debug)
         kc.set_dry_run(options.dry_run)
@@ -142,13 +142,11 @@ class Printer(object):
         status = "*** DISABLED *** " if not project.enabled else ''
         
         # Print header for project
-        if (hasattr(options, 'user') or hasattr(options, 'mail')) and not options.admin:
-            prole = 'admin' if options.user == project.admin else 'member'
-            out_str += "%sPROJECT: %s (%s)\n" % (status, project.name, prole)
-        else:
-            out_str += "%sPROJECT: %s\n" % (status, project.name)
-
-        out_str += '=' * 80 + "\n"
+        out_str += "%sPROJECT: %s" % (status, project.name)
+        if user is not None and not options.admin:
+            prole = 'admin' if user == project.admin else 'member'
+            out_str += " (%s)" % prole
+        out_str += "\n" + '=' * 80 + "\n"
 
         # Print project metadata
         table_metadata = PrettyTable()
