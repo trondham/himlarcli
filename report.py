@@ -37,12 +37,12 @@ def action_show():
     project = ksclient.get_project_by_name(project_name=options.project)
     if not project:
         utils.sys_error('No project found with name %s' % options.project)
-    print Printer.prettyprint_project_metadata(project, options, logger, regions)
+    sys.stdout.write(Printer.prettyprint_project_metadata(project, options, logger, regions))
     if options.detail:
-        print Printer.prettyprint_project_zones(project, options, logger)
-        print Printer.prettyprint_project_volumes(project, options, logger, regions)
-        print Printer.prettyprint_project_images(project, options, logger, regions)
-        print Printer.prettyprint_project_instances(project, options, logger, regions)
+        sys.stdout.write(Printer.prettyprint_project_zones(project, options, logger))
+        sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
+        sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
+        sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
 
 def action_list():
     search_filter = dict()
@@ -55,12 +55,12 @@ def action_list():
 
     # Loop through projects
     for project in projects:
-        print Printer.prettyprint_project_metadata(project, options, logger, regions)
+        sys.stdout.write(Printer.prettyprint_project_metadata(project, options, logger, regions))
         if options.detail:
-            print Printer.prettyprint_project_zones(project, options, logger)
-            print Printer.prettyprint_project_volumes(project, options, logger, regions)
-            print Printer.prettyprint_project_images(project, options, logger, regions)
-            print Printer.prettyprint_project_instances(project, options, logger, regions)
+            sys.stdout.write(Printer.prettyprint_project_zones(project, options, logger))
+            sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
+            sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
+            sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
 
         # Print some vertical space and increase project counter
         print "\n\n"
@@ -81,12 +81,12 @@ def action_user():
     for project in user['projects']:
         if options.admin and project.admin != options.user:
             continue
-        print Printer.prettyprint_project_metadata(project, options, logger, regions)
+        sys.stdout.write(Printer.prettyprint_project_metadata(project, options, logger, regions))
         if options.detail:
-            print Printer.prettyprint_project_zones(project, options, logger)
-            print Printer.prettyprint_project_volumes(project, options, logger, regions)
-            print Printer.prettyprint_project_images(project, options, logger, regions)
-            print Printer.prettyprint_project_instances(project, options, logger, regions)
+            sys.stdout.write(Printer.prettyprint_project_zones(project, options, logger))
+            sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
+            sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
+            sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
 
         # Print some vertical space and increase project counter
         print "\n\n"
