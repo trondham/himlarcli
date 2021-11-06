@@ -162,11 +162,11 @@ def action_mail():
 
     for user in attachment:
         # Create mail body, set headers and send mail
-        body_content = himutils.load_template(inputfile=options.template,
-                                              mapping={'admin_count': admin[user],
-                                                       'member_count': member[user],
-                                                       'full_report': attachment[user]},
-                                              log=logger)
+        body_content = utils.load_template(inputfile=options.template,
+                                           mapping={'admin_count': admin[user],
+                                                    'member_count': member[user],
+                                                    'full_report': attachment[user]},
+                                           log=logger)
         mail = Mail(options.config, debug=False, log=logger)
         mail.set_dry_run(options.dry_run)
         mail.mail_user(body_content, subject, email)
