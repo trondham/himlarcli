@@ -160,6 +160,8 @@ def action_mail():
         admin[user] = admin_counter
         member[user] = member_counter
 
+    mail = utils.get_client(Mail, options, logger)
+    fromaddr = mail.get_config('mail', 'from_addr')
     for user in attachment:
         # Create mail body, set headers and send mail
         body_content = utils.load_template(inputfile=options.template,
@@ -167,12 +169,11 @@ def action_mail():
                                                     'member_count': member[user],
                                                     'full_report': attachment[user]},
                                            log=logger)
-        mail = Mail(options.config, debug=False, log=logger)
-        mail.set_dry_run(options.dry_run)
-        mail.mail_user(body_content, options.subject, user)
-        mail.close()
+        msg = mail.get_mime_text(subject, body_content, fromaddr)
+        mail.send_mail(user, msg, fromaddr)
+        print "Spam sent to {}".format(user)
 
-    printer.output_dict(attachment)
+    #printer.output_dict(attachment)
 
 
 #---------------------------------------------------------------------
