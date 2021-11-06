@@ -195,7 +195,7 @@ class Printer(object):
             table_metadata.add_row(['Images:', ', '.join(image_list)])
             table_metadata.add_row(['Instances:', ', '.join(instance_list)])
 
-        out_str += table_metadata.get_string()
+        out_str += table_metadata.get_string() + "\n"
         return out_str
 
     @staticmethod
@@ -217,7 +217,7 @@ class Printer(object):
             for zone in zones:
                 table_zones.add_row([zone['id'], zone['name']])
             out_str += "\n  Zones (%d): \n" % len(zones)
-            out_str += table_zones.get_string()
+            out_str += table_zones.get_string() + "\n"
 
         return out_str
 
@@ -264,7 +264,7 @@ class Printer(object):
                                           image.status,
                                           region])
             out_str += "\n  Images (%d): \n" % images_total
-            out_str += table_images.get_string()
+            out_str += table_images.get_string() + "\n"
 
         return out_str
 
@@ -297,7 +297,7 @@ class Printer(object):
                 for volume in volumes[region]:
                     table_volumes.add_row([volume.id, "%d GiB" % volume.size, volume.volume_type, volume.status, region])
             out_str += "\n  Volumes (%d): \n" % volumes_total
-            out_str += table_volumes.get_string()
+            out_str += table_volumes.get_string() + "\n"
 
         return out_str
 
@@ -374,7 +374,7 @@ class Printer(object):
                     row.append("%s [%s]" % (image_name, image_status))
                     table_instances.add_row(row)
             out_str += "\n  Instances (%d): \n" % instances_total
-            out_str += table_instances.get_string()
+            out_str += table_instances.get_string() + "\n"
 
         return out_str
 
