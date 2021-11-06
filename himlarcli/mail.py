@@ -38,6 +38,13 @@ class Mail(Client):
             self.log_error(e)
 
     @staticmethod
+    def mail_attachment(msg, attachment):
+        mail = MIMEMultipart('alternative')
+        mail.attach(MIMEText(msg, 'plain'))
+        mail.attach(MIMEText(attachment, 'plain'))
+        return mail
+
+    @staticmethod
     def rt_mail(ticket, subject, msg):
         mail = MIMEMultipart('alternative')
         mail['References'] = 'RT-Ticket-%s@uninett.no' % ticket

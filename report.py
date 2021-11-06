@@ -178,10 +178,10 @@ def action_mail():
     for user in attachment:
         body_content = utils.load_template(inputfile=options.template,
                                            mapping={'admin_count': admin[user],
-                                                    'member_count': member[user],
-                                                    'full_report': attachment[user]},
+                                                    'member_count': member[user]},
                                            log=logger)
         msg = mail.get_mime_text(options.subject, body_content, fromaddr)
+        msg = mail.mail_attachment(msg, attachment[user])
         mail.send_mail(user, msg, fromaddr)
         print "Spam sent to {}".format(user)
 
