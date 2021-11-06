@@ -180,8 +180,7 @@ def action_mail():
                                            mapping={'admin_count': admin[user],
                                                     'member_count': member[user]},
                                            log=logger)
-        msg = mail.get_mime_text(options.subject, body_content, fromaddr)
-        msg = mail.mail_attachment(msg, attachment[user])
+        msg = mail.get_mime_text2(options.subject, body_content, fromaddr, attachment[user])
         mail.send_mail(user, msg, fromaddr)
         print "Spam sent to {}".format(user)
 
