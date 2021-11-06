@@ -1,13 +1,16 @@
 Dear user,
 
-This is a monthly reminder about resources you are currently using in
-NREC. The overview below contains projects for which you are the
-administrator and projects where you are a member.
+This is a monthly reminder about resources (such as virtual machines,
+volumes etc.) you are currently using in NREC. The attached overview
+contains projects for which you are the administrator and projects
+where you are a member.
 
 * You are currently the administrator for $admin_count projects
 * You are currently a member of $member_count projects
 
-Please review the projects and the resources used:
+Please review the projects and the resources used. If some of the
+resources are no longer needed, or there are adjustments needed for
+any of your project, please consider the following:
 
 * Delete resources that are no longer needed
 * Contact support@uh-iaas.no if the project should be deleted

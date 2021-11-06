@@ -66,22 +66,22 @@ class Mail(Client):
         return msg
 
     @staticmethod
-    def get_mime_text2(subject, body, attachment, fromaddr, cc=None):
-        mail = MIMEMultipart('alternative')
-        mail.attach(MIMEText(body, 'plain'))
+    def create_mail_with_attachment(subject, body, attachment, fromaddr, cc=None):
+        msg = MIMEMultipart('mixed')
+        msg.attach(MIMEText(body, 'plain'))
 
         part = MIMEBase('application', 'octet-stream')
         part.set_payload(attachment)
         encoders.encode_base64(part)
         part.add_header('Content-Disposition', 'attachment; filename=resources.txt')
-        mail.attach(part)
+        msg.attach(part)
 
-        mail['Subject'] = subject
-        mail['From'] = fromaddr
-        mail['Reply-To'] = fromaddr #'support@uh-iaas.no'
+        msg['Subject'] = subject
+        msg['From'] = fromaddr
+        msg['Reply-To'] = fromaddr #'support@uh-iaas.no'
         if cc:
-            mail['CC'] = cc
-        return mail
+            msg['CC'] = cc
+        return msg
 
     def mail_instance_owner(self, instances, body, subject, admin=False, options=['status']):
         if not self.ksclient:
