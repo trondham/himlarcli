@@ -136,11 +136,19 @@ def action_mail():
     for user in users:
         if user != 'trondham@uio.no':
             continue
+        # Ignore system users
         if not '@' in user:
             continue
-        print "debug: %s" % user
+
+        # Get user object
         this_user = ksclient.get_user_objects(email=user, domain=options.domain)
 
+        # Ignore users who only have a DEMO project, i.e. number of
+        # projects is equal or less than 1
+        if len(this_user['projects']) <= 1:
+            continue
+        
+        # Loop through projects collecting info
         attachment[user] = ''
         admin_counter = 0
         member_counter = 0
@@ -151,21 +159,23 @@ def action_mail():
             attachment[user] += Printer.prettyprint_project_images(project, options, logger, regions)
             attachment[user] += Printer.prettyprint_project_instances(project, options, logger, regions)
 
-            # Print some vertical space and increase counters
+            # Print some vertical space
             attachment[user] += "\n\n"
-            project_counter += 1
+
+            # Increase counters
             if project.admin == user:
                 admin_counter += 1
             else:
                 member_counter += 1
 
+        # Store number of admin and member roles
         admin[user] = admin_counter
         member[user] = member_counter
 
+    # Send mail to users
     mail = utils.get_client(Mail, options, logger)
     fromaddr = mail.get_config('mail', 'from_addr')
     for user in attachment:
-        # Create mail body, set headers and send mail
         body_content = utils.load_template(inputfile=options.template,
                                            mapping={'admin_count': admin[user],
                                                     'member_count': member[user],
