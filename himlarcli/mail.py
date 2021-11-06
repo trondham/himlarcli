@@ -67,7 +67,13 @@ class Mail(Client):
     def get_mime_text2(subject, body, attachment, fromaddr, cc=None):
         mail = MIMEMultipart('alternative')
         mail.attach(MIMEText(body, 'plain'))
-        mail.attach(MIMEText(attachment, 'plain'))
+
+        part = MIMEBase('application', 'octet-stream')
+        part.set_payload(attachment)
+        encoders.encode_base64(part)
+        part.add_header('Content-Disposition', 'attachment; filename=resources.txt')
+        mail.attach(part)
+
         mail['Subject'] = subject
         mail['From'] = fromaddr
         mail['Reply-To'] = fromaddr #'support@uh-iaas.no'
