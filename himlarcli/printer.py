@@ -145,17 +145,17 @@ class Printer(object):
         if hasattr(options, 'user') and not options.admin:
             prole = 'admin' if options.user == project.admin else 'member'
             if string:
-                output_string += "%sPROJECT: %s (%s)" % (status, project.name, prole)
+                output_string += "%sPROJECT: %s (%s)\n" % (status, project.name, prole)
             else:
                 print "%sPROJECT: %s (%s)" % (status, project.name, prole)
         else:
             if string:
-                output_string += "%sPROJECT: %s" % (status, project.name)
+                output_string += "%sPROJECT: %s\n" % (status, project.name)
             else:
                 print "%sPROJECT: %s" % (status, project.name)
 
         if string:
-            output_string += '=' * 80
+            output_string += '=' * 80 + "\n"
         else:
             print '=' * 80
 
