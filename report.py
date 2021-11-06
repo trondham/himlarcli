@@ -171,7 +171,7 @@ def action_mail():
                                                     'member_count': member[user],
                                                     'full_report': attachment[user]},
                                            log=logger)
-        msg = mail.get_mime_text(subject, body_content, fromaddr)
+        msg = mail.get_mime_text(options.subject, body_content, fromaddr)
         mail.send_mail(user, msg, fromaddr)
         print "Spam sent to {}".format(user)
 
