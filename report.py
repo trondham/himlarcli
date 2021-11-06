@@ -37,12 +37,12 @@ def action_show():
     project = ksclient.get_project_by_name(project_name=options.project)
     if not project:
         utils.sys_error('No project found with name %s' % options.project)
-    Printer.prettyprint_project_metadata(project, options, logger, regions)
+    print Printer.prettyprint_project_metadata(project, options, logger, regions)
     if options.detail:
-        Printer.prettyprint_project_zones(project, options, logger)
-        Printer.prettyprint_project_volumes(project, options, logger, regions)
-        Printer.prettyprint_project_images(project, options, logger, regions)
-        Printer.prettyprint_project_instances(project, options, logger, regions)
+        print Printer.prettyprint_project_zones(project, options, logger)
+        print Printer.prettyprint_project_volumes(project, options, logger, regions)
+        print Printer.prettyprint_project_images(project, options, logger, regions)
+        print Printer.prettyprint_project_instances(project, options, logger, regions)
 
 def action_list():
     search_filter = dict()
@@ -55,12 +55,12 @@ def action_list():
 
     # Loop through projects
     for project in projects:
-        Printer.prettyprint_project_metadata(project, options, logger, regions)
+        print Printer.prettyprint_project_metadata(project, options, logger, regions)
         if options.detail:
-            Printer.prettyprint_project_zones(project, options, logger)
-            Printer.prettyprint_project_volumes(project, options, logger, regions)
-            Printer.prettyprint_project_images(project, options, logger, regions)
-            Printer.prettyprint_project_instances(project, options, logger, regions)
+            print Printer.prettyprint_project_zones(project, options, logger)
+            print Printer.prettyprint_project_volumes(project, options, logger, regions)
+            print Printer.prettyprint_project_images(project, options, logger, regions)
+            print Printer.prettyprint_project_instances(project, options, logger, regions)
 
         # Print some vertical space and increase project counter
         print "\n\n"
@@ -81,12 +81,12 @@ def action_user():
     for project in user['projects']:
         if options.admin and project.admin != options.user:
             continue
-        Printer.prettyprint_project_metadata(project, options, logger, regions)
+        print Printer.prettyprint_project_metadata(project, options, logger, regions)
         if options.detail:
-            Printer.prettyprint_project_zones(project, options, logger)
-            Printer.prettyprint_project_volumes(project, options, logger, regions)
-            Printer.prettyprint_project_images(project, options, logger, regions)
-            Printer.prettyprint_project_instances(project, options, logger, regions)
+            print Printer.prettyprint_project_zones(project, options, logger)
+            print Printer.prettyprint_project_volumes(project, options, logger, regions)
+            print Printer.prettyprint_project_images(project, options, logger, regions)
+            print Printer.prettyprint_project_instances(project, options, logger, regions)
 
         # Print some vertical space and increase project counter
         print "\n\n"
@@ -136,11 +136,11 @@ def action_mail():
 
         attachment[user] = ''
         for project in this_user['projects']:
-            attachment[user] += Printer.prettyprint_project_metadata(project, options, logger, regions, string=True)
-            #attachment[user] += Printer.prettyprint_project_zones(project, options, logger, string=True)
-            #attachment[user] += Printer.prettyprint_project_volumes(project, options, logger, regions, string=True)
-            #attachment[user] += Printer.prettyprint_project_images(project, options, logger, regions, string=True)
-            #attachment[user] += Printer.prettyprint_project_instances(project, options, logger, regions, string=True)
+            attachment[user] += Printer.prettyprint_project_metadata(project, options, logger, regions)
+            attachment[user] += Printer.prettyprint_project_zones(project, options, logger)
+            attachment[user] += Printer.prettyprint_project_volumes(project, options, logger, regions)
+            attachment[user] += Printer.prettyprint_project_images(project, options, logger, regions)
+            attachment[user] += Printer.prettyprint_project_instances(project, options, logger, regions)
 
             # Print some vertical space and increase project counter
             attachment[user] += "\n\n"
