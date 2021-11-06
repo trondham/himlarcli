@@ -146,8 +146,6 @@ def action_mail():
             attachment[user] += "\n\n"
             count += 1
 
-            attachment[user] = out
-
     printer.output_dict(attachment)
 
 
