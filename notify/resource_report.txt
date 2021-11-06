@@ -16,7 +16,6 @@ Please review the projects and the resources used:
 For more details about NREC and contact information, please visit:
 https://docs.nrec.no
 
-$full_report
-
+Best Regards,
 --
 NREC team
