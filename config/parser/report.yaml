@@ -45,6 +45,10 @@ opt_args:
     'dest':     'subject'
     'required': true
     'help':     'Mail subject'
+  '--user':
+    'sub':      ['mail']
+    'dest':     'mail_user'
+    'help':     'Send to only this user'
   'project':
    'sub':       ['show']
    'metavar':   'project'

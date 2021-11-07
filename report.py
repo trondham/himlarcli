@@ -119,7 +119,15 @@ def action_vendorapi():
         print instances_object
 
 def action_mail():
-    users = ksclient.list_users(domain=options.domain)
+    if options.mail_user:
+        if not ksclient.is_valid_user(email=options.mail_user, domain=options.domain):
+            print "%s is not a valid user. Please check your spelling or case." % options.mail_user
+            sys.exit(1)
+        users = [options.mail_user]
+    else:
+        users = ksclient.list_users(domain=options.domain)
+
+    # We want details
     options.detail = True
 
     # Attachment dict
