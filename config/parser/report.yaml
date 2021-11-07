@@ -5,7 +5,7 @@ actions:
   'show':         'Show a single project'
   'user':         'Show projects for user'
   'vendorapi':    'Create data for Nova vendor API'
-  'mail':         'Send email to all users'
+  'mail':         'Send email to users'
 opt_args:
   '--domain':
     'dest':     'domain'
