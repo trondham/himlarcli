@@ -39,23 +39,23 @@ opt_args:
     'default':  'all'
     'choices':  ['all', 'admin', 'demo', 'personal', 'research', 'education', 'vgpu', 'test', 'hpc']
   '-a':
-    'sub':      ['create']
+    'sub':      ['create', 'create-private']
     'dest':     'admin'
     'help':     'email for admin user (can be non openstack user)'
     'required': true
   '-t':
-    'sub':      ['create']
+    'sub':      ['create', 'create-private']
     'dest':     'type'
     'help':     'project type'
     'choices':  ['admin', 'demo', 'personal', 'research', 'education', 'course', 'test', 'hpc']
     'required': true
   '--desc':
-    'sub':      ['create']
+    'sub':      ['create', 'create-private']
     'dest':     'desc'
     'metavar':  'description'
     'help':     'project project description'
   '-o':
-    'sub':      ['create']
+    'sub':      ['create', 'create-private']
     'dest':     'org'
     'help':     'Associated organization'
     'choices':  ['nrec', 'uio', 'uib', 'uit', 'ntnu', 'nmbu', 'vetinst']
