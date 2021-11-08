@@ -67,6 +67,17 @@ class Mail(Client):
 
     @staticmethod
     def create_mail_with_attachment(subject, body, attachment_payload, attachment_name, fromaddr, cc=None):
+        """
+        Construct an email with attachment.
+
+        :param subject: The mail subject
+        :param body: The mail body
+        :param attachment_payload: Contents of the attachment
+        :param attachment_name: Name of the attachment
+        :param fromaddr: Address used as From and Reply-To
+        :param cc: Optional CC address
+        :return: returns the mail message
+        """
         msg = MIMEMultipart('mixed')
         msg.attach(MIMEText(body, 'plain'))
 
@@ -78,7 +89,7 @@ class Mail(Client):
 
         msg['Subject'] = subject
         msg['From'] = fromaddr
-        msg['Reply-To'] = fromaddr #'support@uh-iaas.no'
+        msg['Reply-To'] = fromaddr
         if cc:
             msg['CC'] = cc
         return msg
