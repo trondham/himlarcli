@@ -182,8 +182,14 @@ def action_mail():
         admin[user] = admin_counter
         member[user] = member_counter
 
+    if not options.force:
+        if not himutils.confirm_action('Send mail to %d users?' % len(attachment)):
+            return
+
     # Send mail to users
     mail = utils.get_client(Mail, options, logger)
+    mail = Mail(options.config, debug=options.debug)
+    mail.set_dry_run(options.dry_run)
     fromaddr = mail.get_config('mail', 'from_addr')
     for user in attachment:
         body_content = utils.load_template(inputfile=options.template,
