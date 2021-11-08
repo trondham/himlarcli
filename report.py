@@ -202,7 +202,10 @@ def action_mail():
                                                'resources.txt',
                                                fromaddr)
         mail.send_mail(user, msg, fromaddr)
-        print "Spam sent to {}".format(user)
+        if options.dry_run:
+            print "Did NOT send spam to %s" % user
+        else:
+            print "Spam sent to %s" % user
 
 
 #---------------------------------------------------------------------
