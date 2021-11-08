@@ -156,6 +156,13 @@ def action_create_private():
     options.desc    = 'Personal project for %s' % options.user
     options.contact = None
     options.org     = None
+    if not options.quota:
+        options.quota = 'small'
+    if not options.enddate:
+        default_date = datetime.today()
+        default_date += timedelta(years + 2)
+        options.enddate = himutils.get_date(default_date, None, '%d.%m.%Y')
+
     action_create()
 
 def action_extend():
