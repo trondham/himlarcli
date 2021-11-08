@@ -148,6 +148,14 @@ def action_create():
         mime = mail.rt_mail(options.rt, subject, body_content)
         mail.send_mail('support@uh-iaas.no', mime)
 
+def action_create_private():
+    # Set default options and call action_create
+    options.type  = 'personal'
+    project_name  = 'PRIVATE-' + options.user.replace('@', '.')
+    options.admin = options.user
+    options.desc  = 'Personal project for %s' % options.user
+    action_create()
+
 def action_extend():
     project = ksclient.get_project_by_name(options.project)
     if not project:
