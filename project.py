@@ -9,6 +9,7 @@ from himlarcli.printer import Printer
 from himlarcli.mail import Mail
 from himlarcli import utils as himutils
 from datetime import datetime
+from datetime import timedelta
 from email.mime.text import MIMEText
 import re
 
@@ -160,8 +161,8 @@ def action_create_private():
         options.quota = 'small'
     if not options.enddate:
         default_date = datetime.today()
-        default_date += timedelta(years + 2)
-        options.enddate = himutils.get_date(default_date, None, '%d.%m.%Y')
+        default_date += timedelta(days=730)
+        options.enddate = default_date.strftime('%d.%m.%Y')
 
     action_create()
 
