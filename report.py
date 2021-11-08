@@ -182,6 +182,7 @@ def action_mail():
         admin[user] = admin_counter
         member[user] = member_counter
 
+    # Ask for confirmation
     if not options.force and not options.dry_run:
         if not utils.confirm_action('Send mail to %d users?' % len(attachment)):
             return
