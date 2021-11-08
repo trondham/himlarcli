@@ -66,14 +66,14 @@ class Mail(Client):
         return msg
 
     @staticmethod
-    def create_mail_with_attachment(subject, body, attachment, fromaddr, cc=None):
+    def create_mail_with_attachment(subject, body, attachment_payload, attachment_name, fromaddr, cc=None):
         msg = MIMEMultipart('mixed')
         msg.attach(MIMEText(body, 'plain'))
 
         part = MIMEBase('application', 'octet-stream')
-        part.set_payload(attachment)
+        part.set_payload(attachment_payload)
         encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment; filename=resources.txt')
+        part.add_header('Content-Disposition', 'attachment; filename=%s' % attachment_name)
         msg.attach(part)
 
         msg['Subject'] = subject

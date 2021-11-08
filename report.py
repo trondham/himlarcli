@@ -193,6 +193,7 @@ def action_mail():
         msg = mail.create_mail_with_attachment(options.subject,
                                                body_content,
                                                attachment[user],
+                                               'resources.txt',
                                                fromaddr)
         mail.send_mail(user, msg, fromaddr)
         print "Spam sent to {}".format(user)
