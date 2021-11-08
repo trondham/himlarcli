@@ -183,7 +183,7 @@ def action_mail():
         member[user] = member_counter
 
     if not options.force:
-        if not himutils.confirm_action('Send mail to %d users?' % len(attachment)):
+        if not utils.confirm_action('Send mail to %d users?' % len(attachment)):
             return
 
     # Send mail to users
