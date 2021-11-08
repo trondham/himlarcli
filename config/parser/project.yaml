@@ -10,6 +10,7 @@ actions:
   'delete':       'Delete project and all resources'
   'instances':    'List of all instances in project'
   'extend':       'Change or set the endate for a project'
+  'create-private': 'Create personal project'
 #  'update': 'TODO'
 #  'revoke': 'TODO'
 opt_args:
