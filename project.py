@@ -160,9 +160,9 @@ def action_create_private():
     if not options.quota:
         options.quota = 'small'
     if not options.enddate:
-        default_date = datetime.today()
-        default_date += timedelta(days=730)
-        options.enddate = default_date.strftime('%d.%m.%Y')
+        max_enddate = datetime.today()
+        max_enddate += timedelta(days=730)
+        options.enddate = max_enddate.strftime('%d.%m.%Y')
 
     action_create()
 
