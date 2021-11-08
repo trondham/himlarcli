@@ -154,6 +154,7 @@ def action_create_private():
     project_name  = 'PRIVATE-' + options.user.replace('@', '.')
     options.admin = options.user
     options.desc  = 'Personal project for %s' % options.user
+    options.contact = None
     action_create()
 
 def action_extend():

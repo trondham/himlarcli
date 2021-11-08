@@ -61,7 +61,7 @@ opt_args:
     'choices':  ['nrec', 'uio', 'uib', 'uit', 'ntnu', 'nmbu', 'vetinst']
     'required': true
   '--contact':
-    'sub':      ['create']
+    'sub':      ['create', 'create-private']
     'dest':     'contact'
     'help':     'Contact email (mailing list)'
   '-q':
