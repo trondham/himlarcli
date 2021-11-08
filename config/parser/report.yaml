@@ -49,6 +49,13 @@ opt_args:
     'sub':      ['mail']
     'dest':     'mail_user'
     'help':     'Send to only this user'
+  '--force':
+    'sub':      ['mail']
+    'dest':     'force'
+    'help':     'Skip interactive confirmation'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
   'project':
    'sub':       ['show']
    'metavar':   'project'
