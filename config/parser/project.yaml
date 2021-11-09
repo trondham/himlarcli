@@ -55,7 +55,7 @@ opt_args:
     'metavar':  'description'
     'help':     'project project description'
   '-o':
-    'sub':      ['create', 'create-private']
+    'sub':      ['create']
     'dest':     'org'
     'help':     'Associated organization'
     'choices':  ['nrec', 'uio', 'uib', 'uit', 'ntnu', 'nmbu', 'vetinst']
