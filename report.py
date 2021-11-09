@@ -167,7 +167,7 @@ def action_mail():
             attachment[user] += Printer.prettyprint_project_images(project, options, logger, regions)
             attachment[user] += Printer.prettyprint_project_instances(project, options, logger, regions)
 
-            # Print some vertical space
+            # Add some vertical space
             attachment[user] += "\n\n"
 
             # Increase counters
