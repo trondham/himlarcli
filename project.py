@@ -156,7 +156,12 @@ def action_create_private():
     options.admin   = options.user
     options.desc    = 'Personal project for %s' % options.user
     options.contact = None
-    options.org     = None
+    if not options.org:
+        m = re.search('\@(uio|uib|ntnu|nmbu|uit|vetinst)\.no', options.user)
+        if m:
+            options.org = m.group(0)
+        else:
+            himutils.sys_error('Can not guess organization, need to provide option "-o"', 1)
     if not options.quota:
         options.quota = 'small'
     if not options.enddate:
