@@ -150,25 +150,31 @@ def action_create():
         mail.send_mail('support@uh-iaas.no', mime)
 
 def action_create_private():
-    # Set default options and call action_create
+    # Set default options
     options.type    = 'personal'
     options.project = 'PRIVATE-' + options.user.replace('@', '.')
     options.admin   = options.user
     options.desc    = 'Personal project for %s' % options.user
     options.contact = None
-    if not options.org:
-        m = re.search('\@(?:.+?\.)(uio|uib|ntnu|nmbu|uit|vetinst)\.no', options.user)
-        if m:
-            options.org = m.group(0)
-        else:
-            himutils.sys_error('Can not guess organization. Run create manually', 1)
+
+    # Guess organization
+    m = re.search('\@(?:.+?\.)(uio|uib|ntnu|nmbu|uit|vetinst)\.no', options.user)
+    if m:
+        options.org = m.group(0)
+    else:
+        himutils.sys_error('Can not guess organization. Run create manually', 1)
+
+    # Set quota to small if not provided
     if not options.quota:
         options.quota = 'small'
+
+    # Set enddate to 2 years from today if not provided
     if not options.enddate:
         max_enddate = datetime.today()
         max_enddate += timedelta(days=730)
         options.enddate = max_enddate.strftime('%d.%m.%Y')
 
+    # Call main create function
     action_create()
 
 def action_extend():
