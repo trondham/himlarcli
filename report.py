@@ -189,8 +189,8 @@ def action_mail():
     mail = utils.get_client(Mail, options, logger)
     mail = Mail(options.config, debug=options.debug)
     mail.set_dry_run(options.dry_run)
-    if options.from:
-        fromaddr = options.from
+    if options.fromaddr:
+        fromaddr = options.fromaddr
     else:
         fromaddr = 'support@uh-iaas.no'
     for user in attachment:
