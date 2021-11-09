@@ -158,9 +158,9 @@ def action_create_private():
     options.contact = None
 
     # Guess organization
-    m = re.search('\@(?:.+?\.)(uio|uib|ntnu|nmbu|uit|vetinst)\.no', options.user)
+    m = re.search(r'\@(.+?\.)?(?P<org>uio|uib|ntnu|nmbu|uit|vetinst)\.no', options.user)
     if m:
-        options.org = m.group(0)
+        options.org = m.group('org')
     else:
         himutils.sys_error('Can not guess organization. Run create manually', 1)
 
