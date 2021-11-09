@@ -45,6 +45,10 @@ opt_args:
     'dest':     'subject'
     'required': true
     'help':     'Mail subject'
+  '--from':
+    'sub':      ['mail']
+    'dest':     'fromaddr'
+    'help':     'Address for From and Reply-To (default: support@uh-iaas.no)'
   '--user':
     'sub':      ['mail']
     'dest':     'mail_user'

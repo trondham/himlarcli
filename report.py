@@ -148,6 +148,8 @@ def action_mail():
 
         # Get user object
         this_user = ksclient.get_user_objects(email=user, domain=options.domain)
+        if not this_user:
+            continue
 
         # Ignore users who only have a DEMO project, i.e. number of
         # projects is equal or less than 1
@@ -187,7 +189,10 @@ def action_mail():
     mail = utils.get_client(Mail, options, logger)
     mail = Mail(options.config, debug=options.debug)
     mail.set_dry_run(options.dry_run)
-    fromaddr = mail.get_config('mail', 'from_addr')
+    if options.from:
+        fromaddr = options.from
+    else:
+        fromaddr = 'support@uh-iaas.no'
     for user in attachment:
         body_content = utils.load_template(inputfile=options.template,
                                            mapping={'admin_count': admin[user],
