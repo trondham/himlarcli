@@ -255,6 +255,31 @@ class Keystone(Client):
         compute = self.__list_compute_quota(project)
         return dict({'compute':compute})
 
+    def project_quarantine_set(self, project_name):
+        """
+            Set quarantine on project
+            Version: 2022-03
+            :param project_name: name of project to delete
+        """
+        project = self.get_project_by_name(project_name=project_name)
+        if not project:
+            self.logger.debug('=> could not delete project %s: not found',
+                              project_name)
+            return None
+
+        region = self.find_regions()
+
+        # Delete instances
+        self.__shutoff_instances(project, region)
+
+        # Set quarantine properties
+        properties = ('quarantine_type' => 'enddate',
+                      'quarantine_date' => '2022-03-08',
+                      'quarantine' => 'true')
+        self.set_project_properties(project.id, properties)
+        
+        return None
+
 ############################# DELETE FUNCTIONS ################################
 
     def delete_project(self, project_name, region=None):
@@ -515,6 +540,18 @@ class Keystone(Client):
                                                   name=project_name,
                                                   description=description,
                                                   **kwargs)
+            self.logger.debug('=> updated project %s' % project.name)
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('Project %s not updated' % project_id)
+
+    def set_project_properties(self, project_id, properties):
+        if self.dry_run:
+            self.log_dry_run('set_project_properties', **properties)
+            return
+        try:
+            project = self.client.projects.update(project=project_id,
+                                                  **properties)
             self.logger.debug('=> updated project %s' % project.name)
         except exceptions.http.BadRequest as e:
             self.log_error(e)
@@ -914,6 +951,15 @@ class Keystone(Client):
                                log=self.logger,
                                region=self.region)
         return self.novaclient.set_quota(project.id, quota)
+
+    def __shutoff_instances(self, project, region):
+        """ Use novaclient to shut off all instances for a project in
+            one or more regions
+            version: 2022-03 """
+        regions = [region] if not isinstance(region, list) else region
+        for region in regions:
+            nc = self._get_client(Nova, region)
+            nc.stop_project_instances(project, self.dry_run)
 
     @staticmethod
     def get_user_org(email):

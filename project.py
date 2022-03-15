@@ -365,6 +365,20 @@ def action_instances():
             printer.output_dict(output, sort=True, one_line=True)
         printer.output_dict({'header': 'Total instances in this project', 'count': count})
 
+def action_quarantine():
+    project = ksclient.get_project_by_name(project_name=options.project)
+    if not project:
+        himutils.sys_error('No project found with name %s' % options.project)
+
+    # Add or remove quarantine
+    if options.unset_quarantine:
+        ksclient.project_quarantine_unset(options.project)
+        printer.output_msg('Quarantine unset for project: {}'. format(options.project))
+    else:
+        ksclient.project_quarantine_set(options.project)
+        printer.output_msg('Quarantine set for project: {}'. format(options.project))
+
+
 # Run local function with the same name as the action (Note: - => _)
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
