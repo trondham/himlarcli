@@ -278,7 +278,7 @@ class Keystone(Client):
             'quarantine_date': '2022-03-08',
         }
         self.set_project_properties(project.id, properties)
-        self.set_project_tag(project.id, 'quarantine')
+        self.add_project_tag(project.id, 'quarantine')
         
         return None
 
@@ -305,6 +305,7 @@ class Keystone(Client):
             'quarantine_date': '',
         }
         self.set_project_properties(project.id, properties)
+        self.delete_project_tag(project.id, 'quarantine')
         
         return None
 
@@ -585,13 +586,24 @@ class Keystone(Client):
             self.log_error(e)
             self.log_error('Project %s not updated' % project_id)
 
-    def set_project_tag(self, project_id, tag):
+    def add_project_tag(self, project_id, tag):
         if self.dry_run:
-            self.log_dry_run('set_project_tag', tag)
+            self.log_dry_run('add_project_tag', tag)
             return
         try:
             project = self.client.projects.add_tag(project=project_id, tag=tag)
             self.logger.debug('=> add_tag %s for project %s' % (tag, project.name))
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('Project %s not tagged' % project_id)
+
+    def delete_project_tag(self, project_id, tag):
+        if self.dry_run:
+            self.log_dry_run('delete_project_tag', tag)
+            return
+        try:
+            project = self.client.projects.delete_tag(project=project_id, tag=tag)
+            self.logger.debug('=> delete_tag %s for project %s' % (tag, project.name))
         except exceptions.http.BadRequest as e:
             self.log_error(e)
             self.log_error('Project %s not tagged' % project_id)
