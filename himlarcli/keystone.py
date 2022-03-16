@@ -590,8 +590,7 @@ class Keystone(Client):
             self.log_dry_run('set_project_tag', tag)
             return
         try:
-            project = self.client.projects.add_tag(project=project_id,
-                                                   tag)
+            project = self.client.projects.add_tag(project=project_id, tag=tag)
             self.logger.debug('=> add_tag %s for project %s' % tag, project.name)
         except exceptions.http.BadRequest as e:
             self.log_error(e)
