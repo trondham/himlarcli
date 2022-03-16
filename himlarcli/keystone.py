@@ -273,9 +273,11 @@ class Keystone(Client):
         self.__shutoff_instances(project, region)
 
         # Set quarantine properties
-        properties = ('quarantine_type' => 'enddate',
-                      'quarantine_date' => '2022-03-08',
-                      'quarantine' => 'true')
+        properties = {
+            'quarantine_type': 'enddate',
+            'quarantine_date': '2022-03-08',
+            'quarantine':      'true'
+        }
         self.set_project_properties(project.id, properties)
         
         return None
