@@ -263,7 +263,7 @@ class Keystone(Client):
         """
         project = self.get_project_by_name(project_name=project_name)
         if not project:
-            self.logger.debug('=> could not delete project %s: not found',
+            self.logger.debug('=> could not set quarantine for project %s: not found',
                               project_name)
             return None
 
@@ -290,7 +290,7 @@ class Keystone(Client):
         """
         project = self.get_project_by_name(project_name=project_name)
         if not project:
-            self.logger.debug('=> could not delete project %s: not found',
+            self.logger.debug('=> could not unset quarantine for project %s: not found',
                               project_name)
             return None
 
@@ -301,9 +301,8 @@ class Keystone(Client):
 
         # Set quarantine properties
         properties = {
-            'quarantine_type': 'enddate',
-            'quarantine_date': '2022-03-08',
-            'quarantine':      'true'
+            'quarantine_type': '',
+            'quarantine_date': '',
         }
         self.set_project_properties(project.id, properties)
         
