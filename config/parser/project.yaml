@@ -112,7 +112,7 @@ opt_args:
     'dest':     'list_type'
     'help':     'List projects with this type (all)'
     'default':  'all'
-  '--unset'
+  '--unset':
     'sub':      ['quarantine']
     'dest':     'unset_quarantine'
     'help':     'Unset quarantine for project'
