@@ -259,7 +259,34 @@ class Keystone(Client):
         """
             Set quarantine on project
             Version: 2022-03
-            :param project_name: name of project to delete
+            :param project_name: name of project
+        """
+        project = self.get_project_by_name(project_name=project_name)
+        if not project:
+            self.logger.debug('=> could not delete project %s: not found',
+                              project_name)
+            return None
+
+        region = self.find_regions()
+
+        # Delete instances
+        self.__shutoff_instances(project, region)
+
+        # Set quarantine properties
+        properties = {
+            'quarantine_type': 'enddate',
+            'quarantine_date': '2022-03-08',
+        }
+        self.set_project_properties(project.id, properties)
+        self.set_project_tag(project.id, 'quarantine')
+        
+        return None
+
+    def project_quarantine_unset(self, project_name):
+        """
+            Unset quarantine on project
+            Version: 2022-03
+            :param project_name: name of project
         """
         project = self.get_project_by_name(project_name=project_name)
         if not project:
@@ -558,6 +585,18 @@ class Keystone(Client):
         except exceptions.http.BadRequest as e:
             self.log_error(e)
             self.log_error('Project %s not updated' % project_id)
+
+    def set_project_tag(self, project_id, tag):
+        if self.dry_run:
+            self.log_dry_run('set_project_tag', tag)
+            return
+        try:
+            project = self.client.projects.add_tag(project=project_id,
+                                                   tag)
+            self.logger.debug('=> add_tag %s for project %s' % tag, project.name)
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('Project %s not tagged' % project_id)
 
     def create_project(self, project_name, admin=None, description=None, **kwargs):
         """
