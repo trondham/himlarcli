@@ -12,7 +12,7 @@ actions:
   'instances':      'List of all instances in project'
   'extend':         'Change or set the endate for a project'
   'create-private': 'Create personal project'
-  'quarantine'      'Add or remove quarantine on project'
+  'quarantine':     'Add or remove quarantine on project'
 #  'update': 'TODO'
 opt_args:
   '--domain':
