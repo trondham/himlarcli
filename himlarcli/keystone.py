@@ -604,8 +604,11 @@ class Keystone(Client):
             self.log_dry_run('delete_project_tag', tag)
             return
         try:
-            project = self.client.projects.delete_tag(project=project_id, tag=tag)
-            self.logger.debug('=> delete_tag %s for project %s' % (tag, project_id))
+            if self.client.projects.check_tag(project=project_id, tag=tag):
+                project = self.client.projects.delete_tag(project=project_id, tag=tag)
+                self.logger.debug('=> delete_tag %s for project %s' % (tag, project_id))
+            else:
+                self.logger.debug('=> tag %s not found for project %s' % (tag, project_id))
         except exceptions.http.BadRequest as e:
             self.log_error(e)
             self.log_error('Project %s not tagged' % project_id)
