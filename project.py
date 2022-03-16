@@ -379,7 +379,12 @@ def action_quarantine():
             himutils.sys_error("Option '--reason' is required")
             return
 
-        ksclient.project_quarantine_set(options.project, options.reason)
+        if options.date:
+            date = himutils.get_date(options.date, None, '%Y-%m-%d')
+        else:
+            date = datetime.datetime.now().strftime("%Y-%m-%d")
+        
+        ksclient.project_quarantine_set(options.project, options.reason, date)
         printer.output_msg('Quarantine set for project: {}'. format(options.project))
 
 

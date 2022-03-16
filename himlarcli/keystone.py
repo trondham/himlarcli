@@ -9,7 +9,6 @@ import keystoneauth1.exceptions as exceptions
 import random
 import string
 import re
-import datetime
 
 # pylint: disable=R0904
 class Keystone(Client):
@@ -256,7 +255,7 @@ class Keystone(Client):
         compute = self.__list_compute_quota(project)
         return dict({'compute':compute})
 
-    def project_quarantine_set(self, project_name, reason):
+    def project_quarantine_set(self, project_name, reason, date):
         """
             Set quarantine on project
             Version: 2022-03
@@ -275,9 +274,9 @@ class Keystone(Client):
         self.__shutoff_instances(project, region)
 
         # Set quarantine tags
-        self.add_project_tag(project.id, 'quarantined')
+        self.add_project_tag(project.id, 'quarantine_active')
         self.add_project_tag(project.id, 'quarantine type: %s' % reason)
-        self.add_project_tag(project.id, 'quarantine date: %s' % datetime.datetime.now().strftime("%Y-%m-%d"))
+        self.add_project_tag(project.id, 'quarantine date: %s' % date)
 
         # Disable project
         self.disable_project(project.id)
