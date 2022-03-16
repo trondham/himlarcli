@@ -132,6 +132,7 @@ opt_args:
     'sub':      ['list']
     'dest':     'quarantined'
     'help':     'List quarantined projects'
+    'action':   'store_const'
     'const':    true
     'default':  false
   '--quarantined-before':
