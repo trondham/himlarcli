@@ -279,6 +279,7 @@ class Keystone(Client):
         }
         self.set_project_properties(project.id, properties)
         self.add_project_tag(project.id, 'quarantine')
+        self.disable_project(project.id)
         
         return None
 
@@ -306,6 +307,7 @@ class Keystone(Client):
         }
         self.set_project_properties(project.id, properties)
         self.delete_project_tag(project.id, 'quarantine')
+        self.enable_project(project.id)
         
         return None
 
@@ -607,6 +609,28 @@ class Keystone(Client):
         except exceptions.http.BadRequest as e:
             self.log_error(e)
             self.log_error('Project %s not tagged' % project_id)
+
+    def enable_project(self, project_id):
+        if self.dry_run:
+            self.log_dry_run('enable_project %s' % project_id)
+            return
+        try:
+            project = self.client.projects.update(project=project_id, enabled=False)
+            self.logger.debug('=> disable project %s' % project.name)
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('Project %s not disabled' % project_id)
+
+    def disable_project(self, project_id):
+        if self.dry_run:
+            self.log_dry_run('disable_project %s' % project_id)
+            return
+        try:
+            project = self.client.projects.update(project=project_id, enabled=False)
+            self.logger.debug('=> disable project %s' % project.name)
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('Project %s not disabled' % project_id)
 
     def create_project(self, project_name, admin=None, description=None, **kwargs):
         """
