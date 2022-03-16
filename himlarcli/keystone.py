@@ -9,6 +9,7 @@ import keystoneauth1.exceptions as exceptions
 import random
 import string
 import re
+import datetime
 
 # pylint: disable=R0904
 class Keystone(Client):
@@ -273,12 +274,18 @@ class Keystone(Client):
         self.__shutoff_instances(project, region)
 
         # Set quarantine properties
-        properties = {
-            'quarantine_type': 'enddate',
-            'quarantine_date': '2022-03-08',
-        }
-        self.set_project_properties(project.id, properties)
+        #properties = {
+        #    'quarantine_type': 'enddate',
+        #    'quarantine_date': '2022-03-08',
+        #}
+        #self.set_project_properties(project.id, properties)
+
+        # Set quarantine tags
         self.add_project_tag(project.id, 'quarantine')
+        self.add_project_tag(project.id, 'quarantine_type_ENDDATE')
+        self.add_project_tag(project.id, 'quarantine_date_%s' % datetime.datetime.now().strftime("%Y%m%d"))
+
+        # Disable project
         self.disable_project(project.id)
         
         return None
@@ -301,12 +308,18 @@ class Keystone(Client):
         self.__shutoff_instances(project, region)
 
         # Set quarantine properties
-        properties = {
-            'quarantine_type': '',
-            'quarantine_date': '',
-        }
-        self.set_project_properties(project.id, properties)
-        self.delete_project_tag(project.id, 'quarantine')
+        #properties = {
+        #    'quarantine_type': '',
+        #    'quarantine_date': '',
+        #}
+        #self.set_project_properties(project.id, properties)
+
+        # Delete quarantine tags
+        tags = list_tags(project.id)
+        for tag in list(filter('^quarantine.*'.match, tags)):
+            self.delete_project_tag(project.id, tag)
+
+        # Enable project
         self.enable_project(project.id)
         
         return None
@@ -612,6 +625,16 @@ class Keystone(Client):
         except exceptions.http.BadRequest as e:
             self.log_error(e)
             self.log_error('Project %s not tagged' % project_id)
+
+    def list_project_tags(self, project_id):
+        tags = ()
+        try:
+            tags = self.client.projects.list_tags(project=project_id)
+            self.logger.debug('=> list_tags for project %s' % project_id)
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('Project %s not tagged' % project_id)
+        return tags
 
     def enable_project(self, project_id):
         if self.dry_run:
