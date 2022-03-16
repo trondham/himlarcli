@@ -20,7 +20,7 @@ opt_args:
     'help':     'openstack domain to use'
     'default':  'Dataporten'
   'project':
-   'sub':       ['show', 'show-access', 'show-quota', 'create', 'grant', 'revoke', 'delete', 'instances', 'extend']
+   'sub':       ['show', 'show-access', 'show-quota', 'create', 'grant', 'revoke', 'delete', 'instances', 'extend','quarantine']
    'metavar':   'project'
   'user':
    'sub':       ['create-private']
