@@ -316,7 +316,8 @@ class Keystone(Client):
 
         # Delete quarantine tags
         tags = self.list_project_tags(project.id)
-        for tag in list(filter('^quarantine.*'.match, tags)):
+        r = re.compile('^quarantine.*')
+        for tag in list(filter(r.match, tags)):
             self.delete_project_tag(project.id, tag)
 
         # Enable project
