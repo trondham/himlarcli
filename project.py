@@ -375,7 +375,11 @@ def action_quarantine():
         ksclient.project_quarantine_unset(options.project)
         printer.output_msg('Quarantine unset for project: {}'. format(options.project))
     else:
-        ksclient.project_quarantine_set(options.project)
+        if not options.reason:
+            himutils.sys_error("Option '--reason' is required")
+            return
+
+        ksclient.project_quarantine_set(options.project, options.reason)
         printer.output_msg('Quarantine set for project: {}'. format(options.project))
 
 

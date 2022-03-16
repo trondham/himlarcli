@@ -256,11 +256,12 @@ class Keystone(Client):
         compute = self.__list_compute_quota(project)
         return dict({'compute':compute})
 
-    def project_quarantine_set(self, project_name):
+    def project_quarantine_set(self, project_name, reason):
         """
             Set quarantine on project
             Version: 2022-03
             :param project_name: name of project
+            :param reason: why quarantine
         """
         project = self.get_project_by_name(project_name=project_name)
         if not project:
@@ -273,17 +274,10 @@ class Keystone(Client):
         # Delete instances
         self.__shutoff_instances(project, region)
 
-        # Set quarantine properties
-        #properties = {
-        #    'quarantine_type': 'enddate',
-        #    'quarantine_date': '2022-03-08',
-        #}
-        #self.set_project_properties(project.id, properties)
-
         # Set quarantine tags
-        self.add_project_tag(project.id, 'quarantine')
-        self.add_project_tag(project.id, 'quarantine_type_ENDDATE')
-        self.add_project_tag(project.id, 'quarantine_date_%s' % datetime.datetime.now().strftime("%Y%m%d"))
+        self.add_project_tag(project.id, 'quarantined')
+        self.add_project_tag(project.id, 'quarantine type: %s' % reason)
+        self.add_project_tag(project.id, 'quarantine date: %s' % datetime.datetime.now().strftime("%Y-%m-%d"))
 
         # Disable project
         self.disable_project(project.id)
@@ -306,13 +300,6 @@ class Keystone(Client):
 
         # Delete instances
         self.__shutoff_instances(project, region)
-
-        # Set quarantine properties
-        #properties = {
-        #    'quarantine_type': '',
-        #    'quarantine_date': '',
-        #}
-        #self.set_project_properties(project.id, properties)
 
         # Delete quarantine tags
         tags = self.list_project_tags(project.id)

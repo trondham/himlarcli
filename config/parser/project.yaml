@@ -119,3 +119,9 @@ opt_args:
     'action':   'store_const'
     'const':    true
     'default':  false
+  '--reason':
+    'sub':      ['quarantine']
+    'dest':     'reason'
+    'help':     'Reason for quarantine'
+    'choices':  ['teppe', 'enddate', 'disabled-user']
+    'default':  'teppe'
