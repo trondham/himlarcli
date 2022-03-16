@@ -126,5 +126,5 @@ opt_args:
     'choices':  ['teppe', 'enddate', 'disabled-user']
   '--date':
     'sub':      ['quarantine']
-    'dest':     'reason'
+    'dest':     'date'
     'help':     'Start date of quarantine (YYYY-MM-DD)'
