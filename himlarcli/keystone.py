@@ -613,6 +613,9 @@ class Keystone(Client):
             self.log_error(e)
             self.log_error('Project %s not tagged' % project_id)
 
+    def check_project_tag(self, project_id, tag):
+        return self.client.projects.check_tag(project=project_id, tag=tag)
+
     def list_project_tags(self, project_id):
         tags = ()
         try:

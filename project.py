@@ -292,7 +292,7 @@ def action_list():
             continue
         if options.list_type != 'all' and options.list_type != project_type:
             continue
-        if options.quarantined and not ksclient.projects.check_tag(project=project_id, tag='quarantine_active'):
+        if options.quarantined and not ksclient.check_project_tag(project.id, 'quarantine_active'):
             continue
         output_project = {
             'id': project.id,
