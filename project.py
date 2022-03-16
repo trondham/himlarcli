@@ -12,6 +12,7 @@ from datetime import datetime
 from datetime import timedelta
 from email.mime.text import MIMEText
 import re
+import time
 
 himutils.is_virtual_env()
 
@@ -297,6 +298,16 @@ def action_list():
                 continue
             if options.quarantined_reason != 'all' and not ksclient.check_project_tag(project.id, 'quarantine type: %s' % options.quarantined_reason):
                 continue
+            if options.quarantined_before:
+                tags = ksclient.list_project_tags(project.id)
+                r = re.compile('^quarantine date: ')
+                for tag in list(filter(r.match, tags)):
+                    quarantine_date_iso = re.match(r'\d\d\d\d-\d\d-\d\d', tag).group()
+                quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
+                before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
+                if quarantine_date > before_date:
+                    continue
+                    
         output_project = {
             'id': project.id,
             'name': project.name,
