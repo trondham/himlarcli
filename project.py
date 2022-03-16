@@ -382,7 +382,7 @@ def action_quarantine():
         if options.date:
             date = himutils.get_date(options.date, None, '%Y-%m-%d')
         else:
-            date = datetime.datetime.now().strftime("%Y-%m-%d")
+            date = datetime.now().strftime("%Y-%m-%d")
         
         ksclient.project_quarantine_set(options.project, options.reason, date)
         printer.output_msg('Quarantine set for project: {}'. format(options.project))
