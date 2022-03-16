@@ -130,7 +130,7 @@ opt_args:
     'help':     'Start date of quarantine in the past (YYYY-MM-DD). Default = today'
   '--quarantined':
     'sub':      ['list']
-    'dest':     'quarantined_list'
+    'dest':     'quarantined'
     'help':     'List quarantined projects'
     'const':    true
     'default':  false
