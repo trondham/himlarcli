@@ -615,7 +615,7 @@ class Keystone(Client):
             self.log_dry_run('enable_project %s' % project_id)
             return
         try:
-            project = self.client.projects.update(project=project_id, enabled=False)
+            project = self.client.projects.update(project=project_id, enabled=True)
             self.logger.debug('=> disable project %s' % project.name)
         except exceptions.http.BadRequest as e:
             self.log_error(e)
