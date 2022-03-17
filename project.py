@@ -57,12 +57,12 @@ def action_create():
         try:
             datetime_enddate = datetime.strptime(options.enddate, '%Y-%m-%d')
         except:
-            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate, 1)
     elif re.match(r'^(\d\d\.\d\d\.\d\d\d\d)$', options.enddate):
         try:
             datetime_enddate = datetime.strptime(options.enddate, '%d.%m.%Y')
         except:
-            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate, 1)
     else:
         himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
     enddate = datetime_enddate.strftime('%d.%m.%Y')
@@ -224,14 +224,14 @@ def action_extend():
         try:
             datetime_enddate = datetime.strptime(options.enddate, '%Y-%m-%d')
         except:
-            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate, 1)
     elif re.match(r'^(\d\d\.\d\d\.\d\d\d\d)$', options.enddate):
         try:
             datetime_enddate = datetime.strptime(options.enddate, '%d.%m.%Y')
         except:
-            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate, 1)
     else:
-        himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+        himutils.sys_error('ERROR: Invalid date: %s' % options.enddate, 1)
 
     enddate = datetime_enddate.strftime('%d.%m.%Y')
     ksclient.update_project(project_id=project.id, enddate=str(enddate),
