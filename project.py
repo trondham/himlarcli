@@ -283,7 +283,10 @@ def action_list():
         search_filter['type'] = options.filter
     projects = ksclient.get_projects(**search_filter)
     count = 0
-    printer.output_dict({'header': 'Project list (admin, enddate, id, name, org, type)'})
+    if options.quarantined:
+        printer.output_dict({'header': 'Quarantined project list (admin, enddate, id, name, Q-date, Q-reason)'})
+    else:
+        printer.output_dict({'header': 'Project list (admin, enddate, id, name, org, type)'})
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else 'None'
         project_admin = project.admin if hasattr(project, 'admin') else 'None'
@@ -293,23 +296,35 @@ def action_list():
             continue
         if options.list_type != 'all' and options.list_type != project_type:
             continue
+
         if options.quarantined:
             if not ksclient.check_project_tag(project.id, 'quarantine_active'):
                 continue
-            if options.quarantined_reason != 'all' and not ksclient.check_project_tag(project.id, 'quarantine type: %s' % options.quarantined_reason):
+            tags = ksclient.list_project_tags(project.id)
+            r_date = re.compile('^quarantine date: .+$')
+            r_type = re.compile('^quarantine type: .+$')
+            date_tags = list(filter(r_date.match, tags))
+            type_tags = list(filter(r_type.match, tags))
+            if len(date_tags) > 1:
+                himutils.sys_error('Too many quarantine dates for project %s' % project.name)
+                continue
+            elif len(date_tags) < 1:
+                himutils.sys_error('No quarantine date for project %s' % project.name)
+                continue
+            if len(type_tags) > 1:
+                himutils.sys_error('Too many quarantine reasons for project %s' % project.name)
+                continue
+            elif len(type_tags) < 1:
+                himutils.sys_error('No quarantine reason for project %s' % project.name)
+                continue
+            m_date = re.match(r'^quarantine date: (\d\d\d\d-\d\d-\d\d)$', date_tags[0])
+            m_type = re.match(r'^quarantine type: (.+)$', type_tags[0])
+            quarantine_date_iso = m_date.group(1)
+            quarantine_reason = m_type.group(1)
+#            if options.quarantined_reason != 'all' and not ksclient.check_project_tag(project.id, 'quarantine type: %s' % options.quarantined_reason):
+            if options.quarantined_reason != 'all' and options.quarantined_reason != quarantine_reason):
                 continue
             if options.quarantined_before or options.quarantined_after:
-                tags = ksclient.list_project_tags(project.id)
-                r = re.compile('^quarantine date: .+$')
-                date_tags = list(filter(r.match, tags))
-                if len(date_tags) > 1:
-                    himutils.sys_error('Too many quarantine dates for project %s' % project.name)
-                    continue
-                elif len(date_tags) < 1:
-                    himutils.sys_error('No quarantine date for project %s' % project.name)
-                    continue
-                m = re.match(r'^quarantine date: (\d\d\d\d-\d\d-\d\d)$', date_tags[0])
-                quarantine_date_iso = m.group(1)
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
                 if options.quarantined_before:
                     before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
@@ -319,15 +334,26 @@ def action_list():
                     after_date = time.strptime(options.quarantined_after, "%Y-%m-%d")
                     if quarantine_date < after_date:
                         continue
-                    
-        output_project = {
-            'id': project.id,
-            'name': project.name,
-            'type': project_type,
-            'org': project_org,
-            'admin': project_admin,
-            'enddate': project_enddate,
-        }
+
+        if options.quarantined:
+            output_project = {
+                'id': project.id,
+                'name': project.name,
+                'admin': project_admin,
+                'enddate': project_enddate,
+                'Q-date:': quarantine_date_iso,
+                'Q-reason': quarantine_reason,
+            }
+        else:
+            output_project = {
+                'id': project.id,
+                'name': project.name,
+                'type': project_type,
+                'org': project_org,
+                'admin': project_admin,
+                'enddate': project_enddate,
+            }
+            
         count += 1
         printer.output_dict(output_project, sort=True, one_line=True)
     printer.output_dict({'header': 'Project list count', 'count': count})
