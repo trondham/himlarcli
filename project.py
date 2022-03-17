@@ -49,7 +49,23 @@ def action_create():
         himutils.sys_error('Could not find quota in config/quotas/%s.yaml' % options.quota)
     test = 1 if options.type == 'test' else 0
     project_msg = project_msg_file
-    enddate = himutils.get_date(options.enddate, None, '%d.%m.%Y')
+
+    if not options.enddate or options.enddate == 'max':
+        datetime_enddate = today + timedelta(days=730)
+    elif re.match(r'^(\d\d\d\d-\d\d-\d\d)$', options.enddate):
+        try:
+            datetime_enddate = datetime.strptime(options.enddate, '%Y-%m-%d')
+        except:
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+    elif re.match(r'^(\d\d\.\d\d\.\d\d\d\d)$', options.enddate):
+        try:
+            datetime_enddate = datetime.strptime(options.enddate, '%d.%m.%Y')
+        except:
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+    else:
+        himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+    enddate = datetime_enddate.strftime('%d.%m.%Y')
+
     if options.type == 'hpc':
         project_msg = project_hpc_msg_file
         if not enddate:
@@ -183,11 +199,41 @@ def action_create_private():
 def action_extend():
     project = ksclient.get_project_by_name(options.project)
     if not project:
-        msg = 'Could not find any project named {}'.format(options.project)
-        himutils.sys_error(msg)
+        himutils.sys_error('No project found with name %s' % options.project)
 
-    enddate = himutils.get_date(options.enddate, None, '%d.%m.%Y')
-    ksclient.update_project(project_id=project.id, enddate=str(enddate),
+    today = datetime.today()
+    current = project.enddate if hasattr(project, 'enddate') else 'None'
+
+    if not options.enddate or options.enddate == 'max':
+        enddate = today + timedelta(days=730)
+    elif re.match(r'^\+(\d)([y|m|d])$', options.enddate):
+        if current == 'None':
+            himutils.sys_error("Project does not have an existing enddate")
+        else:
+            curr_datetime = datetime.strptime(project.enddate, '%Y-%m-%d')
+
+        m = re.match(r'^\+(\d)([y|m|d])$', options.enddate)
+        if m.group(2) == 'y':
+            enddate = curr_datetime + timedelta(days=(365 * int(m.group(1))))
+        elif m.group(2) == 'm':
+            enddate = curr_datetime + timedelta(days=(30 * int(m.group(1))))
+        elif m.group(2) == 'd':
+            enddate = curr_datetime + timedelta(days=(int(m.group(1))))
+    elif re.match(r'^(\d\d\d\d-\d\d-\d\d)$', options.enddate):
+        try:
+            enddate = datetime.strptime(options.enddate, '%Y-%m-%d')
+        except:
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+    elif re.match(r'^(\d\d\.\d\d\.\d\d\d\d)$', options.enddate):
+        try:
+            enddate = datetime.strptime(options.enddate, '%d.%m.%Y')
+        except:
+            himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+    else:
+        himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
+
+    new_enddate = enddate.strftime('%d.%m.%Y')
+    ksclient.update_project(project_id=project.id, enddate=str(new_enddate),
                             disabled='', notified='', enabled=True)
 
 def action_grant():
@@ -445,28 +491,6 @@ def action_quarantine():
         
         ksclient.project_quarantine_set(options.project, options.reason, date)
         printer.output_msg('Quarantine set for project: {}'. format(options.project))
-
-def action_end():
-    project = ksclient.get_project_by_name(project_name=options.project)
-    if not project:
-        himutils.sys_error('No project found with name %s' % options.project)
-
-    today = datetime.today()
-
-    m = re.match(r'^(max)|(\+)(\d)([y|m|d])|(\d\d\d\d-\d\d-\d\d)$', options.new)
-
-    if m.group(1) == 'max':
-        max_enddate = today + timedelta(days=730)
-        new_enddate = max_enddate.strftime('%d.%m.%Y')
-    elif m.group(1) == '+':
-        if m.group(3) == 'y':
-            new_enddate = today + timedelta(days=(365 * m.group(2)))
-        elif m.group(3) == 'm':
-            new_enddate = today + timedelta(days=(30 * m.group(2)))
-        elif m.group(3) == 'd':
-            new_enddate = today + timedelta(days=(m.group(2)))
-        
-    print new_enddate
 
 
 # Run local function with the same name as the action (Note: - => _)

@@ -13,7 +13,6 @@ actions:
   'extend':         'Change or set the endate for a project'
   'create-private': 'Create personal project'
   'quarantine':     'Add or remove quarantine on project'
-  'end':            'Set new enddate for project'
 #  'update': 'TODO'
 opt_args:
   '--domain':
@@ -150,8 +149,3 @@ opt_args:
     'help':     'Narrow list by reason for quarantine'
     'choices':  ['all', 'teppe', 'enddate', 'disabled-user']
     'default':  'all'
-  '--new':
-    'sub':      ['end']
-    'dest':     'new'
-    'help':     'New enddate ("max", "+<num><y|m|d>", "YYYY-MM-DD")'
-    'default':  'max'
