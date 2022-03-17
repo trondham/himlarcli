@@ -50,6 +50,7 @@ def action_create():
     test = 1 if options.type == 'test' else 0
     project_msg = project_msg_file
 
+    today = datetime.today()
     if not options.enddate or options.enddate == 'max':
         datetime_enddate = today + timedelta(days=730)
     elif re.match(r'^(\d\d\d\d-\d\d-\d\d)$', options.enddate):
@@ -205,35 +206,35 @@ def action_extend():
     current = project.enddate if hasattr(project, 'enddate') else 'None'
 
     if not options.enddate or options.enddate == 'max':
-        enddate = today + timedelta(days=730)
+        datetime_enddate = today + timedelta(days=730)
     elif re.match(r'^\+(\d)([y|m|d])$', options.enddate):
         if current == 'None':
             himutils.sys_error("Project does not have an existing enddate")
         else:
-            curr_datetime = datetime.strptime(project.enddate, '%Y-%m-%d')
+            datetime_current = datetime.strptime(project.enddate, '%Y-%m-%d')
 
         m = re.match(r'^\+(\d)([y|m|d])$', options.enddate)
         if m.group(2) == 'y':
-            enddate = curr_datetime + timedelta(days=(365 * int(m.group(1))))
+            datetime_enddate = datetime_current + timedelta(days=(365 * int(m.group(1))))
         elif m.group(2) == 'm':
-            enddate = curr_datetime + timedelta(days=(30 * int(m.group(1))))
+            datetime_enddate = datetime_current + timedelta(days=(30 * int(m.group(1))))
         elif m.group(2) == 'd':
-            enddate = curr_datetime + timedelta(days=(int(m.group(1))))
+            datetime_enddate = datetime_current + timedelta(days=(int(m.group(1))))
     elif re.match(r'^(\d\d\d\d-\d\d-\d\d)$', options.enddate):
         try:
-            enddate = datetime.strptime(options.enddate, '%Y-%m-%d')
+            datetime_enddate = datetime.strptime(options.enddate, '%Y-%m-%d')
         except:
             himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
     elif re.match(r'^(\d\d\.\d\d\.\d\d\d\d)$', options.enddate):
         try:
-            enddate = datetime.strptime(options.enddate, '%d.%m.%Y')
+            datetime_enddate = datetime.strptime(options.enddate, '%d.%m.%Y')
         except:
             himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
     else:
         himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
 
-    new_enddate = enddate.strftime('%d.%m.%Y')
-    ksclient.update_project(project_id=project.id, enddate=str(new_enddate),
+    enddate = datetime_enddate.strftime('%d.%m.%Y')
+    ksclient.update_project(project_id=project.id, enddate=str(enddate),
                             disabled='', notified='', enabled=True)
 
 def action_grant():
