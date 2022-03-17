@@ -65,7 +65,7 @@ def action_create():
             himutils.sys_error('ERROR: Invalid date: %s' % options.enddate, 1)
     else:
         himutils.sys_error('ERROR: Invalid date: %s' % options.enddate)
-    enddate = datetime_enddate.strftime('%d.%m.%Y')
+    enddate = datetime_enddate.strftime('%Y-%m-%d')
 
     if options.type == 'hpc':
         project_msg = project_hpc_msg_file
@@ -233,7 +233,7 @@ def action_extend():
     else:
         himutils.sys_error('ERROR: Invalid date: %s' % options.enddate, 1)
 
-    enddate = datetime_enddate.strftime('%d.%m.%Y')
+    enddate = datetime_enddate.strftime('%Y-%m-%d')
     ksclient.update_project(project_id=project.id, enddate=str(enddate),
                             disabled='', notified='', enabled=True)
 
