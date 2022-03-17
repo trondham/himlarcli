@@ -611,7 +611,7 @@ class Keystone(Client):
                 self.logger.debug('=> tag %s not found for project %s' % (tag, project_id))
         except exceptions.http.BadRequest as e:
             self.log_error(e)
-            self.log_error('Project %s not tagged' % project_id)
+            self.log_error('Project %s not untagged' % project_id)
 
     def check_project_tag(self, project_id, tag):
         return self.client.projects.check_tag(project=project_id, tag=tag)
@@ -623,7 +623,7 @@ class Keystone(Client):
             self.logger.debug('=> list_tags for project %s' % project_id)
         except exceptions.http.BadRequest as e:
             self.log_error(e)
-            self.log_error('Project %s not tagged' % project_id)
+            self.log_error('Request for project %s failed' % project_id)
         return tags
 
     def enable_project(self, project_id):
@@ -632,10 +632,10 @@ class Keystone(Client):
             return
         try:
             project = self.client.projects.update(project=project_id, enabled=True)
-            self.logger.debug('=> disable project %s' % project.name)
+            self.logger.debug('=> enable project %s' % project.name)
         except exceptions.http.BadRequest as e:
             self.log_error(e)
-            self.log_error('Project %s not disabled' % project_id)
+            self.log_error('Project %s not enabled' % project_id)
 
     def disable_project(self, project_id):
         if self.dry_run:
