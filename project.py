@@ -313,11 +313,11 @@ def action_list():
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
                 if options.quarantined_before:
                     before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
-                    if quarantine_date < before_date:
+                    if quarantine_date > before_date:
                         continue
                 elif options.quarantined_after:
                     after_date = time.strptime(options.quarantined_after, "%Y-%m-%d")
-                    if quarantine_date > after_date:
+                    if quarantine_date < after_date:
                         continue
                     
         output_project = {
