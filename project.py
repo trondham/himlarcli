@@ -322,7 +322,7 @@ def action_list():
             quarantine_date_iso = m_date.group(1)
             quarantine_reason = m_type.group(1)
 #            if options.quarantined_reason != 'all' and not ksclient.check_project_tag(project.id, 'quarantine type: %s' % options.quarantined_reason):
-            if options.quarantined_reason != 'all' and options.quarantined_reason != quarantine_reason):
+            if options.quarantined_reason != 'all' and options.quarantined_reason != quarantine_reason:
                 continue
             if options.quarantined_before or options.quarantined_after:
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
