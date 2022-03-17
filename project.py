@@ -453,12 +453,19 @@ def action_end():
 
     today = datetime.today()
 
-    m = re.match(r'^(max)|(\+)(\d)([yYmMdD])|(\d\d\d\d-\d\d-\d\d)$', options.new)
+    m = re.match(r'^(max)|(\+)(\d)([y|m|d])|(\d\d\d\d-\d\d-\d\d)$', options.new)
 
     if m.group(1) == 'max':
         max_enddate = today + timedelta(days=730)
         new_enddate = max_enddate.strftime('%d.%m.%Y')
-
+    elif m.group(1) == '+':
+        if m.group(3) == 'y':
+            new_enddate = today + timedelta(days=(365 * m.group(2)))
+        elif m.group(3) == 'm':
+            new_enddate = today + timedelta(days=(30 * m.group(2)))
+        elif m.group(3) == 'd':
+            new_enddate = today + timedelta(days=(m.group(2)))
+        
     print new_enddate
 
 
