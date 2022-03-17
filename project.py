@@ -301,12 +301,18 @@ def action_list():
             if options.quarantined_before:
                 tags = ksclient.list_project_tags(project.id)
                 r = re.compile('^quarantine date: .+$')
-                for tag in list(filter(r.match, tags)):
-                    m = re.match(r'\d\d\d\d-\d\d-\d\d', tag)
-                    quarantine_date_iso = m.group(0)
+                date_tags = list(filter(r.match, tags))
+                if len(date_tags) > 1:
+                    himutils.sys_error('Too many quarantine dates for project %s' % project.name)
+                    continue
+                elif len(date_tags) < 1:
+                    himutils.sys_error('No quarantine date for project %s' % project.name)
+                    continue
+                m = re.match(r'^quarantine date: (\d\d\d\d-\d\d-\d\d)$', date_tags[0])
+                quarantine_date_iso = m.group(0)
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
                 before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
-                if quarantine_date > before_date:
+                if quarantine_date < before_date:
                     continue
                     
         output_project = {
