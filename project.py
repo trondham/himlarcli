@@ -292,11 +292,14 @@ def action_list():
         project_admin = project.admin if hasattr(project, 'admin') else 'None'
         project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
         project_org = project.org if hasattr(project, 'org') else 'None'
+
+        # If we want to list by org or project type
         if options.list_org != 'all' and options.list_org != project_org:
             continue
         if options.list_type != 'all' and options.list_type != project_type:
             continue
 
+        # If we want to list quarantined projects
         if options.quarantined:
             if not ksclient.check_project_tag(project.id, 'quarantine_active'):
                 continue
@@ -321,9 +324,10 @@ def action_list():
             m_type = re.match(r'^quarantine type: (.+)$', type_tags[0])
             quarantine_date_iso = m_date.group(1)
             quarantine_reason = m_type.group(1)
-#            if options.quarantined_reason != 'all' and not ksclient.check_project_tag(project.id, 'quarantine type: %s' % options.quarantined_reason):
+
             if options.quarantined_reason != 'all' and options.quarantined_reason != quarantine_reason:
                 continue
+
             if options.quarantined_before or options.quarantined_after:
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
                 if options.quarantined_before:
@@ -335,6 +339,7 @@ def action_list():
                     if quarantine_date < after_date:
                         continue
 
+        # Slightly different output if we are listing quarantined projects
         if options.quarantined:
             output_project = {
                 'id': project.id,
@@ -353,7 +358,7 @@ def action_list():
                 'admin': project_admin,
                 'enddate': project_enddate,
             }
-            
+
         count += 1
         printer.output_dict(output_project, sort=True, one_line=True)
     printer.output_dict({'header': 'Project list count', 'count': count})
@@ -440,6 +445,21 @@ def action_quarantine():
         
         ksclient.project_quarantine_set(options.project, options.reason, date)
         printer.output_msg('Quarantine set for project: {}'. format(options.project))
+
+def action_end():
+    project = ksclient.get_project_by_name(project_name=options.project)
+    if not project:
+        himutils.sys_error('No project found with name %s' % options.project)
+
+    today = datetime.today()
+
+    m = re.match(r'^(max)|(\+)(\d)([yYmMdD])|(\d\d\d\d-\d\d-\d\d)$', options.new)
+
+    if m.group(1) == 'max':
+        max_enddate = today + timedelta(days=730)
+        new_enddate = max_enddate.strftime('%d.%m.%Y')
+
+    print new_enddate
 
 
 # Run local function with the same name as the action (Note: - => _)
