@@ -284,7 +284,7 @@ def action_list():
     projects = ksclient.get_projects(**search_filter)
     count = 0
     if options.quarantined:
-        printer.output_dict({'header': 'Quarantined project list (admin, enddate, id, name, Q-date, Q-reason)'})
+        printer.output_dict({'header': 'Quarantined project list (Q-date, Q-reason, admin, enddate, id, name)'})
     else:
         printer.output_dict({'header': 'Project list (admin, enddate, id, name, org, type)'})
     for project in projects:
