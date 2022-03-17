@@ -298,7 +298,7 @@ def action_list():
                 continue
             if options.quarantined_reason != 'all' and not ksclient.check_project_tag(project.id, 'quarantine type: %s' % options.quarantined_reason):
                 continue
-            if options.quarantined_before:
+            if options.quarantined_before or options.quarantined_after:
                 tags = ksclient.list_project_tags(project.id)
                 r = re.compile('^quarantine date: .+$')
                 date_tags = list(filter(r.match, tags))
@@ -311,9 +311,14 @@ def action_list():
                 m = re.match(r'^quarantine date: (\d\d\d\d-\d\d-\d\d)$', date_tags[0])
                 quarantine_date_iso = m.group(1)
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
-                before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
-                if quarantine_date < before_date:
-                    continue
+                if options.quarantined_before:
+                    before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
+                    if quarantine_date < before_date:
+                        continue
+                elif options.quarantined_after:
+                    after_date = time.strptime(options.quarantined_after, "%Y-%m-%d")
+                    if quarantine_date > after_date:
+                        continue
                     
         output_project = {
             'id': project.id,
