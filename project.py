@@ -309,7 +309,7 @@ def action_list():
                     himutils.sys_error('No quarantine date for project %s' % project.name)
                     continue
                 m = re.match(r'^quarantine date: (\d\d\d\d-\d\d-\d\d)$', date_tags[0])
-                quarantine_date_iso = m.group(0)
+                quarantine_date_iso = m.group(1)
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
                 before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
                 if quarantine_date < before_date:
