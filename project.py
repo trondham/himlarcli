@@ -300,10 +300,10 @@ def action_list():
                 continue
             if options.quarantined_before:
                 tags = ksclient.list_project_tags(project.id)
-                r = re.compile('^quarantine date: ')
+                r = re.compile('^quarantine date: .+$')
                 for tag in list(filter(r.match, tags)):
                     m = re.match(r'\d\d\d\d-\d\d-\d\d', tag)
-                    quarantine_date_iso = m.group(1)
+                    quarantine_date_iso = m.group(0)
                 quarantine_date = time.strptime(quarantine_date_iso, "%Y-%m-%d")
                 before_date = time.strptime(options.quarantined_before, "%Y-%m-%d")
                 if quarantine_date > before_date:
