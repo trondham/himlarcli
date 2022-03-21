@@ -216,7 +216,7 @@ def action_mail():
 
 def action_enddate():
     if not options.list and not options.template:
-        himutils.sys_error("Option '--template' is required when sending mail")
+        utils.sys_error("Option '--template' is required when sending mail")
         sys.exit(1)
 
     search_filter = dict()
