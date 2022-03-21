@@ -208,6 +208,30 @@ def action_mail():
         else:
             print "Spam sent to %s" % user
 
+def action_enddate():
+    search_filter = dict()
+    if options.filter and options.filter != 'all':
+        search_filter['type'] = options.filter
+    projects = ksclient.get_projects(**search_filter)
+
+    today = datetime.today()
+
+    for project in projects:
+        project_type = project.type if hasattr(project, 'type') else 'None'
+        project_admin = project.admin if hasattr(project, 'admin') else 'None'
+        project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
+        project_org = project.org if hasattr(project, 'org') else 'None'
+
+        if ksclient.check_project_tag(project.id, 'quarantine_active'):
+            continue
+
+        if project_enddate == 'None':
+            continue
+
+        datetime_current = datetime.strptime(project.enddate, '%Y-%m-%d')
+
+        if datetime_current + timedelta(days=(option.days)) == today:
+            print project.name
 
 
 #---------------------------------------------------------------------
