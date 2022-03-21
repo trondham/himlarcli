@@ -259,13 +259,16 @@ def action_enddate():
             attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
 
             # Construct mail content
+            subject = 'NREC: End date in %d days for project "%s"'
             body_content = utils.load_template(inputfile=options.template,
-                                               mapping={},
+                                               mapping={'project': project.name,
+                                                        'enddate': project_enddate,
+                                                        'days': options.days},
                                                log=logger)
-            msg = mail.create_mail_with_txt_attachment(options.subject,
+            msg = mail.create_mail_with_txt_attachment(subject,
                                                        body_content,
                                                        attachment_payload,
-                                                       'resources.txt',
+                                                       'notify_enddate_before.txt',
                                                        fromaddr)
             # Send mail to user
             mail.send_mail(project_admin, msg, fromaddr)
