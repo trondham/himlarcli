@@ -122,7 +122,7 @@ def action_vendorapi():
 
 def action_mail():
     if not options.template:
-        himutils.sys_error("Option '--template' is required when sending mail")
+        utils.sys_error("Option '--template' is required when sending mail")
         sys.exit(1)
 
     if options.mail_user:
