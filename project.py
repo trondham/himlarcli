@@ -495,6 +495,10 @@ def action_quarantine():
             project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
             project_admin = project.admin if hasattr(project, 'admin') else 'None'
 
+            if not options.template:
+                himutils.sys_error("Option '--template' is required when sending mail")
+                return
+            
             # Set common mail parameters
             mail = himutils.get_client(Mail, options, logger)
             mail = Mail(options.config, debug=options.debug)

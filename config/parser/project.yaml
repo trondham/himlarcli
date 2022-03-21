@@ -149,3 +149,7 @@ opt_args:
     'help':     'Narrow list by reason for quarantine'
     'choices':  ['all', 'teppe', 'enddate', 'disabled-user']
     'default':  'all'
+  '--template':
+    'sub':      ['quarantine']
+    'dest':     'template'
+    'help':     'Path to email template'
