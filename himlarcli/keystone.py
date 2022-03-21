@@ -590,7 +590,7 @@ class Keystone(Client):
 
     def add_project_tag(self, project_id, tag):
         if self.dry_run:
-            self.log_dry_run('add_project_tag', tag)
+            self.log_dry_run('add_project_tag: %s' % tag)
             return
         try:
             project = self.client.projects.add_tag(project=project_id, tag=tag)
@@ -601,7 +601,7 @@ class Keystone(Client):
 
     def delete_project_tag(self, project_id, tag):
         if self.dry_run:
-            self.log_dry_run('delete_project_tag', tag)
+            self.log_dry_run('delete_project_tag: %s' % tag)
             return
         try:
             if self.client.projects.check_tag(project=project_id, tag=tag):
