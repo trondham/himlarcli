@@ -70,6 +70,9 @@ opt_args:
   '--list':
     'sub':      ['enddate']
     'dest':     'list'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
     'help':     'Simply list projects'
   'project':
    'sub':       ['show']
