@@ -42,7 +42,7 @@ opt_args:
     'required': true
     'help':     'Path to email template'
   '--subject':
-    'sub':      ['mail','enddate']
+    'sub':      ['mail']
     'dest':     'subject'
     'required': true
     'help':     'Mail subject'
