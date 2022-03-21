@@ -251,6 +251,7 @@ def action_enddate():
 
             attachment_payload = ''
 
+            options.admin = project_admin  # for prettyprint_project_metadata()
             attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
             attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
             attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
