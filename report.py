@@ -221,7 +221,8 @@ def action_enddate():
         project_admin = project.admin if hasattr(project, 'admin') else 'None'
         project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
         project_org = project.org if hasattr(project, 'org') else 'None'
-
+        project_contact = project.contact if hasattr(project, 'contact') else 'None'
+        
         # Ignore DEMO projects
         if project_type == 'demo':
             continue
@@ -245,7 +246,11 @@ def action_enddate():
             fromaddr = options.fromaddr
         else:
             fromaddr = 'support@nrec.no'
-
+        if project_contact != 'None':
+            ccaddr = project_contact
+        else:
+            ccaddr = None
+            
         print 'DEBUG: %d %s' % ((enddate - today).days, project.name)
         if (enddate - today).days == options.days:
 
@@ -269,13 +274,16 @@ def action_enddate():
                                                        body_content,
                                                        attachment_payload,
                                                        'notify_enddate_before.txt',
-                                                       fromaddr)
+                                                       fromaddr,
+                                                       ccaddr)
             # Send mail to user
             mail.send_mail(project_admin, msg, fromaddr)
             if options.dry_run:
                 print "Did NOT send spam to %s;" % project_admin
                 print "Subject: %s" % subject
                 print "To: %s" % project_admin
+                if ccaddr:
+                    print "Cc: %s" % ccaddr
                 print "From: %s" % fromaddr
                 print '---'
                 print body_content
