@@ -504,43 +504,40 @@ def action_quarantine():
             else:
                 ccaddr = None
             
-            print 'DEBUG: %d %s' % ((enddate - today).days, project.name)
-            if (enddate - today).days == options.days:
+            attachment_payload = ''
 
-                attachment_payload = ''
+            options.admin = project_admin  # for prettyprint_project_metadata()
+            attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
+            attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
+            attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
+            attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
+            attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
 
-                options.admin = project_admin  # for prettyprint_project_metadata()
-                attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
-                attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
-                attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
-                attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
-                attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
-
-                # Construct mail content
-                subject = 'NREC: End date in %d days for project "%s"' % (options.days, project.name)
-                body_content = himutils.load_template(inputfile=options.template,
-                                                      mapping={'project': project.name,
-                                                               'enddate': project_enddate},
-                                                      log=logger)
-                msg = mail.create_mail_with_txt_attachment(subject,
-                                                           body_content,
-                                                           attachment_payload,
-                                                           'resources.txt',
-                                                           fromaddr,
-                                                           ccaddr)
-                # Send mail to user
-                mail.send_mail(project_admin, msg, fromaddr)
-                if options.dry_run:
-                    print "Did NOT send spam to %s;" % project_admin
-                    print "Subject: %s" % subject
-                    print "To: %s" % project_admin
-                    if ccaddr:
-                        print "Cc: %s" % ccaddr
-                    print "From: %s" % fromaddr
-                    print '---'
-                    print body_content
-                else:
-                    print "Spam sent to %s" % project_admin
+            # Construct mail content
+            subject = 'NREC: End date in %d days for project "%s"' % (options.days, project.name)
+            body_content = himutils.load_template(inputfile=options.template,
+                                                  mapping={'project': project.name,
+                                                           'enddate': project_enddate},
+                                                  log=logger)
+            msg = mail.create_mail_with_txt_attachment(subject,
+                                                       body_content,
+                                                       attachment_payload,
+                                                       'resources.txt',
+                                                       fromaddr,
+                                                       ccaddr)
+            # Send mail to user
+            mail.send_mail(project_admin, msg, fromaddr)
+            if options.dry_run:
+                print "Did NOT send spam to %s;" % project_admin
+                print "Subject: %s" % subject
+                print "To: %s" % project_admin
+                if ccaddr:
+                    print "Cc: %s" % ccaddr
+                print "From: %s" % fromaddr
+                print '---'
+                print body_content
+            else:
+                print "Spam sent to %s" % project_admin
 
         ksclient.project_quarantine_set(options.project, options.reason, date)
         printer.output_msg('Quarantine set for project: {}'. format(options.project))
