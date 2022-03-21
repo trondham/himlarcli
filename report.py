@@ -261,7 +261,6 @@ def action_enddate():
         else:
             ccaddr = None
             
-        print 'DEBUG: %d %s' % ((enddate - today).days, project.name)
         if (enddate - today).days == options.days:
 
             if options.list:
