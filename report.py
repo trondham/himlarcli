@@ -222,18 +222,56 @@ def action_enddate():
         project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
         project_org = project.org if hasattr(project, 'org') else 'None'
 
+        # Ignore DEMO projects
+        if project_type == 'demo':
+            continue
+
+        # Ignore already quarantined projects
         if ksclient.check_project_tag(project.id, 'quarantine_active'):
             continue
 
+        # Ignore projects without an enddate
         if project_enddate == 'None':
             continue
 
-        datetime_current = datetime.strptime(project.enddate, '%Y-%m-%d')
-        datetime_warning = datetime_current + timedelta(days=(options.days))
+        # Get current enddate
+        enddate = datetime.strptime(project.enddate, '%Y-%m-%d')
 
-        print datetime_current
-#        if datetime_warning - today timedelta(days=(options.days)) == today:
-#            print project.name
+        # Set common mail parameters
+        mail = utils.get_client(Mail, options, logger)
+        mail = Mail(options.config, debug=options.debug)
+        mail.set_dry_run(options.dry_run)
+        if options.fromaddr:
+            fromaddr = options.fromaddr
+        else:
+            fromaddr = 'support@nrec.no'
+
+        print 'DEBUG: %d %s' % ((enddate - today).days, project.name)
+        if (enddate - today).days == options.days:
+
+            attachment_payload = ''
+
+            attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, user)
+            attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
+            attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
+            attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
+            attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
+
+            # Construct mail content
+            body_content = utils.load_template(inputfile=options.template,
+                                               mapping={},
+                                               log=logger)
+            msg = mail.create_mail_with_txt_attachment(options.subject,
+                                                       body_content,
+                                                       attachment_payload,
+                                                       'resources.txt',
+                                                       fromaddr)
+            # Send mail to user
+            mail.send_mail(project_admin, msg, fromaddr)
+            if options.dry_run:
+                print "Did NOT send spam to %s" % project_admin
+            else:
+                print "Spam sent to %s" % user
 
 
 #---------------------------------------------------------------------

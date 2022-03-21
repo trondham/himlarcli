@@ -207,13 +207,13 @@ def action_extend():
 
     if not options.enddate or options.enddate == 'max':
         datetime_enddate = today + timedelta(days=730)
-    elif re.match(r'^\+(\d)([y|m|d])$', options.enddate):
+    elif re.match(r'^\+(\d+)([y|m|d])$', options.enddate):
         if current == 'None':
             himutils.sys_error("Project does not have an existing enddate")
         else:
             datetime_current = datetime.strptime(project.enddate, '%Y-%m-%d')
 
-        m = re.match(r'^\+(\d)([y|m|d])$', options.enddate)
+        m = re.match(r'^\+(\d+)([y|m|d])$', options.enddate)
         if m.group(2) == 'y':
             datetime_enddate = datetime_current + timedelta(days=(365 * int(m.group(1))))
         elif m.group(2) == 'm':
