@@ -64,6 +64,7 @@ opt_args:
   '--days':
     'sub':      ['enddate']
     'dest':     'days'
+    'type':     int
     'required': true
     'help':     'Number of days until enddate as criterion for alert'
   'project':
