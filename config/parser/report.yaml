@@ -67,6 +67,10 @@ opt_args:
     'type':     int
     'required': true
     'help':     'Number of days until enddate as criterion for alert'
+  '--list':
+    'sub':      ['enddate']
+    'dest':     'list'
+    'help':     'Simply list projects'
   'project':
    'sub':       ['show']
    'metavar':   'project'

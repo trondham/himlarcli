@@ -498,7 +498,7 @@ def action_quarantine():
             if not options.template:
                 himutils.sys_error("Option '--template' is required when sending mail")
                 return
-            
+
             # Set common mail parameters
             mail = himutils.get_client(Mail, options, logger)
             mail = Mail(options.config, debug=options.debug)
@@ -508,7 +508,7 @@ def action_quarantine():
                 ccaddr = project_contact
             else:
                 ccaddr = None
-            
+
             options.detail = True # we want details
             options.admin = project_admin  # for prettyprint_project_metadata()
 

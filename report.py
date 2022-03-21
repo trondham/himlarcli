@@ -256,41 +256,44 @@ def action_enddate():
         print 'DEBUG: %d %s' % ((enddate - today).days, project.name)
         if (enddate - today).days == options.days:
 
-            attachment_payload = ''
-
-            options.admin = project_admin  # for prettyprint_project_metadata()
-            attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
-            attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
-            attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
-            attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
-            attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
-
-            # Construct mail content
-            subject = 'NREC: End date in %d days for project "%s"' % (options.days, project.name)
-            body_content = utils.load_template(inputfile=options.template,
-                                               mapping={'project': project.name,
-                                                        'enddate': project_enddate,
-                                                        'days': options.days},
-                                               log=logger)
-            msg = mail.create_mail_with_txt_attachment(subject,
-                                                       body_content,
-                                                       attachment_payload,
-                                                       'resources.txt',
-                                                       fromaddr,
-                                                       ccaddr)
-            # Send mail to user
-            mail.send_mail(project_admin, msg, fromaddr)
-            if options.dry_run:
-                print "Did NOT send spam to %s;" % project_admin
-                print "Subject: %s" % subject
-                print "To: %s" % project_admin
-                if ccaddr:
-                    print "Cc: %s" % ccaddr
-                print "From: %s" % fromaddr
-                print '---'
-                print body_content
+            if options.list:
+                print project.name
             else:
-                print "Spam sent to %s" % project_admin
+                options.admin = project_admin  # for prettyprint_project_metadata()
+
+                attachment_payload = ''
+                attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
+                attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
+                attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
+                attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
+                attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
+
+                # Construct mail content
+                subject = 'NREC: End date in %d days for project "%s"' % (options.days, project.name)
+                body_content = utils.load_template(inputfile=options.template,
+                                                   mapping={'project': project.name,
+                                                            'enddate': project_enddate,
+                                                            'days': options.days},
+                                                   log=logger)
+                msg = mail.create_mail_with_txt_attachment(subject,
+                                                           body_content,
+                                                           attachment_payload,
+                                                           'resources.txt',
+                                                           fromaddr,
+                                                           ccaddr)
+                # Send mail to user
+                mail.send_mail(project_admin, msg, fromaddr)
+                if options.dry_run:
+                    print "Did NOT send spam to %s;" % project_admin
+                    print "Subject: %s" % subject
+                    print "To: %s" % project_admin
+                    if ccaddr:
+                        print "Cc: %s" % ccaddr
+                    print "From: %s" % fromaddr
+                    print '---'
+                    print body_content
+                else:
+                    print "Spam sent to %s" % project_admin
 
 
 #---------------------------------------------------------------------
