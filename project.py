@@ -493,6 +493,7 @@ def action_quarantine():
         if options.mail and options.reason == 'enddate':
             project_contact = project.contact if hasattr(project, 'contact') else 'None'
             project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
+            project_admin = project.admin if hasattr(project, 'admin') else 'None'
 
             # Set common mail parameters
             mail = himutils.get_client(Mail, options, logger)
