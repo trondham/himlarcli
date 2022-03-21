@@ -39,7 +39,6 @@ opt_args:
   '--template':
     'sub':      ['mail','enddate']
     'dest':     'template'
-    'required': true
     'help':     'Path to email template'
   '--subject':
     'sub':      ['mail']

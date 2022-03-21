@@ -121,6 +121,10 @@ def action_vendorapi():
         print instances_object
 
 def action_mail():
+    if not options.template:
+        himutils.sys_error("Option '--template' is required when sending mail")
+        sys.exit(1)
+
     if options.mail_user:
         if not ksclient.is_valid_user(email=options.mail_user, domain=options.domain):
             print "%s is not a valid user. Please check your spelling or case." % options.mail_user
@@ -211,6 +215,10 @@ def action_mail():
             print "Spam sent to %s" % user
 
 def action_enddate():
+    if not options.list and not options.template:
+        himutils.sys_error("Option '--template' is required when sending mail")
+        sys.exit(1)
+
     search_filter = dict()
     projects = ksclient.get_projects(**search_filter)
 
