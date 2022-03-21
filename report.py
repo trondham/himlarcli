@@ -273,7 +273,7 @@ def action_enddate():
             msg = mail.create_mail_with_txt_attachment(subject,
                                                        body_content,
                                                        attachment_payload,
-                                                       'notify_enddate_before.txt',
+                                                       'resources.txt',
                                                        fromaddr,
                                                        ccaddr)
             # Send mail to user
