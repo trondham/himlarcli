@@ -229,9 +229,11 @@ def action_enddate():
             continue
 
         datetime_current = datetime.strptime(project.enddate, '%Y-%m-%d')
+        datetime_warning = datetime_current + timedelta(days=(options.days))
 
-        if datetime_current + timedelta(days=(options.days)) == today:
-            print project.name
+        print datetime.abs(datetime_current)
+#        if datetime_warning - today timedelta(days=(options.days)) == today:
+#            print project.name
 
 
 #---------------------------------------------------------------------
