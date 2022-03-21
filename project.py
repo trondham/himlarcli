@@ -520,7 +520,7 @@ def action_quarantine():
             attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
 
             # Construct mail content
-            subject = 'NREC: End date in %d days for project "%s"' % (options.days, project.name)
+            subject = 'NREC: Project "%s" is scheduled for deletion' % project.name
             body_content = himutils.load_template(inputfile=options.template,
                                                   mapping={'project': project.name,
                                                            'enddate': project_enddate},
