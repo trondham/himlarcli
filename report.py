@@ -5,6 +5,8 @@ from himlarcli.printer import Printer
 from himlarcli.mail import Mail
 from himlarcli import utils
 from prettytable import PrettyTable
+from datetime import datetime
+from datetime import timedelta
 import re
 import sys
 import json
