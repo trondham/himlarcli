@@ -511,6 +511,7 @@ def action_quarantine():
             
             attachment_payload = ''
 
+            options.detail = True
             options.admin = project_admin  # for prettyprint_project_metadata()
             attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
             attachment_payload += Printer.prettyprint_project_zones(project, options, logger)

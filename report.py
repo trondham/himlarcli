@@ -216,6 +216,8 @@ def action_enddate():
 
     today = datetime.today()
 
+    options.detail = True
+
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else 'None'
         project_admin = project.admin if hasattr(project, 'admin') else 'None'
