@@ -251,7 +251,7 @@ def action_enddate():
 
             attachment_payload = ''
 
-            attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, user)
+            attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
             attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
             attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
             attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
@@ -271,7 +271,7 @@ def action_enddate():
             if options.dry_run:
                 print "Did NOT send spam to %s" % project_admin
             else:
-                print "Spam sent to %s" % user
+                print "Spam sent to %s" % project_admin
 
 
 #---------------------------------------------------------------------
