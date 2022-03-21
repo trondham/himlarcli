@@ -210,8 +210,6 @@ def action_mail():
 
 def action_enddate():
     search_filter = dict()
-    if options.filter and options.filter != 'all':
-        search_filter['type'] = options.filter
     projects = ksclient.get_projects(**search_filter)
 
     today = datetime.today()
