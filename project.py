@@ -509,10 +509,10 @@ def action_quarantine():
             else:
                 ccaddr = None
             
-            attachment_payload = ''
-
-            options.detail = True
+            options.detail = True # we want details
             options.admin = project_admin  # for prettyprint_project_metadata()
+
+            attachment_payload = ''
             attachment_payload += Printer.prettyprint_project_metadata(project, options, logger, regions, project_admin)
             attachment_payload += Printer.prettyprint_project_zones(project, options, logger)
             attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)

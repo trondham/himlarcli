@@ -216,7 +216,7 @@ def action_enddate():
 
     today = datetime.today()
 
-    options.detail = True
+    options.detail = True # we want details
 
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else 'None'
