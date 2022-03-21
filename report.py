@@ -274,7 +274,9 @@ def action_enddate():
             mail.send_mail(project_admin, msg, fromaddr)
             if options.dry_run:
                 print "Did NOT send spam to %s;" % project_admin
-                print subject
+                print "Subject: %s" % subject
+                print "To: %s" % project_admin
+                print "From: %s" % fromaddr
                 print '---'
                 print body_content
             else:
