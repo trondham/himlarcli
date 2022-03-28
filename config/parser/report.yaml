@@ -63,7 +63,6 @@ opt_args:
   '--days':
     'sub':      ['enddate']
     'dest':     'days'
-    'required': true
     'help':     'Number of days until enddate as criterion for alert (can be used multiple times)'
   '--list':
     'sub':      ['enddate']
@@ -71,7 +70,7 @@ opt_args:
     'action':   'store_const'
     'const':    true
     'default':  false
-    'help':     'Simply list projects'
+    'help':     'List projects and days until enddate'
   'project':
    'sub':       ['show']
    'metavar':   'project'
