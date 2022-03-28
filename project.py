@@ -188,12 +188,6 @@ def action_create_private():
     if not options.quota:
         options.quota = 'small'
 
-    # Set enddate to 2 years from today as default
-    if options.enddate == 'max':
-        max_enddate = datetime.today()
-        max_enddate += timedelta(days=730)
-        options.enddate = max_enddate.strftime('%d.%m.%Y')
-
     # Call main create function
     action_create()
 
