@@ -230,6 +230,8 @@ def action_enddate():
         project_list = dict()
         for project in projects:
             project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
+            project_type = project.type if hasattr(project, 'type') else 'None'
+
             # Ignore DEMO projects
             if project_type == 'demo':
                 continue
@@ -248,7 +250,7 @@ def action_enddate():
             # store data
             project_list[project.name] = (enddate - today).days
 
-        #for project in dict(sorted(project_list.items(), key=lambda item: item[1])):
+        #PY3: for project in dict(sorted(project_list.items(), key=lambda item: item[1])):
         for project in project_list:
             print "%-4s %s" % (project_list[project], project)
         return
