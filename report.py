@@ -219,6 +219,10 @@ def action_enddate():
         utils.sys_error("Option '--template' is required when sending mail")
         sys.exit(1)
 
+    if not options.list and not options.days:
+        utils.sys_error("Option '--days' is required")
+        sys.exit(1)        
+
     search_filter = dict()
     projects = ksclient.get_projects(**search_filter)
 
