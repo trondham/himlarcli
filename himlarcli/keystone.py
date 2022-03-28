@@ -280,7 +280,7 @@ class Keystone(Client):
 
         # Disable project
         self.disable_project(project.id)
-        
+
         return None
 
     def project_quarantine_unset(self, project_name):
@@ -308,7 +308,7 @@ class Keystone(Client):
 
         # Enable project
         self.enable_project(project.id)
-        
+
         return None
 
 ############################# DELETE FUNCTIONS ################################
