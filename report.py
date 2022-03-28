@@ -291,6 +291,7 @@ def action_enddate():
             ccaddr = None
 
         for days in options.days:
+            days = int(days)
             if (enddate - today).days == days:
 
                 if options.list:

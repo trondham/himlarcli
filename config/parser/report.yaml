@@ -63,6 +63,7 @@ opt_args:
   '--days':
     'sub':      ['enddate']
     'dest':     'days'
+    'action':   'append'
     'help':     'Number of days until enddate as criterion for alert (can be used multiple times)'
   '--list':
     'sub':      ['enddate']
