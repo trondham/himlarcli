@@ -32,7 +32,8 @@ opt_args:
   '--end':
     'sub':      ['create', 'extend', 'create-private']
     'dest':     'enddate'
-    'help':     'set end date for projects ("max" or "YYYY-MM-DD" or "DD.MM.YYYY" or "+<num>[ymd]" for extending). Default = max'
+    'help':     'Set end date for projects. Argument is one of: "max" sets maximum end date (2 years from today). Exact date as "YYYY-MM-DD" or "DD.MM.YYYY". When extending an existing end date: "+<num>[ymd]" (e.g. "+1y" to extend for 1 year)'
+    'default':  'max'
   '-f':
     'sub':      ['list']
     'dest':     'filter'

@@ -51,7 +51,7 @@ def action_create():
     project_msg = project_msg_file
 
     today = datetime.today()
-    if not options.enddate or options.enddate == 'max':
+    if options.enddate == 'max':
         datetime_enddate = today + timedelta(days=730)
     elif re.match(r'^(\d\d\d\d-\d\d-\d\d)$', options.enddate):
         try:
@@ -188,8 +188,8 @@ def action_create_private():
     if not options.quota:
         options.quota = 'small'
 
-    # Set enddate to 2 years from today if not provided
-    if not options.enddate:
+    # Set enddate to 2 years from today as default
+    if options.enddate == 'max':
         max_enddate = datetime.today()
         max_enddate += timedelta(days=730)
         options.enddate = max_enddate.strftime('%d.%m.%Y')
@@ -205,7 +205,7 @@ def action_extend():
     today = datetime.today()
     current = project.enddate if hasattr(project, 'enddate') else 'None'
 
-    if not options.enddate or options.enddate == 'max':
+    if options.enddate == 'max':
         datetime_enddate = today + timedelta(days=730)
     elif re.match(r'^\+(\d+)([y|m|d])$', options.enddate):
         if current == 'None':
