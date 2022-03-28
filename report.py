@@ -329,7 +329,7 @@ def action_enddate():
                         body_content = utils.load_template(inputfile=options.template,
                                                            mapping={'project': project.name,
                                                                     'enddate': project_enddate,
-                                                                    'ago': (today - enddate).days,
+                                                                    'ago': -days,
                                                                     'days': 90 + days},
                                                            log=logger)
                         msg = mail.create_mail_with_txt_attachment(subject,
