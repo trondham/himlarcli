@@ -230,6 +230,7 @@ def action_extend():
     enddate = datetime_enddate.strftime('%Y-%m-%d')
     ksclient.update_project(project_id=project.id, enddate=str(enddate),
                             disabled='', notified='', enabled=True)
+    print "New end date for %s: %s" % (project.name, enddate)
 
 def action_grant():
     for user in options.users:
