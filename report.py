@@ -221,7 +221,7 @@ def action_enddate():
 
     if not options.list and not options.days:
         utils.sys_error("Option '--days' is required")
-        sys.exit(1)        
+        sys.exit(1)
 
     search_filter = dict()
     projects = ksclient.get_projects(**search_filter)
@@ -243,7 +243,7 @@ def action_enddate():
             # Ignore already quarantined projects
             if ksclient.check_project_tag(project.id, 'quarantine_active'):
                 continue
-            
+
             # Ignore projects without an enddate
             if project_enddate == 'None':
                 continue
@@ -265,7 +265,7 @@ def action_enddate():
         project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
         project_org = project.org if hasattr(project, 'org') else 'None'
         project_contact = project.contact if hasattr(project, 'contact') else 'None'
-        
+
         # Ignore DEMO projects
         if project_type == 'demo':
             continue
@@ -338,7 +338,7 @@ def action_enddate():
                                                                    'resources.txt',
                                                                    fromaddr,
                                                                    ccaddr)
-                        
+
                     # Send mail to user
                     mail.send_mail(project_admin, msg, fromaddr)
                     if options.dry_run:
