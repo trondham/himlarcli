@@ -226,6 +226,33 @@ def action_enddate():
 
     options.detail = True # we want details
 
+    if options.list and not options.days:
+        project_list = dict()
+        for project in projects:
+            project_enddate = project.enddate if hasattr(project, 'enddate') else 'None'
+            # Ignore DEMO projects
+            if project_type == 'demo':
+                continue
+
+            # Ignore already quarantined projects
+            if ksclient.check_project_tag(project.id, 'quarantine_active'):
+                continue
+            
+            # Ignore projects without an enddate
+            if project_enddate == 'None':
+                continue
+
+            # Get current enddate
+            enddate = datetime.strptime(project.enddate, '%Y-%m-%d')
+
+            # store data
+            project_list[project.name] = (enddate - today).days
+
+        #for project in dict(sorted(project_list.items(), key=lambda item: item[1])):
+        for project in project_list:
+            print "%-4s %s" % (project_list[project], project)
+        return
+
     for project in projects:
         project_type = project.type if hasattr(project, 'type') else 'None'
         project_admin = project.admin if hasattr(project, 'admin') else 'None'
@@ -260,12 +287,12 @@ def action_enddate():
             ccaddr = project_contact
         else:
             ccaddr = None
-            
+
         for days in options.days:
             if (enddate - today).days == days:
 
                 if options.list:
-                    print project.name
+                    print "%-4s %s" % (days, project.name)
                 else:
                     options.admin = project_admin  # for prettyprint_project_metadata()
 
