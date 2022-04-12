@@ -143,23 +143,82 @@ def action_deactivate():
     printer.output_dict(output)
 
 def action_enable():
+    """ Enable a user. The following happens when a user is enabled:
+          * Projects for which the user is admin is removed from quarantine
+          * API user is enabled
+          * Dataporten user is enabled
+        Version: 2022-04
+    """
     if not ksclient.is_valid_user(email=options.user):
-        himutils.sys_error('User %s not found as a valid user.' % options.user)
-    user = ksclient.get_user_by_email(options.user, 'api')
-    ksclient.update_user(user_id=user.id, enabled=True, disabled='None')
-    print("User %s enabled" % user.name)
+        himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
+
+    # get the user objects
+    user_api = ksclient.get_user_by_email(options.user, 'api')
+    user_dp  = ksclient.get_user_by_email(options.user, 'dp')
+
+    # find all the user's projects
+    projects = ksclient.get_user_projects(user_api.name)
+
+    # enable the user in API and Dataporten
+    ksclient.enable_user(user_api)
+    ksclient.enable_user(user_dp)
+
+    # remove quarantine from projects
+    for project in projects:
+        if not hasattr(project, 'admin'):
+            continue
+        if project.admin != user_api.name:
+            continue
+        ksclient.project_quarantine_unset(project.name)
+        print('Quarantine unset for project: %s' % project.name)
+
+    # Print our success
+    print("User %s enabled (API)" % user.name)
+    print("User %s enabled (Dataporten)" % user.name)
 
 def action_disable():
+    """ Disable a user. The following happens when a user is disabled:
+          * Projects for which the user is admin is put into quarantine
+          * API user is disabled
+          * Dataporten user is disabled
+        Version: 2022-04
+    """
     if not ksclient.is_valid_user(email=options.user):
-        himutils.sys_error('User %s not found as a valid user.' % options.user)
-    user = ksclient.get_user_by_email(options.user, 'api')
-    date = datetime.today().strftime('%Y-%m-%d')
-    ksclient.update_user(user_id=user.id, enabled=False, disabled=date)
-    print("User %s disabled" % user.name)
-    # TODO: check to see if we can disable dataporten user as well
-    # 2019-09 We can disable the user, but we appear that we still can login
-    #user = ksclient.get_user_by_email(options.user, 'dp')
-    #ksclient.update_user(user_id=user.id, enabled=False, disabled=date)
+        himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
+
+    if options.date:
+        date = himutils.get_date(options.date, None, '%Y-%m-%d')
+    else:
+        date = datetime.now().strftime("%Y-%m-%d")
+
+    # get the user objects
+    user_api = ksclient.get_user_by_email(options.user, 'api')
+    user_dp  = ksclient.get_user_by_email(options.user, 'dp')
+
+    # find all the user's projects
+    projects = ksclient.get_user_projects(user_api.name)
+
+    # put projects into quarantine
+    for project in projects:
+        if not hasattr(project, 'admin'):
+            continue
+        if project.admin != user_api.name:
+            continue
+        if options.reason == 'deleted':
+            ksclient.project_quarantine_set(project.name, 'deleted-user', date)
+        elif options.reason == 'teppe':
+            ksclient.project_quarantine_set(project.name, 'teppe', date)
+        else:
+            himutils.sys_error('Unknown reason "%s".' % options.reason, 1)
+        print('Quarantine set for project: %s' % project.name)
+
+    # disable the user in API and Dataporten
+    ksclient.disable_user(user_api, options.reason, date)
+    ksclient.disable_user(user_dp, options.reason, date)
+
+    # Print our success
+    print("User %s disabled (API)" % user.name)
+    print("User %s disabled (Dataporten)" % user.name)
 
 def action_validate():
     if options.org == 'all':

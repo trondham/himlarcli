@@ -750,6 +750,39 @@ class Keystone(Client):
         if password:
             print("New password: %s" % password)
 
+    def disable_user(self, user, reason, date):
+        """ Disable a user
+            version: 2022-04
+            :param user: user object
+            :param reason: reason for disabling user (string)
+            :param date: date then user was disabled (string)
+        """
+        if self.dry_run:
+            self.log_dry_run('disable_user(%s)' % user.name)
+            return
+        try:
+            date_reason = '%s %s' % (date, reason)
+            self.update_user(user_id=user.id, enabled=False, disabled=date_reason)
+            self.logger.debug('=> disable_user(%s)' % user.name)
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('User %s not disabled' % user.name)
+
+    def enable_user(self, user):
+        """ Enable a user
+            version: 2022-04
+            :param user: user object
+        """
+        if self.dry_run:
+            self.log_dry_run('enable_user(%s)' % user.name)
+            return
+        try:
+            self.update_user(user_id=user.id, enabled=True, disabled='None')
+            self.logger.debug('=> enable_user(%s)' % user.name)
+        except exceptions.http.BadRequest as e:
+            self.log_error(e)
+            self.log_error('User %s not enabled' % user.name)
+
     def provision_dataporten(self, email, password):
         """
         Create a api user and demo project for a dataporten user.
