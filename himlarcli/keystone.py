@@ -750,38 +750,39 @@ class Keystone(Client):
         if password:
             print("New password: %s" % password)
 
-    def disable_user(self, user, reason, date):
+    def disable_user(self, user_id, user_name, reason, date):
         """ Disable a user
             version: 2022-04
-            :param user: user object
+            :param user_id: user ID (string)
+            :param user_name: user name (string)
             :param reason: reason for disabling user (string)
             :param date: date then user was disabled (string)
         """
         if self.dry_run:
-            self.log_dry_run('disable_user(%s)' % user.name)
+            self.log_dry_run('disable_user(%s, %s)' % (user_id, user_name))
             return
         try:
             date_reason = '%s %s' % (date, reason)
-            self.update_user(user_id=user.id, enabled=False, disabled=date_reason)
-            self.logger.debug('=> disable_user(%s)' % user.name)
+            self.update_user(user_id=user_id, enabled=False, disabled=date_reason)
+            self.logger.debug('=> disable_user(%s, %s)' % (user_id, user_name))
         except exceptions.http.BadRequest as e:
             self.log_error(e)
-            self.log_error('User %s not disabled' % user.name)
+            self.log_error('User %s not disabled' % user_id)
 
-    def enable_user(self, user):
+    def enable_user(self, user_id):
         """ Enable a user
             version: 2022-04
             :param user: user object
         """
         if self.dry_run:
-            self.log_dry_run('enable_user(%s)' % user.name)
+            self.log_dry_run('enable_user(%s)' % user_id)
             return
         try:
-            self.update_user(user_id=user.id, enabled=True, disabled='None')
-            self.logger.debug('=> enable_user(%s)' % user.name)
+            self.update_user(user_id=user_id, enabled=True, disabled='None')
+            self.logger.debug('=> enable_user(%s)' % user_id)
         except exceptions.http.BadRequest as e:
             self.log_error(e)
-            self.log_error('User %s not enabled' % user.name)
+            self.log_error('User %s not enabled' % user_id)
 
     def provision_dataporten(self, email, password):
         """

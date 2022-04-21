@@ -153,25 +153,24 @@ def action_enable():
         himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
 
     # get the user objects
-    user_api = ksclient.get_user_objects(email=options.user, domain='api')
-    user_dp  = ksclient.get_user_objects(email=options.user, domain='dp')
+    user = ksclient.get_user_objects(email=options.user, domain='api')
 
     # enable the user in API and Dataporten
-    ksclient.enable_user(user_api)
-    ksclient.enable_user(user_dp)
+    ksclient.enable_user(user['api'].id)
+    ksclient.enable_user(user['dataporten'].id)
 
     # remove quarantine from projects
-    for project in user_api['projects']:
+    for project in user['projects']:
         if not hasattr(project, 'admin'):
             continue
-        if project.admin != user_api.name:
+        if project.admin != user['api'].name:
             continue
         ksclient.project_quarantine_unset(project.name)
         print('Quarantine unset for project: %s' % project.name)
 
     # Print our success
-    print("User %s enabled (API)" % user.name)
-    print("User %s enabled (Dataporten)" % user.name)
+    print("User %s enabled (API)" % user['api'].name)
+    print("User %s enabled (Dataporten)" % user['dataporten'].name)
 
 def action_disable():
     """ Disable a user. The following happens when a user is disabled:
@@ -189,14 +188,13 @@ def action_disable():
         date = datetime.now().strftime("%Y-%m-%d")
 
     # get the user objects
-    user_api = ksclient.get_user_objects(email=options.user, domain='api')
-    user_dp  = ksclient.get_user_objects(email=options.user, domain='dp')
+    user = ksclient.get_user_objects(email=options.user, domain='api')
 
     # put projects into quarantine
-    for project in user_api['projects']:
+    for project in user['projects']:
         if not hasattr(project, 'admin'):
             continue
-        if project.admin != user_api.name:
+        if project.admin != user['api'].name:
             continue
         if options.reason == 'deleted':
             ksclient.project_quarantine_set(project.name, 'deleted-user', date)
@@ -207,12 +205,12 @@ def action_disable():
         print('Quarantine set for project: %s' % project.name)
 
     # disable the user in API and Dataporten
-    ksclient.disable_user(user_api, options.reason, date)
-    ksclient.disable_user(user_dp, options.reason, date)
+    ksclient.disable_user(user['api'].id, user['api'].name, options.reason, date)
+    ksclient.disable_user(user['dataporten'].id, user['dataporten'].name, options.reason, date)
 
     # Print our success
-    print("User %s disabled (API)" % user.name)
-    print("User %s disabled (Dataporten)" % user.name)
+    print("User %s disabled (API)" % user['api'].name)
+    print("User %s disabled (Dataporten)" % user['dataporten'].name)
 
 def action_validate():
     if options.org == 'all':
