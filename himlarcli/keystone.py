@@ -750,21 +750,20 @@ class Keystone(Client):
         if password:
             print("New password: %s" % password)
 
-    def disable_user(self, user_id, user_name, reason, date):
+    def disable_user(self, user_id, reason, date):
         """ Disable a user
             version: 2022-04
             :param user_id: user ID (string)
-            :param user_name: user name (string)
             :param reason: reason for disabling user (string)
             :param date: date then user was disabled (string)
         """
         if self.dry_run:
-            self.log_dry_run('disable_user(%s, %s)' % (user_id, user_name))
+            self.log_dry_run('disable_user(%s)' % user_id)
             return
         try:
             date_reason = '%s %s' % (date, reason)
             self.update_user(user_id=user_id, enabled=False, disabled=date_reason)
-            self.logger.debug('=> disable_user(%s, %s)' % (user_id, user_name))
+            self.logger.debug('=> disable_user(%s)' % user_id)
         except exceptions.http.BadRequest as e:
             self.log_error(e)
             self.log_error('User %s not disabled' % user_id)
@@ -772,7 +771,7 @@ class Keystone(Client):
     def enable_user(self, user_id):
         """ Enable a user
             version: 2022-04
-            :param user: user object
+            :param user_id: user ID (string)
         """
         if self.dry_run:
             self.log_dry_run('enable_user(%s)' % user_id)
