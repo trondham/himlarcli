@@ -144,7 +144,7 @@ class Printer(object):
         # Print header for project
         out_str += "%sPROJECT: %s" % (status, project.name)
         if user is not None and not options.admin:
-            prole = 'admin' if user == project.admin else 'member'
+            prole = 'admin' if user == project_admin else 'member'
             out_str += " (%s)" % prole
         out_str += "\n" + '=' * 80 + "\n"
 
