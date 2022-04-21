@@ -70,7 +70,7 @@ opt_args:
     'dest':     'limit'
     'help':     'limit the number of users'
   '--force':
-    'sub':      ['delete', 'enable', 'disable']
+    'sub':      ['delete', 'disable']
     'dest':     'force'
     'action':   'store_const'
     'const':    true
