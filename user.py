@@ -152,6 +152,10 @@ def action_enable():
     if not ksclient.is_valid_user(email=options.user):
         himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
 
+    if not options.force:
+        if not himutils.confirm_action('Enable user %s' % options.user):
+            return
+
     # get the user objects
     user = ksclient.get_user_objects(email=options.user, domain='api')
 
@@ -181,6 +185,10 @@ def action_disable():
     """
     if not ksclient.is_valid_user(email=options.user):
         himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
+
+    if not options.force:
+        if not himutils.confirm_action('Disable user %s' % options.user):
+            return
 
     if options.date:
         date = himutils.get_date(options.date, None, '%Y-%m-%d')
