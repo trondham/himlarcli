@@ -92,6 +92,10 @@ def action_rename():
 
 # pylint: disable=E1101
 def action_deactivate():
+    # disabled (trondham, 2022-04-21)
+    print("This action is not in use")
+    return
+
     if options.org == 'all':
         active, deactive, unknown = get_valid_users()
     else:
