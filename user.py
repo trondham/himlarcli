@@ -153,8 +153,8 @@ def action_enable():
         himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
 
     # get the user objects
-    user_api = ksclient.get_user_objects(email=options.user, 'api')
-    user_dp  = ksclient.get_user_objects(email=options.user, 'dp')
+    user_api = ksclient.get_user_objects(email=options.user, domain='api')
+    user_dp  = ksclient.get_user_objects(email=options.user, domain='dp')
 
     # enable the user in API and Dataporten
     ksclient.enable_user(user_api)
@@ -189,8 +189,8 @@ def action_disable():
         date = datetime.now().strftime("%Y-%m-%d")
 
     # get the user objects
-    user_api = ksclient.get_user_objects(email=options.user, 'api')
-    user_dp  = ksclient.get_user_objects(email=options.user, 'dp')
+    user_api = ksclient.get_user_objects(email=options.user, domain='api')
+    user_dp  = ksclient.get_user_objects(email=options.user, domain='dp')
 
     # put projects into quarantine
     for project in user_api['projects']:
