@@ -307,7 +307,7 @@ def action_purge():
 
     # stop here if there are no users to delete
     if count == 0:
-        print("Zero users to delete")
+        print("Nothing to do. Zero users to delete")
         return
 
     # formulate question
