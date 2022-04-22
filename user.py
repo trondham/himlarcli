@@ -258,7 +258,8 @@ def action_list_disabled():
 
 def action_purge():
     disabled_users = ksclient.get_users(domain=options.domain, enabled=False)
-    purge_users = dict()
+    purge_users = list()
+    user_days = dict()
     for user in disabled_users:
         if not hasattr(user, 'disabled'):
             himutils.sys_error("WARNING: User %s is disabled without date and reason. IGNORING" % user.name, 0)
@@ -302,7 +303,8 @@ def action_purge():
             break
 
         # store user and days disabled in dictionary
-        purge_users[user] = date.today() - disabled_date
+        purge_users.append(user)
+        user_days[user.id] = date.today() - disabled_date
 
     # stop here if there are no users to delete
     if len(purge_users) == 0:
@@ -312,7 +314,7 @@ def action_purge():
     # formulate question
     question = "Found %d disabled users that match the criteria:\n\n" % len(purge_users)
     for user in purge_users:
-        question += "  %-4d  %s\n" % (purge_users[user], user.name)
+        question += "  %-4d  %s\n" % (user_days[user.id], user.name)
     question += "\nDelete these users?"
 
     # ask for confirmation if not forced

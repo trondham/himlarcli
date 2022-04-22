@@ -96,4 +96,3 @@ opt_args:
     'help':     'Number of days since the user was disabled. Default = 90'
     'default':  90
     'type':     int
-    
