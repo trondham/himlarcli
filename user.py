@@ -257,11 +257,10 @@ def action_list_disabled():
     printer.output_dict({'header': 'Count', 'disabled_users': count})
 
 def action_purge():
-    active = ksclient.get_users(domain=options.domain, enabled=True)
-    users = ksclient.get_users(domain=options.domain, enabled=False)
+    disabled_users = ksclient.get_users(domain=options.domain, enabled=False)
+    purge_users = list()
     count = 0
-    disabled = list()
-    for user in users:
+    for user in disabled_users:
         if not hasattr(user, 'disabled'):
             himutils.sys_error("User %s is disabled but missing disabled date and reason" % user.name)
             continue
@@ -291,24 +290,22 @@ def action_purge():
             break
 
         count += 1
-        disabled.append(user)
+        purge_users.append(user)
 
     # stop here if there are no users to delete
     if count == 0:
         print("Zero users to delete")
         return
 
-    question = "Found %d disabled users that matches the criteria:\n\n" % len(disabled)
-    for user in disabled:
-        question += "  %s\n" % user.name
+    question = "Found %d disabled users that match the criteria:\n\n" % len(disabled)
+    for user in purge_users:
+        question += "  [%s]  %s\n" % (user.disabled, user.name)
     question += "\nDelete these users?"
     
-    q = 'This will delete %s disabled users (total active users %s)' \
-        % (len(disabled), len(active))
     if not himutils.confirm_action(question):
         return
 
-    for user in disabled:
+    for user in purge_users:
         ksclient.user_cleanup(email=user.name)
         print("%s deleted" % user.name)
 
