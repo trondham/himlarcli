@@ -258,8 +258,7 @@ def action_list_disabled():
 
 def action_purge():
     disabled_users = ksclient.get_users(domain=options.domain, enabled=False)
-    purge_users = list()
-    count = 0
+    purge_users = dict()
     for user in disabled_users:
         if not hasattr(user, 'disabled'):
             himutils.sys_error("WARNING: User %s is disabled without date and reason. IGNORING" % user.name, 0)
@@ -274,8 +273,8 @@ def action_purge():
         if reason != options.reason:
             continue
         
-        # allow 97 days gracetime before we delete
-        gracetime = timedelta(97)
+        # allow gracetime before we delete
+        gracetime = timedelta(options.days)
         if date.today() - disabled_date < gracetime:
             continue
 
@@ -299,21 +298,21 @@ def action_purge():
             continue
 
         # limit how many are deleted at once
-        if options.limit and count >= int(options.limit):
+        if options.limit and len(purge_users) >= int(options.limit):
             break
 
-        count += 1
-        purge_users.append(user)
+        # store user and days disabled in dictionary
+        purge_users[user] = date.today() - disabled_date
 
     # stop here if there are no users to delete
-    if count == 0:
+    if len(purge_users) == 0:
         print("Nothing to do. Zero users to delete")
         return
 
     # formulate question
     question = "Found %d disabled users that match the criteria:\n\n" % len(purge_users)
     for user in purge_users:
-        question += "  [%s]  %s\n" % (user.disabled, user.name)
+        question += "  %-4d  %s\n" % (purge_users[user], user.name)
     question += "\nDelete these users?"
 
     # ask for confirmation if not forced
@@ -323,7 +322,7 @@ def action_purge():
     # actually delete the users
     for user in purge_users:
         ksclient.user_cleanup(email=user.name)
-        print("%s deleted" % user.name)
+        print("Deleted user: %s" % user.name)
 
 def action_password():
     if not ksclient.is_valid_user(email=options.user, domain=options.domain):

@@ -68,7 +68,7 @@ opt_args:
   '--limit':
     'sub':      ['validate', 'deactivate', 'purge']
     'dest':     'limit'
-    'help':     'limit the number of users'
+    'help':     'Limit the number of users'
   '--force':
     'sub':      ['delete', 'disable', 'purge']
     'dest':     'force'
@@ -90,3 +90,8 @@ opt_args:
     'sub':      ['disable']
     'dest':     'date'
     'help':     'Set the date for when user was disabled (YYYY-MM-DD). Default = today'
+  '--days':
+    'sub':      ['purge']
+    'dest':     'days'
+    'help':     'Number of days since the user was disabled. Default = 90'
+    'default':  '90'
