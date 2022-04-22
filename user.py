@@ -240,7 +240,7 @@ def action_validate():
 
 def action_list_disabled():
     users = ksclient.get_users(domain=options.domain, enabled=False)
-    printer.output_dict({'header': 'Disabled user list (name, date)'})
+    printer.output_dict({'header': 'Disabled user list (name, date reason)'})
     count = 0
     for user in users:
         if options.org != 'all':
@@ -264,17 +264,32 @@ def action_purge():
         if not hasattr(user, 'disabled'):
             himutils.sys_error("user %s is disabled but missing disabled date" % user.name)
             continue
-        # Allow 30 days gracetime before we delete
+
+        # get the disable date and reason
+        m = re.search('^(\d\d\d\d-\d\d-\d\d) (\w)$', user.disabled)
+        reason = m.group(1)
+        disabled_date = himutils.get_date(m.group(0), None, '%Y-%m-%d')
+
+        # only delete users with the given reason
+        if reason != options.reason:
+            continue
+        
+        # allow 97 days gracetime before we delete
         disabled_date = himutils.get_date(user.disabled, None, '%Y-%m-%d')
-        gracetime = timedelta(30)
+        gracetime = timedelta(97)
         if date.today() - disabled_date < gracetime:
             continue
+
+        # only delete users with the given org
         if options.org != 'all':
             org = ksclient.get_user_org(user.name)
             if org and org != options.org:
                 continue
+
+        # limit how many are deleted at once
         if options.limit and count >= int(options.limit):
             break
+
         count += 1
         disabled.append(user)
 
