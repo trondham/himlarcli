@@ -268,8 +268,8 @@ def action_purge():
 
         # get the disable date and reason
         m = re.fullmatch(r'(\d\d\d\d-\d\d-\d\d) (\w+)', user.disabled)
-        reason = m.group(1)
-        disabled_date = himutils.get_date(m.group(0), None, '%Y-%m-%d')
+        reason = m.group(2)
+        disabled_date = himutils.get_date(m.group(1), None, '%Y-%m-%d')
 
         # only delete users with the given reason
         if reason != options.reason:
@@ -293,9 +293,19 @@ def action_purge():
         count += 1
         disabled.append(user)
 
+    # stop here if there are no users to delete
+    if count == 0:
+        print("Zero users to delete")
+        return
+
+    question = "Found %d disabled users that matches the criteria:\n\n" % len(disabled)
+    for user in disabled:
+        question += "  %s\n" % user
+    question += "\nDelete these users?"
+    
     q = 'This will delete %s disabled users (total active users %s)' \
         % (len(disabled), len(active))
-    if not himutils.confirm_action(q):
+    if not himutils.confirm_action(question):
         return
 
     for user in disabled:
