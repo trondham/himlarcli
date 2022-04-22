@@ -304,7 +304,7 @@ def action_purge():
 
         # store user and days disabled in dictionary
         purge_users.append(user)
-        user_days[user.id] = date.today() - disabled_date
+        user_days[user.id] = (date.today() - disabled_date).days
 
     # stop here if there are no users to delete
     if len(purge_users) == 0:
@@ -314,7 +314,7 @@ def action_purge():
     # formulate question
     question = "Found %d disabled users that match the criteria:\n\n" % len(purge_users)
     for user in purge_users:
-        question += "  %-4d  %s\n" % (user_days[user.id], user.name)
+        question += "  %-4s  %s\n" % (str(user_days[user.id]), user.name)
     question += "\nDelete these users?"
 
     # ask for confirmation if not forced
