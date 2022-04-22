@@ -9,6 +9,7 @@ from himlarcli.mail import Mail
 from himlarcli import utils as himutils
 from datetime import datetime, date, timedelta
 import time
+import re
 
 # OPS! It might need some updates. We use class Mail instead of Notify now.
 
