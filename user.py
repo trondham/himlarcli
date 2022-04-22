@@ -300,7 +300,7 @@ def action_purge():
 
     question = "Found %d disabled users that matches the criteria:\n\n" % len(disabled)
     for user in disabled:
-        question += "  %s\n" % user
+        question += "  %s\n" % user.name
     question += "\nDelete these users?"
     
     q = 'This will delete %s disabled users (total active users %s)' \
