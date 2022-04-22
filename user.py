@@ -267,7 +267,7 @@ def action_purge():
             continue
 
         # get the disable date and reason
-        m = re.search('^(\d\d\d\d-\d\d-\d\d) (\w)$', user.disabled)
+        m = re.search(r'^(\d\d\d\d-\d\d-\d\d) (\w)$', user.disabled)
         reason = m.group(1)
         disabled_date = himutils.get_date(m.group(0), None, '%Y-%m-%d')
 
