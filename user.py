@@ -285,6 +285,19 @@ def action_purge():
             if org and org != options.org:
                 continue
 
+        # ignore user if they are admin for other projects than demo, private
+        user_has_projects = False
+        this_user = ksclient.get_user_objects(email=user.name, domain='api')
+        for project in this_user['projects']:
+            if not hasattr(project, 'admin'):
+                continue
+            if project.admin == this_user['api'].name:
+                user_has_projects = True
+                break
+        if user_has_projects:
+            himutils.sys_error("User %s is admin for shared projects, ignoring" % user.name)
+            continue
+
         # limit how many are deleted at once
         if options.limit and count >= int(options.limit):
             break
