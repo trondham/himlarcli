@@ -262,7 +262,7 @@ def action_purge():
     count = 0
     for user in disabled_users:
         if not hasattr(user, 'disabled'):
-            himutils.sys_error("WARNING: User %s is disabled without date and reason. IGNORING" % user.name)
+            himutils.sys_error("WARNING: User %s is disabled without date and reason. IGNORING" % user.name, 0)
             continue
 
         # get the disable date and reason
@@ -295,7 +295,7 @@ def action_purge():
                 user_has_projects = True
                 break
         if user_has_projects:
-            himutils.sys_error("WARNING: User %s is admin for shared projects. IGNORING" % user.name)
+            himutils.sys_error("WARNING: User %s is admin for shared projects. IGNORING" % user.name, 0)
             continue
 
         # limit how many are deleted at once
