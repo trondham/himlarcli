@@ -297,14 +297,17 @@ def action_purge():
         print("Zero users to delete")
         return
 
-    question = "Found %d disabled users that match the criteria:\n\n" % len(disabled)
+    # formulate question
+    question = "Found %d disabled users that match the criteria:\n\n" % len(purge_users)
     for user in purge_users:
         question += "  [%s]  %s\n" % (user.disabled, user.name)
     question += "\nDelete these users?"
-    
+
+    # ask for confirmation if not forced
     if not himutils.confirm_action(question):
         return
 
+    # actually delete the users
     for user in purge_users:
         ksclient.user_cleanup(email=user.name)
         print("%s deleted" % user.name)
