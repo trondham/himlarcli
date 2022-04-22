@@ -263,11 +263,11 @@ def action_purge():
     disabled = list()
     for user in users:
         if not hasattr(user, 'disabled'):
-            himutils.sys_error("user %s is disabled but missing disabled date" % user.name)
+            himutils.sys_error("User %s is disabled but missing disabled date and reason" % user.name)
             continue
 
         # get the disable date and reason
-        m = re.search(r'^(\d\d\d\d-\d\d-\d\d) (\w)$', user.disabled)
+        m = re.fullmatch(r'(\d\d\d\d-\d\d-\d\d) (\w+)', user.disabled)
         reason = m.group(1)
         disabled_date = himutils.get_date(m.group(0), None, '%Y-%m-%d')
 
@@ -276,7 +276,6 @@ def action_purge():
             continue
         
         # allow 97 days gracetime before we delete
-        disabled_date = himutils.get_date(user.disabled, None, '%Y-%m-%d')
         gracetime = timedelta(97)
         if date.today() - disabled_date < gracetime:
             continue
