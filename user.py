@@ -199,20 +199,45 @@ def action_disable():
     # get the user objects
     user = ksclient.get_user_objects(email=options.user, domain='api')
 
-    # put projects into quarantine
-    # fixme: kun hvis 1 member = admin
+    # loop through project list, and determine if the project can be
+    # put into quarantine. Only put projects into quarantine if:
+    #   - they are personal/demo projects
+    #   - they are shared projects with only one member, and the
+    #     member is same as admin
+    problematic_projects = list()  # projects that are problematic
+    disable_projects = list()      # projects to disable
     for project in user['projects']:
         if not hasattr(project, 'admin'):
             continue
         if project.admin != user['api'].name:
             continue
+        if hasattr(project, 'type') and (project.type == 'demo' or project.type == 'personal'):
+            continue
+        project_roles = ksclient.list_roles(project_name=project.name)
+        if len(project_roles) > 1:
+            problematic_projects.append(project.name)
+            continue
+        if len(project_roles) == 1 and project_roles[0]['group'].replace('-group', '') != options.user:
+            problematic_projects.append(project.name)
+            continue
+
+    # exit with error if we found problematic projects
+    if len(problematic_projects) > 0:
+        error_msg = "User %s has problematic projects:\n\n" % options.user
+        for pname in problematic_projects:
+            error_msg += "  %s\n" % pname
+        error_msg += "These projects are shared projects with multiple users"
+        himutils.sys_error(error_msg, 1)
+
+    # put projects into quarantine
+    for pname in disable_projects:
         if options.reason == 'deleted':
-            ksclient.project_quarantine_set(project.name, 'deleted-user', date)
+            ksclient.project_quarantine_set(pname, 'deleted-user', date)
         elif options.reason == 'teppe':
-            ksclient.project_quarantine_set(project.name, 'teppe', date)
+            ksclient.project_quarantine_set(pname, 'teppe', date)
         else:
             himutils.sys_error('Unknown reason "%s".' % options.reason, 1)
-        print('Quarantine set for project: %s' % project.name)
+        print('Quarantine set for project: %s' % pname)
 
     # disable the user in API and Dataporten
     ksclient.disable_user(user['api'].id, options.reason, date)
