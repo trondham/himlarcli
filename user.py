@@ -220,6 +220,7 @@ def action_disable():
         if len(project_roles) == 1 and project_roles[0]['group'].replace('-group', '') != options.user:
             problematic_projects.append(project.name)
             continue
+        disable_projects.append(project.name)
 
     # exit with error if we found problematic projects
     if len(problematic_projects) > 0:
