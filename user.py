@@ -268,6 +268,9 @@ def action_purge():
 
         # get the disable date and reason
         m = re.fullmatch(r'(\d\d\d\d-\d\d-\d\d) (\w+)', user.disabled)
+        if m == None:
+            himutils.sys_error("WARNING: User %s has garbled disabled string '%s'. IGNORING" % (user.name, user.disabled), 0)
+            continue
         reason = m.group(2)
         disabled_date = himutils.get_date(m.group(1), None, '%Y-%m-%d')
 
