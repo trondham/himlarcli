@@ -225,7 +225,7 @@ def action_disable():
 
     # exit with error if we found problematic projects
     if len(problematic_projects) > 0:
-        error_msg = "User %s has problematic projects:\n\n" % options.user
+        error_msg = "ERROR: User %s has problematic projects:\n\n" % options.user
         for pname in problematic_projects:
             error_msg += "  - %s\n" % pname
         error_msg += "\nThese projects are shared projects with multiple users.\n"
