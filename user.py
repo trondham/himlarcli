@@ -200,6 +200,7 @@ def action_disable():
     user = ksclient.get_user_objects(email=options.user, domain='api')
 
     # put projects into quarantine
+    # fixme: kun hvis 1 member = admin
     for project in user['projects']:
         if not hasattr(project, 'admin'):
             continue
@@ -294,6 +295,10 @@ def action_purge():
         this_user = ksclient.get_user_objects(email=user.name, domain='api')
         for project in this_user['projects']:
             if not hasattr(project, 'admin'):
+                continue
+            if not hasattr(project, 'type'):
+                continue
+            if project.type == 'demo' or project.type == 'personal':
                 continue
             if project.admin == this_user['api'].name:
                 user_has_projects = True
