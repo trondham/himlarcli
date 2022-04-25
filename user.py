@@ -238,6 +238,7 @@ def action_disable():
     }
     for pname in quarantine_projects:
         ksclient.project_quarantine_set(pname, quarantine_reason[options.reason], date)
+        print('Quarantine set for project: %s' % pname)
 
     # disable the user in API and Dataporten
     ksclient.disable_user(user['api'].id, options.reason, date)
