@@ -227,8 +227,9 @@ def action_disable():
     if len(problematic_projects) > 0:
         error_msg = "User %s has problematic projects:\n\n" % options.user
         for pname in problematic_projects:
-            error_msg += "  %s\n" % pname
-        error_msg += "These projects are shared projects with multiple users"
+            error_msg += "  - %s\n" % pname
+        error_msg += "\nThese projects are shared projects with multiple users.\n"
+        error_msg += "Fix these before attemting a new user disable"
         himutils.sys_error(error_msg, 1)
 
     # put projects into quarantine
