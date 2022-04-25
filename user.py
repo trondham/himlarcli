@@ -205,14 +205,14 @@ def action_disable():
     #   - they are shared projects with only one member, and the
     #     member is same as admin
     problematic_projects = list()  # projects that are problematic
-    disable_projects = list()      # projects to disable
+    quarantine_projects = list()   # projects to put in quarantine
     for project in user['projects']:
         if not hasattr(project, 'admin'):
             continue
-        if project.admin != user['api'].name:
+        if project.admin != options.user:
             continue
         if hasattr(project, 'type') and (project.type == 'demo' or project.type == 'personal'):
-            disable_projects.append(project.name)
+            quarantine_projects.append(project.name)
             continue
         project_roles = ksclient.list_roles(project_name=project.name)
         if len(project_roles) > 1:
@@ -221,7 +221,7 @@ def action_disable():
         if len(project_roles) == 1 and project_roles[0]['group'].replace('-group', '') != options.user:
             problematic_projects.append(project.name)
             continue
-        disable_projects.append(project.name)
+        quarantine_projects.append(project.name)
 
     # exit with error if we found problematic projects
     if len(problematic_projects) > 0:
@@ -232,9 +232,11 @@ def action_disable():
         himutils.sys_error(error_msg, 1)
 
     # put projects into quarantine
-    for pname in disable_projects:
-        quarantine_reason = { 'deleted': 'deleted-user',
-                              'teppe':   'teppe' }
+    quarantine_reason = {
+        'deleted': 'deleted-user',
+        'teppe':   'teppe'
+    }
+    for pname in quarantine_projects:
         ksclient.project_quarantine_set(pname, quarantine_reason[options.reason], date)
 
     # disable the user in API and Dataporten
