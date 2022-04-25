@@ -212,6 +212,7 @@ def action_disable():
         if project.admin != user['api'].name:
             continue
         if hasattr(project, 'type') and (project.type == 'demo' or project.type == 'personal'):
+            disable_projects.append(project.name)
             continue
         project_roles = ksclient.list_roles(project_name=project.name)
         if len(project_roles) > 1:
@@ -232,13 +233,9 @@ def action_disable():
 
     # put projects into quarantine
     for pname in disable_projects:
-        if options.reason == 'deleted':
-            ksclient.project_quarantine_set(pname, 'deleted-user', date)
-        elif options.reason == 'teppe':
-            ksclient.project_quarantine_set(pname, 'teppe', date)
-        else:
-            himutils.sys_error('Unknown reason "%s".' % options.reason, 1)
-        print('Quarantine set for project: %s' % pname)
+        quarantine_reason = { 'deleted': 'deleted-user',
+                              'teppe':   'teppe' }
+        ksclient.project_quarantine_set(pname, quarantine_reason[options.reason], date)
 
     # disable the user in API and Dataporten
     ksclient.disable_user(user['api'].id, options.reason, date)
