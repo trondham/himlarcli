@@ -274,7 +274,7 @@ def action_purge():
         # only delete users with the given reason
         if reason != options.reason:
             continue
-        
+
         # allow gracetime before we delete
         gracetime = timedelta(options.days)
         if today - disabled_date < gracetime:
