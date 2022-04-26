@@ -139,7 +139,7 @@ class Printer(object):
         project_created = re.sub(r'T\d\d:\d\d:\d\d.\d\d\d\d\d\d', '', project_created)
 
         # Disabled project?
-        status = "*** DISABLED *** " if not project.enabled else ''
+        status = "**DISABLED** " if not project.enabled else ''
         
         # Print header for project
         out_str += "%sPROJECT: %s" % (status, project.name)
@@ -170,6 +170,7 @@ class Printer(object):
             users['superuser'] = []
             for role in project_roles:
                 user = role['group'].replace('-group', '')
+                user = role['group'].replace('-disabled', ' **DISABLED USER**')
                 users[role['role']].append(user)
             table_metadata.add_row(['Users:', "\n".join(users['user'])])
             if len(users['superuser']) > 0:
