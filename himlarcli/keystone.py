@@ -162,10 +162,10 @@ class Keystone(Client):
         has_disabled = False
         found_group = None
         for g in groups:
-            if g.name = group_name:
+            if g.name == group_name:
                 has_default = True
                 group = g
-            if g.name = disabled_group_name:
+            if g.name == disabled_group_name:
                 has_disabled = True
                 group = g
 
