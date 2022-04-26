@@ -193,6 +193,15 @@ class Keystone(Client):
         if not self.dry_run:
             self.client.users.update(user=user_id, **kwargs)
 
+    def update_group(self, group_id, **kwargs):
+        """
+            Update a group:
+            Version: 2022-04
+        """
+        self.debug_log('update group: %s' % kwargs)
+        if not self.dry_run:
+            self.client.groups.update(group_id=group_id, **kwargs)
+
     def get_project_count(self, domain=False):
         projects = self.__get_projects(self.domain_id)
         return len(projects)

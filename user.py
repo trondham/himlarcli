@@ -258,6 +258,14 @@ def action_disable():
     ksclient.disable_user(user['api'].id, options.reason, date)
     ksclient.disable_user(user['dataporten'].id, options.reason, date)
 
+    # rename the user group
+    group = self.get_group_by_email(options.user)
+    if group:
+        new_group_name = "%s-disabled" % options.user
+        ksclient.update_group(group.id, name=new_group_name)
+    else:
+        himutils.sys_error('WARNING: Could not find group for user %s!' % options.user, 0)
+
     # Print our success
     print("%sUser %s disabled (API)" % (print_prefix, user['api'].name))
     print("%sUser %s disabled (Dataporten)" % (print_prefix, user['dataporten'].name))
