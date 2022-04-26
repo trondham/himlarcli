@@ -157,40 +157,19 @@ class Keystone(Client):
         group_name = self.__get_group_name(email)
         disabled_group_name = self.__get_disabled_group_name(email)
 
-        groups = self.client.groups.list(user=email, domain=domain_id)
-        has_default = False
-        has_disabled = False
-        found_group = None
-        for g in groups:
-            if g.name == group_name:
-                has_default = True
-                group = g
-            if g.name == disabled_group_name:
-                has_disabled = True
-                group = g
+        groups = self.client.groups.list(domain=domain_id, name=group_name)
+        disabled_groups = self.client.groups.list(domain=domain_id, name=disabled_group_name)
 
-        if has_default and has_disabled:
+        if len(groups) > 0 and len(disabled_groups) == 0:
+            return groups[0]
+        elif len(groups) == 0 and len(disabled_groups) > 0:
+            return disabled_groups[0]
+        elif len(groups) > 0 and len(disabled_groups) > 0:
             self.logger.debug('=> both group %s and group %s were found' % (group_name, disabled_group_name))
             return None
-        elif not has_default and not has_disabled:
+        else:
             self.logger.debug('=> neither group %s nor group %s were found' % (group_name, disabled_group_name))
             return None
-        else:
-            return found_group
-        
-#        groups = self.client.groups.list(domain=domain_id, name=group_name)
-#        disabled_groups = self.client.groups.list(domain=domain_id, name=disabled_group_name)
-#
-#        if len(groups) > 0 and len(disabled_groups) == 0:
-#            return groups[0]
- #       elif len(groups) == 0 and len(disabled_groups) > 0:
- #           return disabled_groups[0]
- #       elif len(groups) > 0 and len(disabled_groups) > 0:
- #           self.logger.debug('=> both group %s and group %s were found' % (group_name, disabled_group_name))
- #           return None
- #       else:
- #           self.logger.debug('=> neither group %s nor group %s were found' % (group_name, disabled_group_name))
- #           return None
 
     """
     Return all users, groups and project for this email """
