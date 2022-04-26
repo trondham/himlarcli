@@ -169,8 +169,7 @@ class Printer(object):
             users['object'] = []
             users['superuser'] = []
             for role in project_roles:
-                user = role['group'].replace('-group', '')
-                user = user.replace('-disabled', ' **DISABLED**')
+                user = role['group'].replace('-group', '').replace('-disabled', ' **DISABLED**')
                 users[role['role']].append(user)
             table_metadata.add_row(['Users:', "\n".join(users['user'])])
             if len(users['superuser']) > 0:
