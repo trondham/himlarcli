@@ -175,7 +175,7 @@ def action_enable():
     if group and group.name == "%s-disabled" % options.user:
         new_group_name = "%s-group" % options.user
         ksclient.update_group(group.id, name=new_group_name)
-        print("%sRenamed %s-disabled to: %s-group" % (print_prefix, options.user, options.user))
+        print("%sGroup rename: %s-disabled -> %s-group" % (print_prefix, options.user, options.user))
     else:
         himutils.sys_error('WARNING: Could not find disabled group for user %s!' % options.user, 0)
 
@@ -272,7 +272,7 @@ def action_disable():
     if group and group.name == "%s-group" % options.user:
         new_group_name = "%s-disabled" % options.user
         ksclient.update_group(group.id, name=new_group_name)
-        print("%sRenamed %s-group to: %s-disabled" % (print_prefix, options.user, options.user))
+        print("%sGroup rename: %s-group -> %s-disabled" % (print_prefix, options.user, options.user))
     else:
         himutils.sys_error('WARNING: Could not find group for user %s!' % options.user, 0)
 
