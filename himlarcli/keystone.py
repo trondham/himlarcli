@@ -166,6 +166,7 @@ class Keystone(Client):
             return disabled_groups[0]
         elif len(groups) > 0 and len(disabled_groups) > 0:
             self.logger.debug('=> both group %s and group %s were found' % (group_name, disabled_group_name))
+            return None
         else:
             self.logger.debug('=> neither group %s nor group %s were found' % (group_name, disabled_group_name))
             return None
