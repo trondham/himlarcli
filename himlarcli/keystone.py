@@ -243,6 +243,11 @@ class Keystone(Client):
         group = self.get_group_by_email(email)
         return bool(group)
 
+    def is_valid_but_disabled_user(self, email, domain=None):
+        email = self.__get_uib_email(email)
+        group = self.get_group_by_email("%s-disabled" % email)
+        return bool(group)
+
     def list_users(self, domain=False, **kwargs):
         user_list = self.__get_users(domain, **kwargs)
         users = list()

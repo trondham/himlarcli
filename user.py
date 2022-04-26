@@ -154,7 +154,7 @@ def action_enable():
           * Dataporten user is enabled
         Version: 2022-04
     """
-    if not ksclient.is_valid_user(email=options.user):
+    if not (ksclient.is_valid_user(email=options.user) or ksclient.is_valid_but_disabled_user(email=options.user)):
         himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
 
     # get the user objects
