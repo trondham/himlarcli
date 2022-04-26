@@ -171,8 +171,8 @@ def action_enable():
         print_prefix = ""
 
     # rename the user group
-    group = ksclient.get_group_by_email("%s-disabled" % options.user)
-    if group:
+    group = ksclient.get_group_by_email(options.user)
+    if group and group.name == "%s-disabled" % options.user:
         new_group_name = "%s-group" % options.user
         ksclient.update_group(group.id, name=new_group_name)
         print("%sRenamed %s-disabled to: %s-group" % (print_prefix, options.user, options.user))
@@ -269,7 +269,7 @@ def action_disable():
 
     # rename the user group
     group = ksclient.get_group_by_email(options.user)
-    if group:
+    if group and group.name == "%s-group" % options.user:
         new_group_name = "%s-disabled" % options.user
         ksclient.update_group(group.id, name=new_group_name)
         print("%sRenamed %s-group to: %s-disabled" % (print_prefix, options.user, options.user))
@@ -396,8 +396,8 @@ def action_purge():
 
     # actually delete the users
     for user in purge_users:
-        group = ksclient.get_group_by_email("%s-disabled" % user.name)
-        if group:
+        group = ksclient.get_group_by_email(user.name)
+        if group and group.name == "%s-disabled" % options.user:
             new_group_name = "%s-group" % options.user
             ksclient.update_group(group.id, name=new_group_name)
         ksclient.user_cleanup(email=user.name)
