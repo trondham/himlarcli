@@ -259,7 +259,7 @@ def action_disable():
     ksclient.disable_user(user['dataporten'].id, options.reason, date)
 
     # rename the user group
-    group = self.get_group_by_email(options.user)
+    group = ksclient.get_group_by_email(options.user)
     if group:
         new_group_name = "%s-disabled" % options.user
         ksclient.update_group(group.id, name=new_group_name)
