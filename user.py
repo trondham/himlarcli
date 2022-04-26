@@ -187,6 +187,13 @@ def action_disable():
     if not ksclient.is_valid_user(email=options.user):
         himutils.sys_error('User %s not found as a valid user.' % options.user, 1)
 
+    # prefix prints with dry-run if that option is used
+    if options.dry_run:
+        print_prefix = "(dry-run) "
+    else:
+        print_prefix = ""
+
+    # ask for confirmation
     if not options.force:
         if not himutils.confirm_action('Disable user %s' % options.user):
             return
@@ -239,15 +246,15 @@ def action_disable():
     }
     for pname in quarantine_projects:
         ksclient.project_quarantine_set(pname, quarantine_reason[options.reason], date)
-        print('Quarantine set for project: %s' % pname)
+        print('%sQuarantine set for project: %s' % (print_prefix, pname))
 
     # disable the user in API and Dataporten
     ksclient.disable_user(user['api'].id, options.reason, date)
     ksclient.disable_user(user['dataporten'].id, options.reason, date)
 
     # Print our success
-    print("User %s disabled (API)" % user['api'].name)
-    print("User %s disabled (Dataporten)" % user['dataporten'].name)
+    print("%sUser %s disabled (API)" % (print_prefix, user['api'].name))
+    print("%sUser %s disabled (Dataporten)" % (print_prefix, user['dataporten'].name))
 
 def action_validate():
     if options.org == 'all':
