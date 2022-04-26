@@ -156,17 +156,17 @@ class Keystone(Client):
         self.logger.debug('=> email used to find group %s' % email)
         group_name = self.__get_group_name(email)
         disabled_group_name = self.__get_disabled_group_name(email)
-        try:
-            group = self.client.groups.list(domain=domain_id, name=group_name)
-        except ExplicitException:
-            try:
-                group = self.client.groups.list(domain=domain_id, name=disabled_group_name)
-            except exceptions.http.NotFound:
-                self.logger.debug('=> neither group %s nor group %s were found' % (group_name, disabled_group_name))
-                group = dict()
-        if group:
-            return group[0]
-        return None
+
+        groups = self.client.groups.list(domain=domain_id, name=group_name)
+        disabled_groups = self.client.groups.list(domain=domain_id, name=disabled_group_name)
+
+        if len(groups) > 0 and len(disabled_groups) == 0:
+            return groups[0]
+        elif len(groups) == 0 and len(disabled_groups) > 0:
+            return disabled_groups[0]
+        else:
+            self.logger.debug('=> neither group %s nor group %s were found' % (group_name, disabled_group_name))
+            return None
 
     """
     Return all users, groups and project for this email """
