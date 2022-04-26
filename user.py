@@ -164,6 +164,12 @@ def action_enable():
     ksclient.enable_user(user['api'].id)
     ksclient.enable_user(user['dataporten'].id)
 
+    # prefix prints with dry-run if that option is used
+    if options.dry_run:
+        print_prefix = "(dry-run) "
+    else:
+        print_prefix = ""
+
     # remove quarantine from projects
     for project in user['projects']:
         if not hasattr(project, 'admin'):
@@ -171,11 +177,11 @@ def action_enable():
         if project.admin != user['api'].name:
             continue
         ksclient.project_quarantine_unset(project.name)
-        print('Quarantine unset for project: %s' % project.name)
+        print('%sQuarantine unset for project: %s' % (print_prefix, project.name))
 
     # Print our success
-    print("User %s enabled (API)" % user['api'].name)
-    print("User %s enabled (Dataporten)" % user['dataporten'].name)
+    print("%sUser %s enabled (API)" % (print_prefix, user['api'].name))
+    print("%sUser %s enabled (Dataporten)" % (print_prefix, user['dataporten'].name))
 
 def action_disable():
     """ Disable a user. The following happens when a user is disabled:
@@ -364,10 +370,16 @@ def action_purge():
     if not himutils.confirm_action(question):
         return
 
+    # prefix prints with dry-run if that option is used
+    if options.dry_run:
+        print_prefix = "(dry-run) "
+    else:
+        print_prefix = ""
+
     # actually delete the users
     for user in purge_users:
         ksclient.user_cleanup(email=user.name)
-        print("Deleted user: %s" % user.name)
+        print("%sDeleted user: %s" % (print_prefix, user.name))
 
 def action_password():
     if not ksclient.is_valid_user(email=options.user, domain=options.domain):
