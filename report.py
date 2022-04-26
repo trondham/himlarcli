@@ -163,9 +163,7 @@ def action_mail():
             continue
 
         # Ignore disabled users
-        if ksclient.is_disabled_user(user.email):
-            print(user.email)
-            return
+        if ksclient.is_disabled_user(user):
             continue
         
         # Ignore users who only have a DEMO project, i.e. number of
@@ -197,7 +195,7 @@ def action_mail():
             attachment_payload += "\n\n"
 
             # Increase counters
-            if project.admin == user:
+            if hasattr(project, 'admin') and project.admin == user:
                 admin_counter += 1
             else:
                 member_counter += 1
