@@ -162,6 +162,12 @@ def action_mail():
         if not this_user:
             continue
 
+        # Ignore disabled users
+        if ksclient.is_disabled_user(user.email):
+            print(user.email)
+            return
+            continue
+        
         # Ignore users who only have a DEMO project, i.e. number of
         # projects is equal or less than 1
         if len(this_user['projects']) <= 1:

@@ -250,6 +250,14 @@ class Keystone(Client):
         group = self.get_group_by_email(email)
         return bool(group)
 
+    def is_disabled_user(self, email, domain=None):
+        email = self.__get_uib_email(email)
+        group = self.get_group_by_email(email)
+        if group.name == "%s-disabled" % email:
+            return True
+        else:
+            return False
+
     def list_users(self, domain=False, **kwargs):
         user_list = self.__get_users(domain, **kwargs)
         users = list()
