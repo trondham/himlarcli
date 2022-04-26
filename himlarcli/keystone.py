@@ -200,7 +200,7 @@ class Keystone(Client):
         """
         self.debug_log('update group: %s' % kwargs)
         if not self.dry_run:
-            self.client.groups.update(group_id=group_id, **kwargs)
+            self.client.groups.update(group=group_id, **kwargs)
 
     def get_project_count(self, domain=False):
         projects = self.__get_projects(self.domain_id)
