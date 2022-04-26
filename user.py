@@ -170,6 +170,15 @@ def action_enable():
     else:
         print_prefix = ""
 
+    # rename the user group
+    group = ksclient.get_group_by_email("%s-disabled" % options.user)
+    if group:
+        new_group_name = "%s-group" % options.user
+        ksclient.update_group(group.id, name=new_group_name)
+        print("%sRenamed %s-disabled to: %s-group" % (print_prefix, options.user, options.user))
+    else:
+        himutils.sys_error('WARNING: Could not find disabled group for user %s!' % options.user, 0)
+
     # remove quarantine from projects
     for project in user['projects']:
         if not hasattr(project, 'admin'):
@@ -263,6 +272,7 @@ def action_disable():
     if group:
         new_group_name = "%s-disabled" % options.user
         ksclient.update_group(group.id, name=new_group_name)
+        print("%sRenamed %s-group to: %s-disabled" % (print_prefix, options.user, options.user))
     else:
         himutils.sys_error('WARNING: Could not find group for user %s!' % options.user, 0)
 
@@ -386,6 +396,10 @@ def action_purge():
 
     # actually delete the users
     for user in purge_users:
+        group = ksclient.get_group_by_email("%s-disabled" % user.name)
+        if group:
+            new_group_name = "%s-group" % options.user
+            ksclient.update_group(group.id, name=new_group_name)
         ksclient.user_cleanup(email=user.name)
         print("%sDeleted user: %s" % (print_prefix, user.name))
 
