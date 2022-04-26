@@ -155,11 +155,15 @@ class Keystone(Client):
         email = self.__get_uib_email(email)
         self.logger.debug('=> email used to find group %s' % email)
         group_name = self.__get_group_name(email)
+        disabled_group_name = self.__get_disabled_group_name(email)
         try:
             group = self.client.groups.list(domain=domain_id, name=group_name)
-        except exceptions.http.NotFound:
-            self.logger.debug('=> group %s not found' % group_name)
-            group = dict()
+        except ExplicitException:
+            try:
+                group = self.client.groups.list(domain=domain_id, name=disabled_group_name)
+            except exceptions.http.NotFound:
+                self.logger.debug('=> neither group %s nor group %s were found' % (group_name, disabled_group_name))
+                group = dict()
         if group:
             return group[0]
         return None
@@ -241,11 +245,6 @@ class Keystone(Client):
     def is_valid_user(self, email, domain=None):
         email = self.__get_uib_email(email)
         group = self.get_group_by_email(email)
-        return bool(group)
-
-    def is_valid_but_disabled_user(self, email, domain=None):
-        email = self.__get_uib_email(email)
-        group = self.get_group_by_email("%s-disabled" % email)
         return bool(group)
 
     def list_users(self, domain=False, **kwargs):
@@ -1111,6 +1110,12 @@ class Keystone(Client):
         """ Map email for user to group name.
             The groups are created in himlar-dp_prep. """
         return '%s-group' % email
+
+    @staticmethod
+    def __get_disabled_group_name(email):
+        """ Map email for user to group name.
+            The groups are created in himlar-dp_prep. """
+        return '%s-disabled' % email
 
     @staticmethod
     def __get_uib_email(email):
