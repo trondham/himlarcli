@@ -11,6 +11,44 @@ from himlarcli.nova import Nova
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as utils
+from sqlalchemy import create_engine
+from sqlalchemy import text
+from datetime import datetime
+from datetime import timedelta
+
+# Today's date
+today = datetime.now().strftime("%Y-%m-%d")
+
+# temporary
+engine = create_engine("sqlite+pysqlite:////tmp/trond.db", echo=True)
+#with engine.begin() as conn:
+#    conn.execute(text("CREATE TABLE secgroup_table (id string, date date)"))
+#
+#with engine.begin() as conn:
+#    conn.execute(
+#        text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
+#        [{"id": 'trondham', "date": '2023-05-07'}, {"id": 'raykrist', "date": '2022-01-12'}],
+#    )
+#
+#with engine.connect() as conn:
+#    result = conn.execute(text("SELECT id, date FROM secgroup_table"))
+#    for row in result:
+#        print(f"id: {row.id}  date: {row.date}")
+#
+#with engine.connect() as conn:
+#    result = conn.execute(text("SELECT id, date FROM secgroup_table WHERE id = 'raykrist'"))
+#    for row in result:
+#        print(f"id: {row.id}  date: {row.date}")
+#
+#with engine.connect() as conn:
+#    conn.execute(
+#        text("UPDATE secgroup_table SET date = :new_date WHERE id = :id"),
+#        [{"id": 'raykrist', "new_date": '2022-12-24'}],
+#    )
+#    result = conn.execute(text("SELECT id, date FROM secgroup_table WHERE id = 'raykrist'"))
+#    for row in result:
+#        print(f"id: {row.id}  date: {row.date}")
+
 
 parser = Parser()
 options = parser.parse_args()
@@ -66,6 +104,11 @@ def action_list():
                     True
                 else:
                     print(f"[{region}] WARNING: Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name})")
+                    with engine.begin() as conn:
+                        conn.execute(
+                            text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
+                            {"id": rule['id'], "date": today},
+                        )
                     continue
 
             # check for wrong netmask
@@ -73,6 +116,11 @@ def action_list():
             packed = int(ipaddress.ip_interface(rule['remote_ip_prefix']).ip)
             if packed & int(mask) != packed:
                 print(f"[{region}] WARNING: {rule['remote_ip_prefix']} has wrong netmask ({project.name})")
+                with engine.begin() as conn:
+                    conn.execute(
+                        text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
+                        {"id": rule['id'], "date": today},
+                    )
                 continue
 
             # Run through whitelist
