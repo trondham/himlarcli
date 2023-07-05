@@ -24,7 +24,7 @@ opt_args:
     'metavar':  '<int>'
     'type':     int
     'help':     'number of seconds to sleep between instances'
-    'default':  15
+    'default':  60
   '--no-disable':
     'sub':      ['migrate']
     'dest':     'no_disable'
@@ -39,15 +39,30 @@ opt_args:
     'action':   'store_const'
     'const':    true
     'default':  false
-  '--large-ram':
+  '--small':
     'sub':      ['migrate']
-    'dest':     'large_ram'
+    'dest':     'small'
+    'help':     'only migrate small instances'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
+  '--ram':
+    'sub':      ['migrate']
+    'dest':     'filter_ram'
     'metavar':  '<int>'
     'type':     int
-    'help':     'large instance defined by this amount of ram (MB)'
+    'help':     'instance ram filter used by --large or --small options'
     'default':  16385
   '--aggregate':
     'sub':      'evacuate'
     'dest':     'aggregate'
     'help':     'host aggregate to evacuate'
     'default':  'central1'
+  '--stopped':
+    'sub':      'migrate'
+    'dest':     'stopped'
+    'help':     'only migrate stopped instances'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
+ 
