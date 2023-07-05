@@ -1,3 +1,16 @@
 ---
-remote_ip_prefix:
-  - 0.0.0.0/0
+bogus_netmask: True
+
+network_port_limits:
+  limit24:
+    - mask: 24
+    - ports: 65536
+  limit20:
+    - mask: 20
+    - ports: 1000
+  limit16:
+    - mask: 16
+    - ports: 100
+  limit0:
+    - mask: 0
+    - ports: 1

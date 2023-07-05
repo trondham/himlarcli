@@ -4,6 +4,7 @@ from himlarcli import tests as tests
 tests.is_virtual_env()
 
 import re
+import ipaddress
 from himlarcli.keystone import Keystone
 from himlarcli.neutron import Neutron
 from himlarcli.nova import Nova
@@ -29,13 +30,22 @@ def action_list():
         nova = utils.get_client(Nova, options, logger, region)
         neutron = utils.get_client(Neutron, options, logger, region)
         rules = neutron.get_security_group_rules(1000)
-        question = ("Are you sure you will check {} security group rules in {}?"
-                    .format(len(rules), region))
+        question = f'Are you sure you will check {len(rules)} security group rules in {region}?'
         if not options.assume_yes and not utils.confirm_action(question):
             return
-        printer.output_dict({'header': 'Rules in {} (project, port, ip)'
-                                       .format(region)})
+
+        printer.output_dict({'header': f'Rules in {region} (project, port, ip)'})
+
         for rule in rules:
+            if str(rule['remote_ip_prefix']).endswith('/0'):
+                ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
+                if ip.compressed == '0.0.0.0' or ip.compressed == '::':
+                    True
+                else:
+                    print(f"WARNING: {project.name}: {rule['remote_ip_prefix']}\n")
+#            else:
+#                continue
+
             if is_whitelist(rule, whitelist):
                 continue
             if is_blacklist(rule, blacklist):
@@ -46,8 +56,7 @@ def action_list():
             # check if project exists
             project = kc.get_by_id('project', rule['project_id'])
             if not project:
-                kc.debug_log('could not find project {}'.
-                             format(rule['project_id']))
+                kc.debug_log(f'could not find project {rule["project_id"]}')
                 continue
             output = {
                 '0': project.name,
@@ -89,11 +98,20 @@ def is_whitelist(rule, whitelist):
             if rule['port_range_min'] in v and rule['port_range_max'] in v:
                 return True
         # regex remote ip
-        elif k == 'remote_ip_prefix_regex':
-            for regex in v:
-                pattern = re.compile("^{}$".format(regex))
-                if pattern.search(rule['remote_ip_prefix']):
-                    return True
+        #elif k == 'remote_ip_prefix_regex':
+        #    for regex in v:
+        #        pattern = re.compile(rf'^{regex}$')
+        #        if pattern.search(str(rule['remote_ip_prefix'])):
+        #            return True
+        elif k == 'remote_ip_prefix':
+            rule_network = ipaddress.ip_network(rule['remote_ip_prefix'])
+            for r in v:
+                rule_white   = ipaddress.ip_network(r)
+                if rule_network.version != rule_white.version:
+                    continue
+                # NOTE: If python is 3.7 or newer, replace with subnet_of()
+                return (rule_network.network_address <= rule_white.network_address and
+                        rule_network.broadcast_address >= rule_white.broadcast_address)
         # whitelist match
         elif rule[k] in v:
             return True
@@ -110,6 +128,18 @@ def load_config():
         config[file_type] = utils.load_config(config_file)
         kc.debug_log('{}: {}'.format(file_type, config[file_type]))
     return [(v) for v in config.values()]
+
+# From ipaddress module in python >= 3.7
+def _is_subnet_of(a, b):
+    try:
+        # Always false if one is v4 and the other is v6.
+        if ipaddress.a._version != ipaddress.b._version:
+            raise TypeError(f"{a} and {b} are not of the same version")
+        return (ipaddress.b.network_address <= ipaddress.a.network_address and
+                ipaddress.b.broadcast_address >= ipaddress.a.broadcast_address)
+    except AttributeError:
+        raise TypeError(f"Unable to test subnet containment "
+                        f"between {a} and {b}")
 
 # Run local function with the same name as the action (Note: - => _)
 action = locals().get('action_' + options.action.replace('-', '_'))
