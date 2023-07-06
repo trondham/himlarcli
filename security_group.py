@@ -103,7 +103,8 @@ def action_list():
                 if ip.compressed == '0.0.0.0' or ip.compressed == '::':
                     True
                 else:
-                    print(f"[{region}] WARNING: Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name})")
+                    min_mask = minimum_netmask(ip)
+                    print(f"[{region}] WARNING: Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name}). Minimum netmask: {min_mask}")
                     with engine.begin() as conn:
                         conn.execute(
                             text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
@@ -113,9 +114,11 @@ def action_list():
 
             # check for wrong netmask
             mask = ipaddress.ip_interface(rule['remote_ip_prefix']).netmask
-            packed = int(ipaddress.ip_interface(rule['remote_ip_prefix']).ip)
+            ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
+            packed = int(ip)
             if packed & int(mask) != packed:
-                print(f"[{region}] WARNING: {rule['remote_ip_prefix']} has wrong netmask ({project.name})")
+                min_mask = minimum_netmask(ip)
+                print(f"[{region}] WARNING: {rule['remote_ip_prefix']} has wrong netmask ({project.name}). Minimum netmask: {min_mask}")
                 with engine.begin() as conn:
                     conn.execute(
                         text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
@@ -151,6 +154,14 @@ def action_list():
             printer.output_dict(output, one_line=True)
             #printer.output_dict(rule)
 
+# Calculates minimum netmask for a given IP
+def minimum_netmask(ip):
+    packed = int(ip)
+    for i in range(32,0,-1):
+        mask = ipaddress.ip_interface(f'{ip}/{i}').netmask
+        if packed & int(mask) != packed:
+            return (i+1)
+    return 0
 
 def rule_in_use(sec_group, nova):
     instances = nova.get_project_instances(sec_group['project_id'])
