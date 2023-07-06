@@ -103,13 +103,9 @@ def action_list():
                 if ip.compressed == '0.0.0.0' or ip.compressed == '::':
                     True
                 else:
-                    min_mask = minimum_netmask(ip)
+                    min_mask = minimum_netmask(ip, rule['ethertype'])
                     print(f"[{region}] WARNING: Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name}). Minimum netmask: {min_mask}")
-                    with engine.begin() as conn:
-                        conn.execute(
-                            text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
-                            {"id": rule['id'], "date": today},
-                        )
+                    add_to_db(rule['id'], today)
                     continue
 
             # check for wrong netmask
@@ -117,13 +113,9 @@ def action_list():
             ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
             packed = int(ip)
             if packed & int(mask) != packed:
-                min_mask = minimum_netmask(ip)
+                min_mask = minimum_netmask(ip, rule['ethertype'])
                 print(f"[{region}] WARNING: {rule['remote_ip_prefix']} has wrong netmask ({project.name}). Minimum netmask: {min_mask}")
-                with engine.begin() as conn:
-                    conn.execute(
-                        text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
-                        {"id": rule['id'], "date": today},
-                    )
+                add_to_db(rule['id'], today)
                 continue
 
             # Run through whitelist
@@ -154,10 +146,21 @@ def action_list():
             printer.output_dict(output, one_line=True)
             #printer.output_dict(rule)
 
+def add_to_db(secgroup_id, date):
+    with engine.begin() as conn:
+        conn.execute(
+            text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
+            {"id": secgroup_id, "date": date},
+        )
+
 # Calculates minimum netmask for a given IP
-def minimum_netmask(ip):
+def minimum_netmask(ip, family):
+    if family == IPv6:
+        maxmask = 128
+    elif family == IPv4:
+        maxmask = 32
     packed = int(ip)
-    for i in range(32,0,-1):
+    for i in range(maxmask,0,-1):
         mask = ipaddress.ip_interface(f'{ip}/{i}').netmask
         if packed & int(mask) != packed:
             return (i+1)
