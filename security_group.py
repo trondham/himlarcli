@@ -146,10 +146,22 @@ def action_list():
             printer.output_dict(output, one_line=True)
             #printer.output_dict(rule)
 
+def get_date_from_db(secgroup_id):
+    with engine.connect() as conn:
+        result = conn.execute(text(f"SELECT date FROM secgroup_table WHERE id = '{secgroup_id}'"))
+    return result
+
 def add_to_db(secgroup_id, date):
     with engine.begin() as conn:
         conn.execute(
             text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
+            {"id": secgroup_id, "date": date},
+        )
+
+def update_db(secgroup_id, date):
+    with engine.begin() as conn:
+        conn.execute(
+            text("UPDATE secgroup_table SET date = :date WHERE id = :id"),
             {"id": secgroup_id, "date": date},
         )
 
