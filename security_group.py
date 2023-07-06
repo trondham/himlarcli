@@ -155,9 +155,9 @@ def add_to_db(secgroup_id, date):
 
 # Calculates minimum netmask for a given IP
 def minimum_netmask(ip, family):
-    if family == IPv6:
+    if family == "IPv6":
         maxmask = 128
-    elif family == IPv4:
+    elif family == "IPv4":
         maxmask = 32
     packed = int(ip)
     for i in range(maxmask,0,-1):
