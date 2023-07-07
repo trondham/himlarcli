@@ -11,8 +11,7 @@ from himlarcli.nova import Nova
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as utils
-from sqlalchemy import create_engine
-from sqlalchemy import text
+from himlarcli.global_state import GlobalState, SecGroup
 from datetime import datetime
 from datetime import timedelta
 
@@ -21,34 +20,6 @@ today = datetime.now().strftime("%Y-%m-%d")
 
 # temporary
 engine = create_engine("sqlite+pysqlite:////tmp/trond.db", echo=True)
-#with engine.begin() as conn:
-#    conn.execute(text("CREATE TABLE secgroup_table (id string, date date)"))
-#
-#with engine.begin() as conn:
-#    conn.execute(
-#        text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
-#        [{"id": 'trondham', "date": '2023-05-07'}, {"id": 'raykrist', "date": '2022-01-12'}],
-#    )
-#
-#with engine.connect() as conn:
-#    result = conn.execute(text("SELECT id, date FROM secgroup_table"))
-#    for row in result:
-#        print(f"id: {row.id}  date: {row.date}")
-#
-#with engine.connect() as conn:
-#    result = conn.execute(text("SELECT id, date FROM secgroup_table WHERE id = 'raykrist'"))
-#    for row in result:
-#        print(f"id: {row.id}  date: {row.date}")
-#
-#with engine.connect() as conn:
-#    conn.execute(
-#        text("UPDATE secgroup_table SET date = :new_date WHERE id = :id"),
-#        [{"id": 'raykrist', "new_date": '2022-12-24'}],
-#    )
-#    result = conn.execute(text("SELECT id, date FROM secgroup_table WHERE id = 'raykrist'"))
-#    for row in result:
-#        print(f"id: {row.id}  date: {row.date}")
-
 
 parser = Parser()
 options = parser.parse_args()
@@ -64,6 +35,7 @@ def action_list():
     # pylint: disable=W0612
 
     blacklist, whitelist, notify = load_config()
+    database = utils.get_client(GlobalState, options, logger)
     for region in regions:
         nova = utils.get_client(Nova, options, logger, region)
         neutron = utils.get_client(Neutron, options, logger, region)
@@ -105,7 +77,7 @@ def action_list():
                 else:
                     min_mask = minimum_netmask(ip, rule['ethertype'])
                     print(f"[{region}] WARNING: Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name}). Minimum netmask: {min_mask}")
-                    add_to_db(rule['id'], today)
+                    add_to_db(database, rule['id'], region)
                     continue
 
             # check for wrong netmask
@@ -115,7 +87,7 @@ def action_list():
             if packed & int(mask) != packed:
                 min_mask = minimum_netmask(ip, rule['ethertype'])
                 print(f"[{region}] WARNING: {rule['remote_ip_prefix']} has wrong netmask ({project.name}). Minimum netmask: {min_mask}")
-                add_to_db(rule['id'], today)
+                add_to_db(database, rule['id'], region)
                 continue
 
             # Run through whitelist
@@ -151,12 +123,14 @@ def get_date_from_db(secgroup_id):
         result = conn.execute(text(f"SELECT date FROM secgroup_table WHERE id = '{secgroup_id}'"))
     return result
 
-def add_to_db(secgroup_id, date):
-    with engine.begin() as conn:
-        conn.execute(
-            text("INSERT INTO secgroup_table (id, date) VALUES (:id, :date)"),
-            {"id": secgroup_id, "date": date},
-        )
+def add_to_db(database, secgroup_id, region):
+    secgroup_entry = { 'id': secgroup_id,
+                       'region': region,
+                       'notified': datetime.now(),
+                       'created': datetime.now(),
+                      }
+    secgroup_object = SecGroup.create(secgroup_entry)
+    database.add(secgroup_object)
 
 def update_db(secgroup_id, date):
     with engine.begin() as conn:
