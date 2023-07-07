@@ -86,6 +86,7 @@ class SecGroup(Base):
     __tablename__ = 'secgroup'
 
     id = Column(Integer, primary_key=True)
+    secgroup_id = Column(String(63), nullable=False, index=True)
     created = Column(DateTime, default=datetime.now)
     notified = Column(DateTime, default=datetime.now)
     region = Column(String(15), index=True)

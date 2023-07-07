@@ -19,7 +19,7 @@ from datetime import timedelta
 today = datetime.now().strftime("%Y-%m-%d")
 
 # temporary
-engine = create_engine("sqlite+pysqlite:////tmp/trond.db", echo=True)
+#engine = create_engine("sqlite+pysqlite:////tmp/trond.db", echo=True)
 
 parser = Parser()
 options = parser.parse_args()
@@ -124,7 +124,7 @@ def get_date_from_db(secgroup_id):
     return result
 
 def add_to_db(database, secgroup_id, region):
-    secgroup_entry = { 'id': secgroup_id,
+    secgroup_entry = { 'secgroup_id': secgroup_id,
                        'region': region,
                        'notified': datetime.now(),
                        'created': datetime.now(),
