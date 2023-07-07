@@ -83,7 +83,7 @@ class SecGroup(Base):
 
     """ Security Group data model """
 
-    __tablename__ = 'instance'
+    __tablename__ = 'secgroup'
 
     id = Column(Integer, primary_key=True)
     created = Column(DateTime, default=datetime.now)
