@@ -77,14 +77,7 @@ def action_list():
                 else:
                     min_mask = minimum_netmask(ip, rule['ethertype'])
                     print(f"[{region}] WARNING: Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name}). Minimum netmask: {min_mask}")
-                    existing_object = database.get_first(SecGroup, secgroup_id=rule['id'])
-                    if existing_object == None:
-                        add_to_db(database, rule['id'], region)
-                    else:
-                        existing_notified = datetime.datetime(existing_object.notified)
-                        if datetime.now() > existing_notified + timedelta(days=30):
-                            secgroup_diff = { 'notified': datetime.now() }
-                            database.update(existing_object, secgroup_diff)
+                    add_or_update_db(database, rule['id'], region)
                     continue
 
             # check for wrong netmask
@@ -94,14 +87,7 @@ def action_list():
             if packed & int(mask) != packed:
                 min_mask = minimum_netmask(ip, rule['ethertype'])
                 print(f"[{region}] WARNING: {rule['remote_ip_prefix']} has wrong netmask ({project.name}). Minimum netmask: {min_mask}")
-                existing_object = database.get_first(SecGroup, secgroup_id=rule['id'])
-                if existing_object == None:
-                    add_to_db(database, rule['id'], region)
-                else:
-                    existing_notified = existing_object.notified
-                    if datetime.now() > existing_notified + timedelta(days=30):
-                        secgroup_diff = { 'notified': datetime.now() }
-                        database.update(existing_object, secgroup_diff)
+                add_or_update_db(database, rule['id'], region)
                 continue
 
             # Run through whitelist
@@ -137,21 +123,22 @@ def get_date_from_db(secgroup_id):
         result = conn.execute(text(f"SELECT date FROM secgroup_table WHERE id = '{secgroup_id}'"))
     return result
 
-def add_to_db(database, secgroup_id, region):
-    secgroup_entry = { 'secgroup_id': secgroup_id,
-                       'region': region,
-                       'notified': datetime.now(),
-                       'created': datetime.now(),
-                      }
-    secgroup_object = SecGroup.create(secgroup_entry)
-    database.add(secgroup_object)
-
-def update_db(secgroup_id, date):
-    with engine.begin() as conn:
-        conn.execute(
-            text("UPDATE secgroup_table SET date = :date WHERE id = :id"),
-            {"id": secgroup_id, "date": date},
-        )
+def add_or_update_db(database, secgroup_id, region):
+    limit = 2
+    existing_object = database.get_first(SecGroup, secgroup_id=secgroup_id)
+    if existing_object == None:
+        secgroup_entry = { 'secgroup_id': secgroup_id,
+                           'region': region,
+                           'notified': datetime.now(),
+                           'created': datetime.now(),
+                          }
+        secgroup_object = SecGroup.create(secgroup_entry)
+        database.add(secgroup_object)
+    else:
+        existing_notified = existing_object.notified
+        if datetime.now() > existing_notified + timedelta(days=limit):
+            secgroup_diff = { 'notified': datetime.now() }
+            database.update(existing_object, secgroup_diff)
 
 # Calculates minimum netmask for a given IP
 def minimum_netmask(ip, family):
