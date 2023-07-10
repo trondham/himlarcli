@@ -127,16 +127,16 @@ def add_or_update_db(database, secgroup_id, region):
     limit = 2
     existing_object = database.get_first(SecGroup, secgroup_id=secgroup_id)
     if existing_object == None:
-        secgroup_entry = { 'secgroup_id': secgroup_id,
-                           'region': region,
-                           'notified': datetime.now(),
-                           'created': datetime.now(),
+        secgroup_entry = { 'secgroup_id' : secgroup_id,
+                           'region'      : region,
+                           'notified'    : datetime.now(),
+                           'created'     : datetime.now(),
                           }
         secgroup_object = SecGroup.create(secgroup_entry)
         database.add(secgroup_object)
     else:
-        existing_notified = existing_object.notified
-        if datetime.now() > existing_notified + timedelta(days=limit):
+        last_notified = existing_object.notified
+        if datetime.now() > last_notified + timedelta(days=limit):
             secgroup_diff = { 'notified': datetime.now() }
             database.update(existing_object, secgroup_diff)
 
@@ -168,6 +168,7 @@ def is_project_enabled(project):
 
 def notify_rule(rule, region, notify, project=None):
     # pylint: disable=W0613
+    database = utils.get_client(GlobalState, options, logger)
     for limit in notify['network_port_limits']:
         max_mask  = notify['network_port_limits'][limit]['max_mask']
         min_mask  = notify['network_port_limits'][limit]['min_mask']
@@ -186,6 +187,7 @@ def notify_rule(rule, region, notify, project=None):
             continue
         else:
             print(f"[{region}] WARNING: {project.name} {rule['remote_ip_prefix']} {rule['port_range_min']}-{rule['port_range_max']}/{protocol} has too many open ports ({rule_ports} > {max_ports})")
+            add_or_update_db(database, rule['id'], region)
             return True
     return False
 
