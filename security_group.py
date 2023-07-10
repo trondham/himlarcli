@@ -82,7 +82,7 @@ def action_list():
                         add_to_db(database, rule['id'], region)
                     else:
                         existing_notified = datetime.datetime(existing_object.notified)
-                        if existing_notified + timedelta(days=30) > 30:
+                        if datetime.now() - timedelta(days=30) > existing_notified:
                             secgroup_diff = { 'notified': datetime.now() }
                             database.update(existing_object, secgroup_diff)
                     continue
@@ -99,7 +99,7 @@ def action_list():
                     add_to_db(database, rule['id'], region)
                 else:
                     existing_notified = existing_object.notified
-                    if existing_notified + timedelta(days=30) > 30:
+                    if datetime.now() - timedelta(days=30) > existing_notified:
                         secgroup_diff = { 'notified': datetime.now() }
                         database.update(existing_object, secgroup_diff)
                 continue
