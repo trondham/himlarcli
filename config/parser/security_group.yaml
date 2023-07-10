@@ -1,7 +1,7 @@
 ---
 desc:   'Management of security groups'
 actions:
-  'list':     'List all security group rules'
+  'list':     'List all non-whitelisted security group rules'
   'check':    'Check security group rules'
 
 opt_args:
@@ -21,7 +21,7 @@ opt_args:
     'metavar':  '<integer>'
     'default':  0
   '-y':
-    'sub':      ['list']
+    'sub':      ['list', 'check']
     'dest':     'assume_yes'
     'help':     'Automatic yes to prompts; assume "yes" as answer to all prompts'
     'action':   'store_const'
