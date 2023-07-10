@@ -18,9 +18,6 @@ from himlarcli.global_state import GlobalState, SecGroup
 # Today's date
 today = datetime.now().strftime("%Y-%m-%d")
 
-# Initialize database connection
-database = himutils.get_client(GlobalState, options, logger)
-
 parser = Parser()
 options = parser.parse_args()
 printer = Printer(options.format)
@@ -30,6 +27,9 @@ kc.set_domain(options.domain)
 kc.set_dry_run(options.dry_run)
 logger = kc.get_logger()
 regions = himutils.get_regions(options, kc)
+
+# Initialize database connection
+database = himutils.get_client(GlobalState, options, logger)
 
 def action_list():
     blacklist, whitelist, notify = load_config()
@@ -65,17 +65,11 @@ def action_list():
                 continue
 
             # Check for bogus use of /0 mask
-            check_bogus_0_mask(rule, region) && continue
+            if check_bogus_0_mask(rule, region, project):
+                continue
 
             # check for wrong netmask
-            mask = ipaddress.ip_interface(rule['remote_ip_prefix']).netmask
-            ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
-            packed = int(ip)
-            if packed & int(mask) != packed:
-                min_mask = minimum_netmask(ip, rule['ethertype'])
-                verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
-                              f"({project.name}). Minimum netmask: {min_mask}")
-                add_or_update_db(database, rule['id'], region)
+            if check_wrong_mask(rule, region, project):
                 continue
 
             # Run through whitelist
@@ -83,11 +77,11 @@ def action_list():
                 continue
 
             # Run through blacklist
-            #if is_blacklist(rule, region, blacklist):
-            #    continue
+            if is_blacklist(rule, region, blacklist):
+                continue
 
-            # Run through notify config
-            if notify_rule(rule, region, notify, project=project):
+            # Check port limits
+            if check_port_limits(rule, region, notify, project=project):
                 continue
 
             if rule['port_range_min'] is None and rule['port_range_max'] is None:
@@ -118,7 +112,9 @@ def add_or_update_db(database, secgroup_id, region):
             secgroup_diff = { 'notified': datetime.now() }
             database.update(existing_object, secgroup_diff)
 
-def check_bogus_0_mask(rule, region):
+# Check for wrong use of mask 0. Returns true if the mask is 0 and the
+# IP is not one of "0.0.0.0" or "::"
+def check_bogus_0_mask(rule, region, project):
     compressed = ipaddress.ip_interface(rule['remote_ip_prefix']).ip.compressed
     if str(rule['remote_ip_prefix']).endswith('/0') and compressed not in ('0.0.0.0', '::'):
         min_mask = minimum_netmask(ip, rule['ethertype'])
@@ -128,6 +124,18 @@ def check_bogus_0_mask(rule, region):
         return True
     return False
 
+# Check if the netmask is wrong for the IP
+def check_wrong_mask(rule, region, project):
+    mask = ipaddress.ip_interface(rule['remote_ip_prefix']).netmask
+    ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
+    packed = int(ip)
+    if packed & int(mask) != packed:
+        min_mask = minimum_netmask(ip, rule['ethertype'])
+        verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
+                      f"({project.name}). Minimum netmask: {min_mask}")
+        add_or_update_db(database, rule['id'], region)
+        return True
+    return False
 
 # Calculates minimum netmask for a given IP
 def minimum_netmask(ip, family):
@@ -155,7 +163,7 @@ def rule_in_use(sec_group, nova):
 def is_project_enabled(project):
     return project.enabled
 
-def notify_rule(rule, region, notify, project=None):
+def check_port_limits(rule, region, notify, project=None):
     for limit in notify['network_port_limits']:
         max_mask  = notify['network_port_limits'][limit]['max_mask']
         min_mask  = notify['network_port_limits'][limit]['min_mask']
@@ -180,9 +188,9 @@ def notify_rule(rule, region, notify, project=None):
         return True
     return False
 
-#def is_blacklist(rule, region, blacklist):
-#    # Blacklisting is currently not implemented
-#    return False
+def is_blacklist(rule, region, blacklist):
+    # Blacklisting is currently not implemented
+    return False
 
 def verbose_info(string):
     if options.verbose >= 3:
