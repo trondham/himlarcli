@@ -111,14 +111,8 @@ def action_list():
             else:
                 ports = f"{rule['port_range_min']}-{rule['port_range_max']}"
 
-            output = {
-                '0': f"[{region}] OK: {project.name}",
-                '1': ports,
-                '2': rule['protocol'],
-                '3': rule['remote_ip_prefix']
-            }
-            printer.output_dict(output, one_line=True)
-            #printer.output_dict(rule)
+            if options.verbose:
+                himutils.info(f"[{region}] OK: {project.name} ports {ports}/{rule['protocol']} ingress {rule['remote_ip_prefix']}")
 
 def get_date_from_db(secgroup_id):
     with engine.connect() as conn:
