@@ -1,10 +1,12 @@
 #!/usr/bin/env python
 
-from himlarcli import tests as tests
+import ipaddress
+from datetime import datetime
+from datetime import timedelta
+
+from himlarcli import tests
 tests.is_virtual_env()
 
-import re
-import ipaddress
 from himlarcli.keystone import Keystone
 from himlarcli.neutron import Neutron
 from himlarcli.nova import Nova
@@ -12,8 +14,6 @@ from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
 from himlarcli.global_state import GlobalState, SecGroup
-from datetime import datetime
-from datetime import timedelta
 
 # Today's date
 today = datetime.now().strftime("%Y-%m-%d")
@@ -32,9 +32,7 @@ logger = kc.get_logger()
 regions = himutils.get_regions(options, kc)
 
 def action_list():
-    # pylint: disable=W0612
-
-    blacklist, whitelist, notify = load_config()
+    whitelist, notify = load_config()
     database = himutils.get_client(GlobalState, options, logger)
     for region in regions:
         nova = himutils.get_client(Nova, options, logger, region)
@@ -48,7 +46,7 @@ def action_list():
         printer.output_dict({'header': f"Rules in {region} (project, port min-max, protocol, ip)"})
 
         for rule in rules:
-            if rule['remote_ip_prefix'] == None:
+            if rule['remote_ip_prefix'] is None:
                 continue
 
             # Only care about security groups that are being used
@@ -57,7 +55,7 @@ def action_list():
                 continue
 
             # Get IP version ('4' or '6')
-            version = ipaddress.ip_interface(rule['remote_ip_prefix']).version
+            #version = ipaddress.ip_interface(rule['remote_ip_prefix']).version
 
             # check if project exists
             project = kc.get_by_id('project', rule['project_id'])
@@ -72,12 +70,10 @@ def action_list():
             # Check for bogus use of /0 mask
             if str(rule['remote_ip_prefix']).endswith('/0'):
                 ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
-                if ip.compressed == '0.0.0.0' or ip.compressed == '::':
-                    True
-                else:
+                if ip.compressed not in ('0.0.0.0', '::'):
                     min_mask = minimum_netmask(ip, rule['ethertype'])
-                    if options.verbose:
-                        himutils.error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name}). Minimum netmask: {min_mask}")
+                    verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
+                                  f"({project.name}). Minimum netmask: {min_mask}")
                     add_or_update_db(database, rule['id'], region)
                     continue
 
@@ -87,8 +83,8 @@ def action_list():
             packed = int(ip)
             if packed & int(mask) != packed:
                 min_mask = minimum_netmask(ip, rule['ethertype'])
-                if options.verbose:
-                    himutils.error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask ({project.name}). Minimum netmask: {min_mask}")
+                verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
+                              f"({project.name}). Minimum netmask: {min_mask}")
                 add_or_update_db(database, rule['id'], region)
                 continue
 
@@ -96,33 +92,28 @@ def action_list():
             if is_whitelist(rule, region, whitelist):
                 continue
 
-            # Run through whitelist
-            if is_blacklist(rule, region, blacklist):
-                continue
+            # Run through blacklist
+            #if is_blacklist(rule, region, blacklist):
+            #    continue
 
             # Run through notify config
             if notify_rule(rule, region, notify, project=project):
                 continue
 
-            if rule['port_range_min'] == None and rule['port_range_max'] == None:
+            if rule['port_range_min'] is None and rule['port_range_max'] is None:
                 ports = 'ALL'
             elif rule['port_range_min'] == rule['port_range_max']:
                 ports = str(rule['port_range_min'])
             else:
                 ports = f"{rule['port_range_min']}-{rule['port_range_max']}"
 
-            if options.verbose:
-                himutils.info(f"[{region}] OK: {project.name} ports {ports}/{rule['protocol']} ingress {rule['remote_ip_prefix']}")
-
-def get_date_from_db(secgroup_id):
-    with engine.connect() as conn:
-        result = conn.execute(text(f"SELECT date FROM secgroup_table WHERE id = '{secgroup_id}'"))
-    return result
+            verbose_info(f"[{region}] OK: {project.name} ports {ports}/{rule['protocol']} " +
+                         f"ingress {rule['remote_ip_prefix']}")
 
 def add_or_update_db(database, secgroup_id, region):
     limit = 2
     existing_object = database.get_first(SecGroup, secgroup_id=secgroup_id)
-    if existing_object == None:
+    if existing_object is None:
         secgroup_entry = { 'secgroup_id' : secgroup_id,
                            'region'      : region,
                            'notified'    : datetime.now(),
@@ -146,7 +137,7 @@ def minimum_netmask(ip, family):
     for i in range(maxmask,0,-1):
         mask = ipaddress.ip_interface(f'{ip}/{i}').netmask
         if packed & int(mask) != packed:
-            return (i+1)
+            return i+1
     return 0
 
 def rule_in_use(sec_group, nova):
@@ -163,7 +154,6 @@ def is_project_enabled(project):
     return project.enabled
 
 def notify_rule(rule, region, notify, project=None):
-    # pylint: disable=W0613
     database = himutils.get_client(GlobalState, options, logger)
     for limit in notify['network_port_limits']:
         max_mask  = notify['network_port_limits'][limit]['max_mask']
@@ -171,27 +161,39 @@ def notify_rule(rule, region, notify, project=None):
         max_ports = notify['network_port_limits'][limit]['max_ports']
         rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
         protocol = rule['protocol']
-        if rule['port_range_max'] == None and rule['port_range_min'] == None:
+
+        if rule['port_range_max'] is None and rule['port_range_min'] is None:
             rule_ports = 65536
-            #print(f"WARNING: {project.name} {rule['remote_ip_prefix']} has no ports")
-            #print(rule)
         else:
             rule_ports = int(rule['port_range_max']) - int(rule['port_range_min']) + 1
+
         if rule_mask > max_mask or rule_mask < min_mask:
             continue
-        elif rule_mask <= max_mask and rule_mask >= min_mask and rule_ports <= max_ports:
+        if rule_mask <= max_mask and rule_mask >= min_mask and rule_ports <= max_ports:
             continue
-        else:
-            if options.verbose:
-                himutils.warning(f"[{region}] {project.name} {rule['remote_ip_prefix']} {rule['port_range_min']}-{rule['port_range_max']}/{protocol} has too many open ports ({rule_ports} > {max_ports})")
-            add_or_update_db(database, rule['id'], region)
-            return True
+
+        verbose_warning(f"[{region}] {project.name} {rule['remote_ip_prefix']} " +
+                        f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
+                        f"has too many open ports ({rule_ports} > {max_ports})")
+        add_or_update_db(database, rule['id'], region)
+        return True
     return False
 
-def is_blacklist(rule, region, blacklist):
-    # pylint: disable=W0613
-    # TODO
-    return False
+#def is_blacklist(rule, region, blacklist):
+#    # Blacklisting is currently not implemented
+#    return False
+
+def verbose_info(string):
+    if options.verbose:
+        himutils.info(string)
+
+def verbose_warning(string):
+    if options.verbose:
+        himutils.warning(string)
+
+def verbose_error(string):
+    if options.verbose:
+        himutils.error(string)
 
 def is_whitelist(rule, region, whitelist):
     #valid_none_check = ['remote_ip_prefix']
@@ -204,8 +206,7 @@ def is_whitelist(rule, region, whitelist):
         # port match: both port_range_min and port_range_max need to match
         if k == 'port':
             if rule['port_range_min'] in v and rule['port_range_max'] in v:
-                if options.verbose:
-                    himutils.info(f"[{region}] WHITELIST: port {rule['port_range_min']}")
+                verbose_info(f"[{region}] WHITELIST: port {rule['port_range_min']}")
                 return True
         # remote ip
         elif k == 'remote_ip_prefix':
@@ -217,13 +218,12 @@ def is_whitelist(rule, region, whitelist):
                 # NOTE: If python is 3.7 or newer, replace with subnet_of()
                 if (rule_network.network_address >= rule_white.network_address and
                     rule_network.broadcast_address <= rule_white.broadcast_address):
-                    if options.verbose:
-                        himutils.info(f"[{region}] WHITELIST: {rule['remote_ip_prefix']} is part of {r}")
+                    verbose_info(f"[{region}] WHITELIST: {rule['remote_ip_prefix']} " +
+                                 f"is part of {r}")
                     return True
         # whitelist match
         elif rule[k] in v:
-            if options.verbose:
-                himutils.info(f"[{region}] WHITELIST: Exact match: {rule[k]}")
+            verbose_info(f"[{region}] WHITELIST: Exact match: {rule[k]}")
             return True
     return False
 
@@ -232,15 +232,15 @@ def load_config():
         'blacklist': 'config/security_group/blacklist.yaml',
         'whitelist': 'config/security_group/whitelist.yaml',
         'notify': 'config/security_group/notify.yaml'}
-    config = dict()
+    config = {}
     for file_type, config_file in config_files.items():
         config[file_type] = himutils.load_config(config_file)
-        kc.debug_log('{}: {}'.format(file_type, config[file_type]))
+        kc.debug_log(f"{file_type}: {config[file_type]}")
     return [(v) for v in config.values()]
 
 
 # Run local function with the same name as the action (Note: - => _)
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
-    himutils.fatal("Function action_%s() not implemented" % options.action)
+    himutils.fatal(f"Function action_{options.action} not implemented")
 action()
