@@ -81,9 +81,10 @@ def action_list():
                     if existing_object == None:
                         add_to_db(database, rule['id'], region)
                     else:
-                        existing_notified = existing_object.notified
-                        secgroup_diff = { 'notified': datetime.now() }
-                        database.update(existing_object, secgroup_diff)
+                        existing_notified = datetime.datetime(existing_object.notified)
+                        if existing_notified + timedelta(days=30) > 30:
+                            secgroup_diff = { 'notified': datetime.now() }
+                            database.update(existing_object, secgroup_diff)
                     continue
 
             # check for wrong netmask
@@ -93,7 +94,14 @@ def action_list():
             if packed & int(mask) != packed:
                 min_mask = minimum_netmask(ip, rule['ethertype'])
                 print(f"[{region}] WARNING: {rule['remote_ip_prefix']} has wrong netmask ({project.name}). Minimum netmask: {min_mask}")
-                add_to_db(database, rule['id'], region)
+                existing_object = database.get_first(SecGroup, secgroup_id=rule['id'])
+                if existing_object == None:
+                    add_to_db(database, rule['id'], region)
+                else:
+                    existing_notified = existing_object.notified
+                    if existing_notified + timedelta(days=30) > 30:
+                        secgroup_diff = { 'notified': datetime.now() }
+                        database.update(existing_object, secgroup_diff)
                 continue
 
             # Run through whitelist
