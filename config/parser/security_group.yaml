@@ -12,6 +12,13 @@ opt_args:
   '--region':
     'dest':     'region'
     'help':     'only use this region'
+  '-v':
+    'sub':      ['list']
+    'dest':     'verbose'
+    'help':     'Verbose output'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
   '-y':
     'sub':      ['list']
     'dest':     'assume_yes'
