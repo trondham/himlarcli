@@ -32,21 +32,27 @@ def action_list():
     # pylint: disable=W0612
     blacklist, whitelist, notify = load_config()
     for region in regions:
-        nova = utils.get_client(Nova, options, logger, region)
-        neutron = utils.get_client(Neutron, options, logger, region)
+        nova = himutils.get_client(Nova, options, logger, region)
+        neutron = himutils.get_client(Neutron, options, logger, region)
         rules = neutron.get_security_group_rules(5)
-        printer.output_dict({'header': 'Rules in {} (id, port, ip)'.format(region)})
+        printer.output_dict({'header': 'Rules in {} (project, ports, protocol, remote ip prefix)'.format(region)})
         for rule in rules:
+            if is_whitelist(rule, whitelist):
+                continue
+            if is_blacklist(rule, blacklist):
+                continue
             sec_group = neutron.get_security_group(rule['security_group_id'])
             if not rule_in_use(sec_group, nova):
                 continue
 
             output = {
                 '0': rule['project_id'],
-                '1': "{}-{}".format(rule['port_range_min'], rule['port_range_max']),
-                '2': rule['remote_ip_prefix']
+                '1': f"{rule['port_range_min']}-{rule['port_range_max']}",
+                '2': rule['protocol'],
+                '3': rule['remote_ip_prefix']
             }
             printer.output_dict(output, one_line=True)
+            #printer.output_dict(rule)
 
 def action_check():
     blacklist, whitelist, notify = load_config()
