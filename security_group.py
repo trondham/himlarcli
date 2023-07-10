@@ -112,7 +112,7 @@ def action_list():
 
 def add_or_update_db(database, secgroup_id, region):
     limit = 2
-    existing_object = database.get_first(SecGroup, secgroup_id=secgroup_id)
+    existing_object = database.get_first(SecGroup, secgroup_id=secgroup_id, region=region)
     if existing_object is None:
         secgroup_entry = { 'secgroup_id' : secgroup_id,
                            'region'      : region,
