@@ -40,7 +40,7 @@ def action_list():
         if not options.assume_yes and not himutils.confirm_action(question):
             return
 
-        printer.output_dict({'header': 'Rules in {} (project, ports, protocol, remote ip prefix)'.format(region)})
+        printer.output_dict({'header': f"Rules in {region} (project, ports, protocol, remote ip prefix)"})
         for rule in rules:
             if is_whitelist(rule, region, whitelist):
                 continue
@@ -244,8 +244,7 @@ def is_whitelist(rule, region, whitelist):
     for k, v in whitelist.items():
         # whitelist none empty property
         if "!None" in v and rule[k]:
-            if options.verbose:
-                himutils.info(f"[{region}] WHITELIST: Remote group {rule['remote_group_id']}")
+            verbose_info(f"[{region}] WHITELIST: Remote group {rule['remote_group_id']}")
             return True
         # port match: both port_range_min and port_range_max need to match
         if k == 'port':
@@ -254,7 +253,10 @@ def is_whitelist(rule, region, whitelist):
                 return True
         # remote ip
         elif k == 'remote_ip_prefix':
-            rule_network = ipaddress.ip_network(rule['remote_ip_prefix'])
+            try:
+                rule_network = ipaddress.ip_network(rule['remote_ip_prefix'])
+            except ValueError:
+                return False
             for r in v:
                 rule_white = ipaddress.ip_network(r)
                 if rule_network.version != rule_white.version:
