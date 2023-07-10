@@ -1,7 +1,8 @@
 ---
 desc:   'Management of security groups'
 actions:
-  'list':     'List all none whitelisted security group rules'
+  'list':     'List all security group rules'
+  'check':    'Check security group rules'
 
 opt_args:
   '--domain':
@@ -23,6 +24,13 @@ opt_args:
     'sub':      ['list']
     'dest':     'assume_yes'
     'help':     'Automatic yes to prompts; assume "yes" as answer to all prompts'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
+  '--notify':
+    'sub':      ['check']
+    'dest':     'nofify'
+    'help':     'Toggle notification (email to users)'
     'action':   'store_const'
     'const':    true
     'default':  false
