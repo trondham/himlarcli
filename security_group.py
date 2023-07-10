@@ -35,18 +35,30 @@ def action_list():
         nova = himutils.get_client(Nova, options, logger, region)
         neutron = himutils.get_client(Neutron, options, logger, region)
         rules = neutron.get_security_group_rules(5)
+
+        question = (f"Are you sure you will list {len(rules)} security group rules in {region}?")
+        if not options.assume_yes and not himutils.confirm_action(question):
+            return
+
         printer.output_dict({'header': 'Rules in {} (project, ports, protocol, remote ip prefix)'.format(region)})
         for rule in rules:
-            if is_whitelist(rule, whitelist):
+            if is_whitelist(rule, region, whitelist):
                 continue
-            if is_blacklist(rule, blacklist):
+            if is_blacklist(rule, region, blacklist):
                 continue
+
+            # check if project exists
+            project = kc.get_by_id('project', rule['project_id'])
+            if not project:
+                kc.debug_log(f"could not find project {rule['project_id']}")
+                continue
+
             sec_group = neutron.get_security_group(rule['security_group_id'])
             if not rule_in_use(sec_group, nova):
                 continue
 
             output = {
-                '0': rule['project_id'],
+                '0': project.name,
                 '1': f"{rule['port_range_min']}-{rule['port_range_max']}",
                 '2': rule['protocol'],
                 '3': rule['remote_ip_prefix']
