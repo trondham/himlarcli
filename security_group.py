@@ -246,7 +246,7 @@ def is_whitelist(rule, region, whitelist):
         if "!None" in v and rule[k]:
             verbose_info(f"[{region}] WHITELIST: Remote group {rule['remote_group_id']}")
             return True
-        # port match: both port_range_min and port_range_max need to match
+        # single port match: both port_range_min and port_range_max need to match
         if k == 'port':
             if rule['port_range_min'] in v and rule['port_range_max'] in v:
                 verbose_info(f"[{region}] WHITELIST: port {rule['port_range_min']}")
@@ -265,11 +265,11 @@ def is_whitelist(rule, region, whitelist):
                 if (rule_network.network_address >= rule_white.network_address and
                     rule_network.broadcast_address <= rule_white.broadcast_address):
                     verbose_info(f"[{region}] WHITELIST: {rule['remote_ip_prefix']} " +
-                                 f"is part of {r}")
+                                 f"is part of whitelisted range {r}")
                     return True
         # whitelist match
         elif rule[k] in v:
-            verbose_info(f"[{region}] WHITELIST: Exact match: {rule[k]}")
+            verbose_info(f"[{region}] WHITELIST: {k} {rule[k]}")
             return True
     return False
 
