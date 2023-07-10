@@ -97,6 +97,10 @@ class SecGroup(Base):
     def compare(self, attributes):
         pass
 
+    def update(self, attributes):
+        for k, v in attributes.items():
+            setattr(self, k, v)
+
 class Instance(Base):
 
     """  Instance data model """

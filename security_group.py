@@ -77,7 +77,13 @@ def action_list():
                 else:
                     min_mask = minimum_netmask(ip, rule['ethertype'])
                     print(f"[{region}] WARNING: Bogus /0 mask: {rule['remote_ip_prefix']} ({project.name}). Minimum netmask: {min_mask}")
-                    add_to_db(database, rule['id'], region)
+                    existing_object = database.get_first(SecGroup, secgroup_id=rule['id'])
+                    if existing_object == None:
+                        add_to_db(database, rule['id'], region)
+                    else:
+                        existing_notified = existing_object.notified
+                        secgroup_diff = { 'notified': datetime.now() }
+                        database.update(existing_object, secgroup_diff)
                     continue
 
             # check for wrong netmask

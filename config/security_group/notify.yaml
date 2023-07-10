@@ -1,4 +1,12 @@
 ---
+#notify_days: 30
+#
+#bogus_0_mask:
+#  notify_days: 14
+#
+#wrong_mask:
+#  notify_days: 19
+
 network_port_limits:
   limit24:
     min_mask: 24
