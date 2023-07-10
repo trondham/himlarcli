@@ -185,15 +185,15 @@ def notify_rule(rule, region, notify, project=None):
 #    return False
 
 def verbose_info(string):
-    if options.verbose:
+    if int(options.verbose) >= 3:
         himutils.info(string)
 
 def verbose_warning(string):
-    if options.verbose:
+    if options.verbose >= 2:
         himutils.warning(string)
 
 def verbose_error(string):
-    if options.verbose:
+    if options.verbose >= 1:
         himutils.error(string)
 
 def is_whitelist(rule, region, whitelist):

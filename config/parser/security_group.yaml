@@ -15,9 +15,7 @@ opt_args:
   '-v':
     'sub':      ['list']
     'dest':     'verbose'
-    'help':     'Verbose output'
-    'action':   'store_const'
-    'const':    true
+    'help':     'Verbosity level (0-3)'
     'default':  0
   '-y':
     'sub':      ['list']
