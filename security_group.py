@@ -32,7 +32,7 @@ logger = kc.get_logger()
 regions = himutils.get_regions(options, kc)
 
 def action_list():
-    whitelist, notify = load_config()
+    blacklist, whitelist, notify = load_config()
     database = himutils.get_client(GlobalState, options, logger)
     for region in regions:
         nova = himutils.get_client(Nova, options, logger, region)
@@ -124,6 +124,7 @@ def add_or_update_db(database, secgroup_id, region):
     else:
         last_notified = existing_object.notified
         if datetime.now() > last_notified + timedelta(days=limit):
+            verbose_warning(f"More than {limit} days since {secgroup_id}/{region} was notified")
             secgroup_diff = { 'notified': datetime.now() }
             database.update(existing_object, secgroup_diff)
 
