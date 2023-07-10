@@ -265,7 +265,7 @@ def is_whitelist(rule, region, whitelist):
                 if (rule_network.network_address >= rule_white.network_address and
                     rule_network.broadcast_address <= rule_white.broadcast_address):
                     verbose_info(f"[{region}] WHITELIST: {rule['remote_ip_prefix']} " +
-                                 f"is part of whitelisted range {r}")
+                                 f"is part of {r}")
                     return True
         # whitelist match
         elif rule[k] in v:
