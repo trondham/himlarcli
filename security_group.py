@@ -185,7 +185,7 @@ def notify_rule(rule, region, notify, project=None):
 #    return False
 
 def verbose_info(string):
-    if int(options.verbose) >= 3:
+    if options.verbose >= 3:
         himutils.info(string)
 
 def verbose_warning(string):

@@ -16,6 +16,8 @@ opt_args:
     'sub':      ['list']
     'dest':     'verbose'
     'help':     'Verbosity level (0-3)'
+    'type':     'int'
+    'metavar':  '<integer>'
     'default':  0
   '-y':
     'sub':      ['list']
