@@ -28,8 +28,8 @@ regions = himutils.get_regions(options, kc)
 # Initialize database connection
 database = himutils.get_client(GlobalState, options, logger)
 
+
 def action_list():
-    # pylint: disable=W0612
     blacklist, whitelist, notify = load_config()
     for region in regions:
         nova = himutils.get_client(Nova, options, logger, region)
@@ -64,7 +64,7 @@ def action_list():
                 '3': rule['remote_ip_prefix']
             }
             printer.output_dict(output, one_line=True)
-            #printer.output_dict(rule)
+
 
 def action_check():
     blacklist, whitelist, notify = load_config()
@@ -130,7 +130,7 @@ def action_check():
                          f"ingress {rule['remote_ip_prefix']}")
 
 def add_or_update_db(database, secgroup_id, region):
-    limit = 2
+    limit = 30
     existing_object = database.get_first(SecGroup, secgroup_id=secgroup_id, region=region)
     if existing_object is None:
         secgroup_entry = { 'secgroup_id' : secgroup_id,
