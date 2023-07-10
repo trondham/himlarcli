@@ -18,8 +18,8 @@ from himlarcli.global_state import GlobalState, SecGroup
 # Today's date
 today = datetime.now().strftime("%Y-%m-%d")
 
-# temporary
-#engine = create_engine("sqlite+pysqlite:////tmp/trond.db", echo=True)
+# Initialize database connection
+database = himutils.get_client(GlobalState, options, logger)
 
 parser = Parser()
 options = parser.parse_args()
@@ -33,7 +33,6 @@ regions = himutils.get_regions(options, kc)
 
 def action_list():
     blacklist, whitelist, notify = load_config()
-    database = himutils.get_client(GlobalState, options, logger)
     for region in regions:
         nova = himutils.get_client(Nova, options, logger, region)
         neutron = himutils.get_client(Neutron, options, logger, region)
@@ -42,8 +41,6 @@ def action_list():
         question = (f"Are you sure you will check {len(rules)} security group rules in {region}?")
         if not options.assume_yes and not himutils.confirm_action(question):
             return
-
-        printer.output_dict({'header': f"Rules in {region} (project, port min-max, protocol, ip)"})
 
         for rule in rules:
             if rule['remote_ip_prefix'] is None:
@@ -68,14 +65,7 @@ def action_list():
                 continue
 
             # Check for bogus use of /0 mask
-            if str(rule['remote_ip_prefix']).endswith('/0'):
-                ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
-                if ip.compressed not in ('0.0.0.0', '::'):
-                    min_mask = minimum_netmask(ip, rule['ethertype'])
-                    verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
-                                  f"({project.name}). Minimum netmask: {min_mask}")
-                    add_or_update_db(database, rule['id'], region)
-                    continue
+            check_bogus_0_mask(rule, region) && continue
 
             # check for wrong netmask
             mask = ipaddress.ip_interface(rule['remote_ip_prefix']).netmask
@@ -128,6 +118,17 @@ def add_or_update_db(database, secgroup_id, region):
             secgroup_diff = { 'notified': datetime.now() }
             database.update(existing_object, secgroup_diff)
 
+def check_bogus_0_mask(rule, region):
+    compressed = ipaddress.ip_interface(rule['remote_ip_prefix']).ip.compressed
+    if str(rule['remote_ip_prefix']).endswith('/0') and compressed not in ('0.0.0.0', '::'):
+        min_mask = minimum_netmask(ip, rule['ethertype'])
+        verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
+                      f"({project.name}). Minimum netmask: {min_mask}")
+        add_or_update_db(database, rule['id'], region)
+        return True
+    return False
+
+
 # Calculates minimum netmask for a given IP
 def minimum_netmask(ip, family):
     if family == "IPv6":
@@ -155,7 +156,6 @@ def is_project_enabled(project):
     return project.enabled
 
 def notify_rule(rule, region, notify, project=None):
-    database = himutils.get_client(GlobalState, options, logger)
     for limit in notify['network_port_limits']:
         max_mask  = notify['network_port_limits'][limit]['max_mask']
         min_mask  = notify['network_port_limits'][limit]['min_mask']
