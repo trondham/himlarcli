@@ -14,7 +14,7 @@ opt_args:
     'dest':     'region'
     'help':     'only use this region'
   '-v':
-    'sub':      ['list']
+    'sub':      ['list', 'check']
     'dest':     'verbose'
     'help':     'Verbosity level (0-3)'
     'type':     'int'
