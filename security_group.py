@@ -15,9 +15,6 @@ from himlarcli.printer import Printer
 from himlarcli import utils as himutils
 from himlarcli.global_state import GlobalState, SecGroup
 
-# Today's date
-today = datetime.now().strftime("%Y-%m-%d")
-
 parser = Parser()
 options = parser.parse_args()
 printer = Printer(options.format)
@@ -115,8 +112,8 @@ def add_or_update_db(database, secgroup_id, region):
 # Check for wrong use of mask 0. Returns true if the mask is 0 and the
 # IP is not one of "0.0.0.0" or "::"
 def check_bogus_0_mask(rule, region, project):
-    compressed = ipaddress.ip_interface(rule['remote_ip_prefix']).ip.compressed
-    if str(rule['remote_ip_prefix']).endswith('/0') and compressed not in ('0.0.0.0', '::'):
+    ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
+    if str(rule['remote_ip_prefix']).endswith('/0') and ip.compressed not in ('0.0.0.0', '::'):
         min_mask = minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
