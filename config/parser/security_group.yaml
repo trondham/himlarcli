@@ -29,7 +29,7 @@ opt_args:
     'default':  false
   '--notify':
     'sub':      ['check']
-    'dest':     'nofify'
+    'dest':     'notify'
     'help':     'Toggle notification (email to users)'
     'action':   'store_const'
     'const':    true
