@@ -68,6 +68,7 @@ def action_list():
 
 def action_check():
     count = {
+        'total'         : 0,  # Total number of rules checked
         'whitelist'     : 0,  # Number of whitelisted rules
         'no_remote_ip'  : 0,  # Number of rules where remote IP is None
         'unused'        : 0,  # Number of rules not used on instances
@@ -88,6 +89,7 @@ def action_check():
             return
 
         for rule in rules:
+            count['total'] += 1
             if rule['remote_ip_prefix'] is None:
                 count['no_remote_ip'] +=1
                 continue
@@ -124,7 +126,7 @@ def action_check():
 
             # Run through whitelist
             if is_whitelist(rule, region, whitelist):
-	        count['whitelist'] += 1
+                count['whitelist'] += 1
                 continue
 
             # Run through blacklist
@@ -146,16 +148,20 @@ def action_check():
             verbose_info(f"[{region}] OK: {project.name} ports {ports}/{rule['protocol']} " +
                          f"ingress {rule['remote_ip_prefix']}")
             count['ok'] += 1
+        print()
         print(f"Summary for region {region}:")
         print("====================================================")
-        print(f"Whitelisted rules: {count['whitelist']}")
-        print(f"OK rules:          {count['ok']}")
-        print(f"Unused rules:      {count['unused']}")
-        print(f"Disabled projects: {count['proj_disabled']}")
-        print(f"No remote IP:      {count['no_remote_ip']}")
-        print(f"Bogus /0 mask:     {count['bogus_0_mask']}")
-        print(f"Wrong mask:        {count['wrong_mask']}")
-        print(f"Port limit:        {count['port_limit']}")
+        print(f"    Whitelisted rules:    {count['whitelist']}")
+        print(f"    OK rules:             {count['ok']}")
+        print(f"    Unused rules:         {count['unused']}")
+        print(f"    Disabled projects:    {count['proj_disabled']}")
+        print(f"    No remote IP:         {count['no_remote_ip']}")
+        print(f"    Bogus /0 mask:        {count['bogus_0_mask']}")
+        print(f"    Wrong mask:           {count['wrong_mask']}")
+        print(f"    Port limits exceeded: {count['port_limit']}")
+        print()
+        print(f"  TOTAL rules checked in {region}: {count['total']}")
+        print()
             
 def add_or_update_db(database, rule_id, secgroup_id, project_id, region):
     limit = 30
