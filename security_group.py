@@ -160,7 +160,7 @@ def check_bogus_0_mask(rule, region, project):
         if options.notify:
             add_or_update_db(database=database,
                              rule_id=rule['id'],
-                             secgroup_id=rule['secgroup_id'],
+                             secgroup_id=rule['security_group_id'],
                              project_id=rule['project_id'],
                              region=region)
         return True
@@ -178,7 +178,7 @@ def check_wrong_mask(rule, region, project):
         if options.notify:
             add_or_update_db(database=database,
                              rule_id=rule['id'],
-                             secgroup_id=rule['secgroup_id'],
+                             secgroup_id=rule['security_group_id'],
                              project_id=rule['project_id'],
                              region=region)
         return True
@@ -234,7 +234,7 @@ def check_port_limits(rule, region, notify, project=None):
         if options.notify:
             add_or_update_db(database=database,
                              rule_id=rule['id'],
-                             secgroup_id=rule['secgroup_id'],
+                             secgroup_id=rule['security_group_id'],
                              project_id=rule['project_id'],
                              region=region)
         return True
