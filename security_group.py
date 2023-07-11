@@ -13,7 +13,7 @@ from himlarcli.nova import Nova
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
-from himlarcli.global_state import GlobalState, SecGroup
+from himlarcli.global_state import GlobalState, SecGroupRule
 
 parser = Parser()
 options = parser.parse_args()
@@ -129,23 +129,25 @@ def action_check():
             verbose_info(f"[{region}] OK: {project.name} ports {ports}/{rule['protocol']} " +
                          f"ingress {rule['remote_ip_prefix']}")
 
-def add_or_update_db(database, secgroup_id, region):
+def add_or_update_db(database, rule_id, secgroup_id, project_id, region):
     limit = 30
-    existing_object = database.get_first(SecGroup, secgroup_id=secgroup_id, region=region)
+    existing_object = database.get_first(SecGroupRule, rule_id=rule_id, secgroup_id=secgroup_id, project_id=project_id, region=region)
     if existing_object is None:
-        secgroup_entry = { 'secgroup_id' : secgroup_id,
-                           'region'      : region,
-                           'notified'    : datetime.now(),
-                           'created'     : datetime.now(),
-                          }
-        secgroup_object = SecGroup.create(secgroup_entry)
-        database.add(secgroup_object)
+        rule_entry = { 'rule_id'     : rule_id,
+                       'secgroup_id' : secgroup_id,
+                       'project_id'  : project_id,
+                       'region'      : region,
+                       'notified'    : datetime.now(),
+                       'created'     : datetime.now(),
+                      }
+        rule_object = SecGroupRule.create(rule_entry)
+        database.add(rule_object)
     else:
         last_notified = existing_object.notified
         if datetime.now() > last_notified + timedelta(days=limit):
-            verbose_warning(f"More than {limit} days since {secgroup_id}/{region} was notified")
-            secgroup_diff = { 'notified': datetime.now() }
-            database.update(existing_object, secgroup_diff)
+            verbose_warning(f"[{region}] More than {limit} days since {rule_id} was notified")
+            rule_diff = { 'notified': datetime.now() }
+            database.update(existing_object, rule_diff)
 
 # Check for wrong use of mask 0. Returns true if the mask is 0 and the
 # IP is not one of "0.0.0.0" or "::"
@@ -155,7 +157,12 @@ def check_bogus_0_mask(rule, region, project):
         min_mask = minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
-        add_or_update_db(database, rule['id'], region)
+        if options.notify:
+            add_or_update_db(database=database,
+                             rule_id=rule['id'],
+                             secgroup_id=rule['secgroup_id'],
+                             project_id=rule['project_id'],
+                             region=region)
         return True
     return False
 
@@ -168,7 +175,12 @@ def check_wrong_mask(rule, region, project):
         min_mask = minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
-        add_or_update_db(database, rule['id'], region)
+        if options.notify:
+            add_or_update_db(database=database,
+                             rule_id=rule['id'],
+                             secgroup_id=rule['secgroup_id'],
+                             project_id=rule['project_id'],
+                             region=region)
         return True
     return False
 
@@ -219,7 +231,12 @@ def check_port_limits(rule, region, notify, project=None):
         verbose_warning(f"[{region}] {project.name} {rule['remote_ip_prefix']} " +
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
-        add_or_update_db(database, rule['id'], region)
+        if options.notify:
+            add_or_update_db(database=database,
+                             rule_id=rule['id'],
+                             secgroup_id=rule['secgroup_id'],
+                             project_id=rule['project_id'],
+                             region=region)
         return True
     return False
 
