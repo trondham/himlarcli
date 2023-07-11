@@ -70,7 +70,6 @@ def action_check():
     count = {
         'total'         : 0,  # Total number of rules checked
         'whitelist'     : 0,  # Number of whitelisted rules
-        'no_remote_ip'  : 0,  # Number of rules where remote IP is None
         'unused'        : 0,  # Number of rules not used on instances
         'proj_disabled' : 0,  # Number of rules for disabled projects
         'wrong_mask'    : 0,  # Number of rules with wrong netmask
@@ -90,18 +89,21 @@ def action_check():
 
         for rule in rules:
             count['total'] += 1
+
+            # Sometimes the remote IP prefix is empty or None. If that
+            # happens, rewrite to '0.0.0.0/0' or '::/0' for IPv4 and
+            # IPv6, respectively
             if rule['remote_ip_prefix'] is None:
-                count['no_remote_ip'] +=1
-                continue
+                if rule['ethertype'] == 'IPv4':
+                    rule['remote_ip_prefix'] = '0.0.0.0/0'
+                else:
+                    rule['remote_ip_prefix'] = '::/0'
 
             # Only care about security groups that are being used
             sec_group = neutron.get_security_group(rule['security_group_id'])
             if not rule_in_use(sec_group, nova):
                 count['unused'] += 1
                 continue
-
-            # Get IP version ('4' or '6')
-            #version = ipaddress.ip_interface(rule['remote_ip_prefix']).version
 
             # check if project exists
             project = kc.get_by_id('project', rule['project_id'])
@@ -145,23 +147,28 @@ def action_check():
             else:
                 ports = f"{rule['port_range_min']}-{rule['port_range_max']}"
 
-            verbose_info(f"[{region}] OK: {project.name} ports {ports}/{rule['protocol']} " +
-                         f"ingress {rule['remote_ip_prefix']}")
+            verbose_info(f"[{region}] OK: Project {project.name}: ports {ports}/{rule['protocol']} " +
+                         f"to {rule['remote_ip_prefix']}")
             count['ok'] += 1
+
+        # Write a summary for the region
+        num_ok = count['ok'] + count['unused'] + count['proj_disabled'] + count['whitelist']
+        num_problems = count['bogus_0_mask'] + count['wrong_mask'] + count['port_limit']
         print()
         print(f"Summary for region {region}:")
         print("====================================================")
-        print(f"    Whitelisted rules:    {count['whitelist']}")
+        print(f"  OK ({num_ok}):")
         print(f"    OK rules:             {count['ok']}")
         print(f"    Unused rules:         {count['unused']}")
         print(f"    Disabled projects:    {count['proj_disabled']}")
-        print(f"    No remote IP:         {count['no_remote_ip']}")
+        print(f"    Whitelisted rules:    {count['whitelist']}")
+        print(f"  PROBLEMS ({num_problems}):")
         print(f"    Bogus /0 mask:        {count['bogus_0_mask']}")
         print(f"    Wrong mask:           {count['wrong_mask']}")
         print(f"    Port limits exceeded: {count['port_limit']}")
         print()
         print(f"  TOTAL rules checked in {region}: {count['total']}")
-        print()
+
 
 def add_or_update_db(rule_id, secgroup_id, project_id, region):
     limit = 30
