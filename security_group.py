@@ -162,7 +162,7 @@ def action_check():
         print()
         print(f"  TOTAL rules checked in {region}: {count['total']}")
         print()
-            
+
 def add_or_update_db(rule_id, secgroup_id, project_id, region):
     limit = 30
     existing_object = db.get_first(SecGroupRule,
