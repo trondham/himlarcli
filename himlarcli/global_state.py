@@ -57,6 +57,7 @@ class GlobalState(Client):
         pf = self.log_prefix()
         if not self.dry_run:
             resource.update(data)
+            self.session.commit()
         self.logger.debug('%s update resource %s', pf, resource.to_str())
 
     def get_all(self, class_name, **kwargs):
