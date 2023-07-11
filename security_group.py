@@ -67,6 +67,15 @@ def action_list():
 
 
 def action_check():
+    count = { 'whitelist'     : 0,
+              'no_remote_ip'  : 0,
+              'unused'        : 0,
+              'proj_disabled' : 0,
+              'wrong_mask'    : 0,
+              'bogus_0_mask'  : 0,
+              'port_limit'    : 0,
+              'ok'            : 0,
+              }
     blacklist, whitelist, notify = load_config()
     for region in regions:
         nova = himutils.get_client(Nova, options, logger, region)
@@ -79,11 +88,13 @@ def action_check():
 
         for rule in rules:
             if rule['remote_ip_prefix'] is None:
+                count['no_remote_ip']++
                 continue
 
             # Only care about security groups that are being used
             sec_group = neutron.get_security_group(rule['security_group_id'])
             if not rule_in_use(sec_group, nova):
+                count['unused']++
                 continue
 
             # Get IP version ('4' or '6')
@@ -97,18 +108,22 @@ def action_check():
 
             # Ignore if project is disabled
             if not is_project_enabled(project):
+                count['proj_disabled']++
                 continue
 
             # Check for bogus use of /0 mask
             if check_bogus_0_mask(rule, region, project):
+                count['bogus_0_mask']++
                 continue
 
             # check for wrong netmask
             if check_wrong_mask(rule, region, project):
+                count['wrong_mask']++
                 continue
 
             # Run through whitelist
             if is_whitelist(rule, region, whitelist):
+                count['whitelist']++
                 continue
 
             # Run through blacklist
@@ -117,6 +132,7 @@ def action_check():
 
             # Check port limits
             if check_port_limits(rule, region, notify, project=project):
+                count['port_limit']++
                 continue
 
             if rule['port_range_min'] is None and rule['port_range_max'] is None:
@@ -128,10 +144,25 @@ def action_check():
 
             verbose_info(f"[{region}] OK: {project.name} ports {ports}/{rule['protocol']} " +
                          f"ingress {rule['remote_ip_prefix']}")
-
+            count['ok']++
+        print(f"Summary for region {region}:")
+        print("====================================================")
+        print(f"Whitelisted rules: {count['whitelist']}")
+        print(f"OK rules:          {count['ok']}")
+        print(f"Unused rules:      {count['unused']}")
+        print(f"Disabled projects: {count['proj_disabled']}")
+        print(f"No remote IP:      {count['no_remote_ip']}")
+        print(f"Bogus /0 mask:     {count['bogus_0_mask']}")
+        print(f"Wrong mask:        {count['wrong_mask']}")
+        print(f"Port limit:        {count['port_limit']}")
+            
 def add_or_update_db(database, rule_id, secgroup_id, project_id, region):
     limit = 30
-    existing_object = database.get_first(SecGroupRule, rule_id=rule_id, secgroup_id=secgroup_id, project_id=project_id, region=region)
+    existing_object = database.get_first(SecGroupRule,
+                                         rule_id=rule_id,
+                                         secgroup_id=secgroup_id,
+                                         project_id=project_id,
+                                         region=region)
     if existing_object is None:
         rule_entry = { 'rule_id'     : rule_id,
                        'secgroup_id' : secgroup_id,
