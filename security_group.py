@@ -26,15 +26,15 @@ logger = kc.get_logger()
 regions = himutils.get_regions(options, kc)
 
 # Initialize database connection
-database = himutils.get_client(GlobalState, options, logger)
+db = himutils.get_client(GlobalState, options, logger)
 
 
 def action_list():
     blacklist, whitelist, notify = load_config()
     for region in regions:
-        nova = himutils.get_client(Nova, options, logger, region)
+        nova    = himutils.get_client(Nova, options, logger, region)
         neutron = himutils.get_client(Neutron, options, logger, region)
-        rules = neutron.get_security_group_rules(5)
+        rules   = neutron.get_security_group_rules(5)
 
         question = (f"Are you sure you will list {len(rules)} security group rules in {region}?")
         if not options.assume_yes and not himutils.confirm_action(question):
@@ -80,9 +80,9 @@ def action_check():
     }
     blacklist, whitelist, notify = load_config()
     for region in regions:
-        nova = himutils.get_client(Nova, options, logger, region)
+        nova    = himutils.get_client(Nova, options, logger, region)
         neutron = himutils.get_client(Neutron, options, logger, region)
-        rules = neutron.get_security_group_rules(1000)
+        rules   = neutron.get_security_group_rules(1000)
 
         question = (f"Are you sure you will check {len(rules)} security group rules in {region}?")
         if not options.assume_yes and not himutils.confirm_action(question):
@@ -163,29 +163,30 @@ def action_check():
         print(f"  TOTAL rules checked in {region}: {count['total']}")
         print()
             
-def add_or_update_db(database, rule_id, secgroup_id, project_id, region):
+def add_or_update_db(rule_id, secgroup_id, project_id, region):
     limit = 30
-    existing_object = database.get_first(SecGroupRule,
-                                         rule_id=rule_id,
-                                         secgroup_id=secgroup_id,
-                                         project_id=project_id,
-                                         region=region)
+    existing_object = db.get_first(SecGroupRule,
+                                   rule_id=rule_id,
+                                   secgroup_id=secgroup_id,
+                                   project_id=project_id,
+                                   region=region)
     if existing_object is None:
-        rule_entry = { 'rule_id'     : rule_id,
-                       'secgroup_id' : secgroup_id,
-                       'project_id'  : project_id,
-                       'region'      : region,
-                       'notified'    : datetime.now(),
-                       'created'     : datetime.now(),
-                      }
+        rule_entry = {
+            'rule_id'     : rule_id,
+            'secgroup_id' : secgroup_id,
+            'project_id'  : project_id,
+            'region'      : region,
+            'notified'    : datetime.now(),
+            'created'     : datetime.now(),
+        }
         rule_object = SecGroupRule.create(rule_entry)
-        database.add(rule_object)
+        db.add(rule_object)
     else:
         last_notified = existing_object.notified
         if datetime.now() > last_notified + timedelta(days=limit):
             verbose_warning(f"[{region}] More than {limit} days since {rule_id} was notified")
             rule_diff = { 'notified': datetime.now() }
-            database.update(existing_object, rule_diff)
+            db.update(existing_object, rule_diff)
 
 # Check for wrong use of mask 0. Returns true if the mask is 0 and the
 # IP is not one of "0.0.0.0" or "::"
@@ -196,29 +197,31 @@ def check_bogus_0_mask(rule, region, project):
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            add_or_update_db(database=database,
-                             rule_id=rule['id'],
-                             secgroup_id=rule['security_group_id'],
-                             project_id=rule['project_id'],
-                             region=region)
+            add_or_update_db(
+                rule_id     = rule['id'],
+                secgroup_id = rule['security_group_id'],
+                project_id  = rule['project_id'],
+                region      = region
+            )
         return True
     return False
 
 # Check if the netmask is wrong for the IP
 def check_wrong_mask(rule, region, project):
-    mask = ipaddress.ip_interface(rule['remote_ip_prefix']).netmask
-    ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
+    mask   = ipaddress.ip_interface(rule['remote_ip_prefix']).netmask
+    ip     = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     packed = int(ip)
     if packed & int(mask) != packed:
         min_mask = minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            add_or_update_db(database=database,
-                             rule_id=rule['id'],
-                             secgroup_id=rule['security_group_id'],
-                             project_id=rule['project_id'],
-                             region=region)
+            add_or_update_db(
+                rule_id     = rule['id'],
+                secgroup_id = rule['security_group_id'],
+                project_id  = rule['project_id'],
+                region      = region
+            )
         return True
     return False
 
@@ -270,11 +273,12 @@ def check_port_limits(rule, region, notify, project=None):
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
         if options.notify:
-            add_or_update_db(database=database,
-                             rule_id=rule['id'],
-                             secgroup_id=rule['security_group_id'],
-                             project_id=rule['project_id'],
-                             region=region)
+            add_or_update_db(
+                rule_id     = rule['id'],
+                secgroup_id = rule['security_group_id'],
+                project_id  = rule['project_id'],
+                region      = region
+            )
         return True
     return False
 
