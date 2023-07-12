@@ -67,16 +67,6 @@ def action_list():
 
 
 def action_check():
-    count = {
-        'total'         : 0,  # Total number of rules checked
-        'whitelist'     : 0,  # Number of whitelisted rules
-        'unused'        : 0,  # Number of rules not used on instances
-        'proj_disabled' : 0,  # Number of rules for disabled projects
-        'wrong_mask'    : 0,  # Number of rules with wrong netmask
-        'bogus_0_mask'  : 0,  # Number of rules with bogus /0 mask
-        'port_limit'    : 0,  # Number of rules exceeding port limits
-        'ok'            : 0,  # Number of rules deemed OK
-    }
     blacklist, whitelist, notify = load_config()
     for region in regions:
         nova    = himutils.get_client(Nova, options, logger, region)
@@ -87,6 +77,16 @@ def action_check():
         if not options.assume_yes and not himutils.confirm_action(question):
             return
 
+        count = {
+            'total'         : 0,  # Total number of rules checked
+            'whitelist'     : 0,  # Number of whitelisted rules
+            'unused'        : 0,  # Number of rules not used on instances
+            'proj_disabled' : 0,  # Number of rules for disabled projects
+            'wrong_mask'    : 0,  # Number of rules with wrong netmask
+            'bogus_0_mask'  : 0,  # Number of rules with bogus /0 mask
+            'port_limit'    : 0,  # Number of rules exceeding port limits
+            'ok'            : 0,  # Number of rules deemed OK
+        }
         for rule in rules:
             count['total'] += 1
 
