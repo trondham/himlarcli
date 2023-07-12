@@ -53,9 +53,9 @@ def action_list():
                 kc.debug_log(f"could not find project {rule['project_id']}")
                 continue
 
-            sec_group = neutron.get_security_group(rule['security_group_id'])
-            if not rule_in_use(sec_group, nova):
-                continue
+#            sec_group = neutron.get_security_group(rule['security_group_id'])
+#            if not rule_in_use(sec_group, nova):
+#                continue
 
             output = {
                 '0': project.name,
@@ -100,10 +100,10 @@ def action_check():
                     rule['remote_ip_prefix'] = '::/0'
 
             # Only care about security groups that are being used
-            sec_group = neutron.get_security_group(rule['security_group_id'])
-            if not rule_in_use(sec_group, nova):
-                count['unused'] += 1
-                continue
+#            sec_group = neutron.get_security_group(rule['security_group_id'])
+#            if not rule_in_use(sec_group, nova):
+#                count['unused'] += 1
+#                continue
 
             # check if project exists
             project = kc.get_by_id('project', rule['project_id'])
@@ -118,12 +118,18 @@ def action_check():
 
             # Check for bogus use of /0 mask
             if check_bogus_0_mask(rule, region, project):
-                count['bogus_0_mask'] += 1
+                if not rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
+                    count['unused'] += 1
+                else:
+                    count['bogus_0_mask'] += 1
                 continue
 
             # check for wrong netmask
             if check_wrong_mask(rule, region, project):
-                count['wrong_mask'] += 1
+                if not rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
+                    count['unused'] += 1
+                else:
+                    count['wrong_mask'] += 1
                 continue
 
             # Run through whitelist
@@ -137,7 +143,10 @@ def action_check():
 
             # Check port limits
             if check_port_limits(rule, region, notify, project=project):
-                count['port_limit'] += 1
+                if not rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
+                    count['unused'] += 1
+                else:
+                    count['port_limit'] += 1
                 continue
 
             if rule['port_range_min'] is None and rule['port_range_max'] is None:
@@ -158,14 +167,14 @@ def action_check():
         print(f"Summary for region {region}:")
         print("====================================================")
         print(f"  OK ({num_ok}):")
-        print(f"    OK rules:             {count['ok']}")
-        print(f"    Unused rules:         {count['unused']}")
-        print(f"    Disabled projects:    {count['proj_disabled']}")
-        print(f"    Whitelisted rules:    {count['whitelist']}")
+        print(f"    OK rules:                   {count['ok']}")
+        print(f"    Disabled projects:          {count['proj_disabled']}")
+        print(f"    Whitelisted rules:          {count['whitelist']}")
+        print(f"    Unused rules with problems: {count['unused']}")
         print(f"  PROBLEMS ({num_problems}):")
-        print(f"    Bogus /0 mask:        {count['bogus_0_mask']}")
-        print(f"    Wrong mask:           {count['wrong_mask']}")
-        print(f"    Port limits exceeded: {count['port_limit']}")
+        print(f"    Bogus /0 mask:              {count['bogus_0_mask']}")
+        print(f"    Wrong mask:                 {count['wrong_mask']}")
+        print(f"    Port limits exceeded:       {count['port_limit']}")
         print()
         print(f"  TOTAL rules checked in {region}: {count['total']}")
 
