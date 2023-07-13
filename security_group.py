@@ -193,15 +193,6 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
     # Security group info
     secgroup = neutron.get_security_group(rule['security_group_id'])
 
-    # Sometimes the remote IP prefix is empty or None. If that
-    # happens, rewrite to '0.0.0.0/0' or '::/0' for IPv4 and
-    # IPv6, respectively
-    if rule['remote_ip_prefix'] is None:
-        if rule['ethertype'] == 'IPv4':
-            rule['remote_ip_prefix'] = '0.0.0.0/0'
-        else:
-            rule['remote_ip_prefix'] = '::/0'
-
     # Set common mail parameters
     mail = himutils.get_client(Mail, options, logger)
     mail = Mail(options.config, debug=options.debug)
@@ -224,16 +215,16 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
         'rule_protocol'         : rule['protocol'],
         'rule_ports'            : f"{rule['port_range_min']}-{rule['port_range_max']}",
         'rule_remote_ip_prefix' : rule['remote_ip_prefix'],
-        'rule_ipaddr'           : ipaddress.ip_interface(rule['remote_ip_prefix']).ip,
-        'rule_netmask'          : int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen),
+        'rule_ipaddr'           : rule['remote_ip_prefix'].split('/', 1)[0],
+        'rule_netmask'          : rule['remote_ip_prefix'].split('/', 1)[1],
         'region'                : region,
         'minimum_netmask'       : minimum_netmask,
     }
-    body_content = himutils.load_template(inputfile=template['violation_type'],
+    body_content = himutils.load_template(inputfile=template[violation_type],
                                           mapping=mapping,
                                           log=logger)
     msg = MIMEText(body_content, 'plain')
-    msg['subject'] = f"NREC: Problematic security group rules found in project {project.name}"
+    msg['subject'] = f"NREC: Problematic security group rule found in project {project.name}"
 
     # Send mail to user
     #mail.send_mail(project_admin, msg, fromaddr, ccaddr, bccaddr)
