@@ -193,6 +193,15 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
     # Security group info
     secgroup = neutron.get_security_group(rule['security_group_id'])
 
+    # Sometimes the remote IP prefix is empty or None. If that
+    # happens, rewrite to '0.0.0.0/0' or '::/0' for IPv4 and
+    # IPv6, respectively
+    if rule['remote_ip_prefix'] is None:
+        if rule['ethertype'] == 'IPv4':
+            rule['remote_ip_prefix'] = '0.0.0.0/0'
+        else:
+            rule['remote_ip_prefix'] = '::/0'
+
     # Set common mail parameters
     mail = himutils.get_client(Mail, options, logger)
     mail = Mail(options.config, debug=options.debug)
@@ -210,7 +219,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
         'project_id'            : project.id,
         'secgroup_name'         : secgroup['name'],
         'secgroup_id'           : secgroup['id'],
-        'rule_id':              : rule['id'],
+        'rule_id'               : rule['id'],
         'rule_ethertype'        : rule['ethertype'],
         'rule_protocol'         : rule['protocol'],
         'rule_ports'            : f"{rule['port_range_min']}-{rule['port_range_max']}",
