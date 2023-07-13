@@ -3,6 +3,7 @@
 import ipaddress
 from datetime import datetime
 from datetime import timedelta
+from email.mime.text import MIMEText
 
 from himlarcli import tests
 tests.is_virtual_env()
@@ -12,6 +13,7 @@ from himlarcli.neutron import Neutron
 from himlarcli.nova import Nova
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
+from himlarcli.mail import Mail
 from himlarcli import utils as himutils
 from himlarcli.global_state import GlobalState, SecGroupRule
 
@@ -174,7 +176,71 @@ def action_check():
         print(f"  TOTAL rules checked in {region}: {count['total']}")
 
 
-#def notify_user(
+def notify_user(rule, region, project, violation_type, minimum_netmask=None):
+    neutron = himutils.get_client(Neutron, options, logger, region)
+
+    # Templates
+    template = {
+        'bogus_0_mask' : 'notify/secgroup_bogus_0_mask.txt',
+        'wrong_mask'   : 'notify/secgroup_wrong_mask.txt',
+        'port_limit'   : 'notify/secgroup_port_limit.txt',
+    }
+
+    # Project info
+    project_admin = project.admin if hasattr(project, 'admin') else 'None'
+    project_contact = project.contact if hasattr(project, 'contact') else 'None'
+
+    # Security group info
+    secgroup = neutron.get_security_group(rule['security_group_id'])
+
+    # Set common mail parameters
+    mail = himutils.get_client(Mail, options, logger)
+    mail = Mail(options.config, debug=options.debug)
+    mail.set_dry_run(options.dry_run)
+    fromaddr = 'support@nrec.no'
+    bccaddr = 'iaas-logs@usit.uio.no'
+    if project_contact is not 'None':
+        ccaddr = project_contact
+    else:
+        ccaddr = None
+
+    # Construct mail content
+    mapping = {
+        'project_name'          : project.name,
+        'project_id'            : project.id,
+        'secgroup_name'         : secgroup['name'],
+        'secgroup_id'           : secgroup['id'],
+        'rule_id':              : rule['id'],
+        'rule_ethertype'        : rule['ethertype'],
+        'rule_protocol'         : rule['protocol'],
+        'rule_ports'            : f"{rule['port_range_min']}-{rule['port_range_max']}",
+        'rule_remote_ip_prefix' : rule['remote_ip_prefix'],
+        'rule_ipaddr'           : ipaddress.ip_interface(rule['remote_ip_prefix']).ip,
+        'rule_netmask'          : int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen),
+        'region'                : region,
+        'minimum_netmask'       : minimum_netmask,
+    }
+    body_content = himutils.load_template(inputfile=template['violation_type'],
+                                          mapping=mapping,
+                                          log=logger)
+    msg = MIMEText(body_content, 'plain')
+    msg['subject'] = f"NREC: Problematic security group rules found in project {project.name}"
+
+    # Send mail to user
+    #mail.send_mail(project_admin, msg, fromaddr, ccaddr, bccaddr)
+    if options.dry_run:
+        print(f"Did NOT send spam to {project_admin}")
+        print(f"Subject: {msg['subject']}")
+        print(f"To: {project_admin}")
+        if ccaddr:
+            print(f"Cc: {ccaddr}")
+        if bccaddr:
+            print(f"Bcc: {bccaddr}")
+            print(f"From: {fromaddr}")
+            print('---')
+            print(body_content)
+    else:
+        print(f"Spam sent to {project_admin}")
 
 def add_or_update_db(rule_id, secgroup_id, project_id, region):
     limit = 30
@@ -229,6 +295,7 @@ def check_wrong_mask(rule, region, project):
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
+            notify_user(rule, region, project, violation_type='wrong_mask', minimum_netmask=min_mask)
             add_or_update_db(
                 rule_id     = rule['id'],
                 secgroup_id = rule['security_group_id'],
