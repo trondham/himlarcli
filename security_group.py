@@ -251,6 +251,9 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
     else:
         print(f"Spam sent to {project_admin}")
 
+# Add entry to the database if it doesn't already exists, or update
+# the entry if it is older than 30 days.  Returns True if database was
+# updated
 def add_or_update_db(rule_id, secgroup_id, project_id, region):
     limit = 30
     existing_object = db.get_first(SecGroupRule,
@@ -269,12 +272,15 @@ def add_or_update_db(rule_id, secgroup_id, project_id, region):
         }
         rule_object = SecGroupRule.create(rule_entry)
         db.add(rule_object)
+        return True
     else:
         last_notified = existing_object.notified
         if datetime.now() > last_notified + timedelta(days=limit):
             verbose_warning(f"[{region}] More than {limit} days since {rule_id} was notified")
             rule_diff = { 'notified': datetime.now() }
             db.update(existing_object, rule_diff)
+            return True
+    return False
 
 # Check for wrong use of mask 0. Returns true if the mask is 0 and the
 # IP is not one of "0.0.0.0" or "::"
@@ -285,15 +291,15 @@ def check_bogus_0_mask(rule, region, project):
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            notify_user(rule, region, project,
-                        violation_type='bogus_0_mask',
-                        minimum_netmask=min_mask)
-            add_or_update_db(
-                rule_id     = rule['id'],
-                secgroup_id = rule['security_group_id'],
-                project_id  = rule['project_id'],
-                region      = region
-            )
+            if add_or_update_db(
+                    rule_id     = rule['id'],
+                    secgroup_id = rule['security_group_id'],
+                    project_id  = rule['project_id'],
+                    region      = region
+            ):
+                notify_user(rule, region, project,
+                            violation_type='bogus_0_mask',
+                            minimum_netmask=min_mask)
         return True
     return False
 
@@ -307,15 +313,15 @@ def check_wrong_mask(rule, region, project):
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            notify_user(rule, region, project,
-                        violation_type='wrong_mask',
-                        minimum_netmask=min_mask)
-            add_or_update_db(
-                rule_id     = rule['id'],
-                secgroup_id = rule['security_group_id'],
-                project_id  = rule['project_id'],
-                region      = region
-            )
+            if add_or_update_db(
+                    rule_id     = rule['id'],
+                    secgroup_id = rule['security_group_id'],
+                    project_id  = rule['project_id'],
+                    region      = region
+            ):
+                notify_user(rule, region, project,
+                            violation_type='wrong_mask',
+                            minimum_netmask=min_mask)
         return True
     return False
 
@@ -367,14 +373,14 @@ def check_port_limits(rule, region, notify, project=None):
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
         if options.notify:
-            notify_user(rule, region, project,
-                        violation_type='port_limit')
-            add_or_update_db(
-                rule_id     = rule['id'],
-                secgroup_id = rule['security_group_id'],
-                project_id  = rule['project_id'],
-                region      = region
-            )
+            if add_or_update_db(
+                    rule_id     = rule['id'],
+                    secgroup_id = rule['security_group_id'],
+                    project_id  = rule['project_id'],
+                    region      = region
+            ):
+                notify_user(rule, region, project,
+                            violation_type='port_limit')
         return True
     return False
 
