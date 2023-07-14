@@ -205,6 +205,10 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
         ccaddr = None
 
     # Construct mail content
+    if rule['ethertype'] == 'IPv4':
+        ip_family_0 = '0.0.0.0'
+    else:
+        ip_family_0 = '::'
     mapping = {
         'project_name'          : project.name,
         'project_id'            : project.id,
@@ -219,6 +223,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
         'rule_netmask'          : rule['remote_ip_prefix'].split('/', 1)[1],
         'region'                : region,
         'minimum_netmask'       : minimum_netmask,
+        'ip_family_0'           : ip_family_0,
     }
     body_content = himutils.load_template(inputfile=template[violation_type],
                                           mapping=mapping,
@@ -276,6 +281,9 @@ def check_bogus_0_mask(rule, region, project):
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
+            notify_user(rule, region, project,
+                        violation_type='bogus_0_mask',
+                        minimum_netmask=min_mask)
             add_or_update_db(
                 rule_id     = rule['id'],
                 secgroup_id = rule['security_group_id'],
@@ -295,7 +303,9 @@ def check_wrong_mask(rule, region, project):
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            notify_user(rule, region, project, violation_type='wrong_mask', minimum_netmask=min_mask)
+            notify_user(rule, region, project,
+                        violation_type='wrong_mask',
+                        minimum_netmask=min_mask)
             add_or_update_db(
                 rule_id     = rule['id'],
                 secgroup_id = rule['security_group_id'],
@@ -353,6 +363,8 @@ def check_port_limits(rule, region, notify, project=None):
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
         if options.notify:
+            notify_user(rule, region, project,
+                        violation_type='port_limit')
             add_or_update_db(
                 rule_id     = rule['id'],
                 secgroup_id = rule['security_group_id'],
