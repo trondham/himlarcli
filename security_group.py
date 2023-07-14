@@ -106,6 +106,10 @@ def action_check():
                 kc.debug_log(f"could not find project {rule['project_id']}")
                 continue
 
+            # temporary testing
+            if project.name != 'PRIVATE-trondham.uio.no':
+                continue
+            
             # Ignore if project is disabled
             if not is_project_enabled(project):
                 count['proj_disabled'] += 1
