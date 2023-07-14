@@ -118,7 +118,6 @@ def action_check():
             # Check for bogus use of /0 mask
             if check_bogus_0_mask(rule, region, project):
                 if rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
-                    #notify_user(rule, region, project)
                     count['bogus_0_mask'] += 1
                 else:
                     count['unused'] += 1
