@@ -291,12 +291,13 @@ def check_bogus_0_mask(rule, region, project):
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            if add_or_update_db(
-                    rule_id     = rule['id'],
-                    secgroup_id = rule['security_group_id'],
-                    project_id  = rule['project_id'],
-                    region      = region
-            ):
+            do_notify = add_or_update_db(
+                rule_id     = rule['id'],
+                secgroup_id = rule['security_group_id'],
+                project_id  = rule['project_id'],
+                region      = region
+            )
+            if do_notify:
                 notify_user(rule, region, project,
                             violation_type='bogus_0_mask',
                             minimum_netmask=min_mask)
@@ -313,12 +314,13 @@ def check_wrong_mask(rule, region, project):
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            if add_or_update_db(
-                    rule_id     = rule['id'],
-                    secgroup_id = rule['security_group_id'],
-                    project_id  = rule['project_id'],
-                    region      = region
-            ):
+            do_notify = add_or_update_db(
+                rule_id     = rule['id'],
+                secgroup_id = rule['security_group_id'],
+                project_id  = rule['project_id'],
+                region      = region
+            )
+            if do_notify:
                 notify_user(rule, region, project,
                             violation_type='wrong_mask',
                             minimum_netmask=min_mask)
@@ -373,12 +375,13 @@ def check_port_limits(rule, region, notify, project=None):
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
         if options.notify:
-            if add_or_update_db(
-                    rule_id     = rule['id'],
-                    secgroup_id = rule['security_group_id'],
-                    project_id  = rule['project_id'],
-                    region      = region
-            ):
+            do_notify = add_or_update_db(
+                rule_id     = rule['id'],
+                secgroup_id = rule['security_group_id'],
+                project_id  = rule['project_id'],
+                region      = region
+            )
+            if do_notify:
                 notify_user(rule, region, project,
                             violation_type='port_limit')
         return True
