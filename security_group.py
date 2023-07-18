@@ -355,10 +355,10 @@ def is_project_enabled(project):
 def check_port_limits(rule, region, notify, project=None):
     protocol = rule['protocol']
     rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
-    if notify['netmask_port_limits'][rule['ethertype']][rule_mask]:
+    if rule_mask in notify['netmask_port_limits'][rule['ethertype']]:
         max_ports = notify['netmask_port_limits'][rule['ethertype']][rule_mask]
     else:
-        max_ports = notify['netmask_port_limits'][rule['ethertype']][default]
+        max_ports = notify['netmask_port_limits'][rule['ethertype']]['default']
     if rule['port_range_max'] is None and rule['port_range_min'] is None:
         rule_ports = 65536
     else:
@@ -379,39 +379,6 @@ def check_port_limits(rule, region, notify, project=None):
                             violation_type='port_limit')
         return True
     return False
-
-#    for limit in notify['network_port_limits']:
-#        max_mask  = notify['network_port_limits'][limit]['max_mask']
-#        min_mask  = notify['network_port_limits'][limit]['min_mask']
-#        max_ports = notify['network_port_limits'][limit]['max_ports']
-#        rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
-#        protocol = rule['protocol']
-#
-#        if rule['port_range_max'] is None and rule['port_range_min'] is None:
-#            rule_ports = 65536
-#        else:
-#            rule_ports = int(rule['port_range_max']) - int(rule['port_range_min']) + 1
-#
-#        if rule_mask > max_mask or rule_mask < min_mask:
-#            continue
-#        if rule_mask <= max_mask and rule_mask >= min_mask and rule_ports <= max_ports:
-#            continue
-#
-#        verbose_warning(f"[{region}] {project.name} {rule['remote_ip_prefix']} " +
-#                        f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
-#                        f"has too many open ports ({rule_ports} > {max_ports})")
-#        if options.notify:
-#            do_notify = add_or_update_db(
-#                rule_id     = rule['id'],
-#                secgroup_id = rule['security_group_id'],
-#                project_id  = rule['project_id'],
-#                region      = region
-#            )
-#            if do_notify:
-#                notify_user(rule, region, project,
-#                            violation_type='port_limit')
-#        return True
-#    return False
 
 def is_blacklist(rule, region, blacklist):
     # Blacklisting is currently not implemented
