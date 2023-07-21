@@ -235,7 +235,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
     msg['subject'] = f"TEST!! NREC: Problematic security group rule found in project {project.name}"
 
     # Send mail to user
-    #mail.send_mail(project_admin, msg, fromaddr, ccaddr, bccaddr)
+    mail.send_mail(project_admin, msg, fromaddr, ccaddr, bccaddr)
     if options.dry_run:
         print(f"Did NOT send spam to {project_admin}")
         print(f"Subject: {msg['subject']}")
