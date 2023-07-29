@@ -3,6 +3,7 @@
 import ipaddress
 from datetime import datetime
 from datetime import timedelta
+from email.mime.text import MIMEText
 
 from himlarcli import tests
 tests.is_virtual_env()
@@ -12,6 +13,7 @@ from himlarcli.neutron import Neutron
 from himlarcli.nova import Nova
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
+from himlarcli.mail import Mail
 from himlarcli import utils as himutils
 from himlarcli.global_state import GlobalState, SecGroupRule
 
@@ -104,6 +106,10 @@ def action_check():
                 kc.debug_log(f"could not find project {rule['project_id']}")
                 continue
 
+            # temporary testing
+            if project.name != 'PRIVATE-trondham.uio.no':
+                continue
+            
             # Ignore if project is disabled
             if not is_project_enabled(project):
                 count['proj_disabled'] += 1
@@ -112,7 +118,6 @@ def action_check():
             # Check for bogus use of /0 mask
             if check_bogus_0_mask(rule, region, project):
                 if rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
-                    #notify_user(rule, region, project)
                     count['bogus_0_mask'] += 1
                 else:
                     count['unused'] += 1
@@ -174,8 +179,80 @@ def action_check():
         print(f"  TOTAL rules checked in {region}: {count['total']}")
 
 
-#def notify_user(
+def notify_user(rule, region, project, violation_type, minimum_netmask=None):
+    neutron = himutils.get_client(Neutron, options, logger, region)
 
+    # Templates
+    template = {
+        'bogus_0_mask' : 'notify/secgroup_bogus_0_mask.txt',
+        'wrong_mask'   : 'notify/secgroup_wrong_mask.txt',
+        'port_limit'   : 'notify/secgroup_port_limit.txt',
+    }
+
+    # Project info
+    project_admin = project.admin if hasattr(project, 'admin') else 'None'
+    project_contact = project.contact if hasattr(project, 'contact') else 'None'
+
+    # Security group info
+    secgroup = neutron.get_security_group(rule['security_group_id'])
+
+    # Set common mail parameters
+    mail = himutils.get_client(Mail, options, logger)
+    mail = Mail(options.config, debug=options.debug)
+    mail.set_dry_run(options.dry_run)
+    fromaddr = 'support@nrec.no'
+    bccaddr = 'iaas-logs@usit.uio.no'
+    if project_contact is not 'None':
+        ccaddr = project_contact
+    else:
+        ccaddr = None
+
+    # Construct mail content
+    if rule['ethertype'] == 'IPv4':
+        ip_family_0 = '0.0.0.0'
+    else:
+        ip_family_0 = '::'
+    mapping = {
+        'project_name'          : project.name,
+        'project_id'            : project.id,
+        'secgroup_name'         : secgroup['name'],
+        'secgroup_id'           : secgroup['id'],
+        'rule_id'               : rule['id'],
+        'rule_ethertype'        : rule['ethertype'],
+        'rule_protocol'         : rule['protocol'],
+        'rule_ports'            : f"{rule['port_range_min']}-{rule['port_range_max']}",
+        'rule_remote_ip_prefix' : rule['remote_ip_prefix'],
+        'rule_ipaddr'           : rule['remote_ip_prefix'].split('/', 1)[0],
+        'rule_netmask'          : rule['remote_ip_prefix'].split('/', 1)[1],
+        'region'                : region,
+        'minimum_netmask'       : minimum_netmask,
+        'ip_family_0'           : ip_family_0,
+    }
+    body_content = himutils.load_template(inputfile=template[violation_type],
+                                          mapping=mapping,
+                                          log=logger)
+    msg = MIMEText(body_content, 'plain')
+    msg['subject'] = f"TEST!! NREC: Problematic security group rule found in project {project.name}"
+
+    # Send mail to user
+    mail.send_mail(project_admin, msg, fromaddr, ccaddr, bccaddr)
+    if options.dry_run:
+        print(f"Did NOT send spam to {project_admin}")
+        print(f"Subject: {msg['subject']}")
+        print(f"To: {project_admin}")
+        if ccaddr:
+            print(f"Cc: {ccaddr}")
+        if bccaddr:
+            print(f"Bcc: {bccaddr}")
+            print(f"From: {fromaddr}")
+            print('---')
+            print(body_content)
+    else:
+        print(f"Spam sent to {project_admin}")
+
+# Add entry to the database if it doesn't already exists, or update
+# the entry if it is older than 30 days.  Returns True if database was
+# updated
 def add_or_update_db(rule_id, secgroup_id, project_id, region):
     limit = 30
     existing_object = db.get_first(SecGroupRule,
@@ -194,12 +271,15 @@ def add_or_update_db(rule_id, secgroup_id, project_id, region):
         }
         rule_object = SecGroupRule.create(rule_entry)
         db.add(rule_object)
+        return True
     else:
         last_notified = existing_object.notified
         if datetime.now() > last_notified + timedelta(days=limit):
             verbose_warning(f"[{region}] More than {limit} days since {rule_id} was notified")
             rule_diff = { 'notified': datetime.now() }
             db.update(existing_object, rule_diff)
+            return True
+    return False
 
 # Check for wrong use of mask 0. Returns true if the mask is 0 and the
 # IP is not one of "0.0.0.0" or "::"
@@ -210,12 +290,16 @@ def check_bogus_0_mask(rule, region, project):
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            add_or_update_db(
+            do_notify = add_or_update_db(
                 rule_id     = rule['id'],
                 secgroup_id = rule['security_group_id'],
                 project_id  = rule['project_id'],
                 region      = region
             )
+            if do_notify:
+                notify_user(rule, region, project,
+                            violation_type='bogus_0_mask',
+                            minimum_netmask=min_mask)
         return True
     return False
 
@@ -229,12 +313,16 @@ def check_wrong_mask(rule, region, project):
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
-            add_or_update_db(
+            do_notify = add_or_update_db(
                 rule_id     = rule['id'],
                 secgroup_id = rule['security_group_id'],
                 project_id  = rule['project_id'],
                 region      = region
             )
+            if do_notify:
+                notify_user(rule, region, project,
+                            violation_type='wrong_mask',
+                            minimum_netmask=min_mask)
         return True
     return False
 
@@ -265,33 +353,30 @@ def is_project_enabled(project):
     return project.enabled
 
 def check_port_limits(rule, region, notify, project=None):
-    for limit in notify['network_port_limits']:
-        max_mask  = notify['network_port_limits'][limit]['max_mask']
-        min_mask  = notify['network_port_limits'][limit]['min_mask']
-        max_ports = notify['network_port_limits'][limit]['max_ports']
-        rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
-        protocol = rule['protocol']
-
-        if rule['port_range_max'] is None and rule['port_range_min'] is None:
-            rule_ports = 65536
-        else:
-            rule_ports = int(rule['port_range_max']) - int(rule['port_range_min']) + 1
-
-        if rule_mask > max_mask or rule_mask < min_mask:
-            continue
-        if rule_mask <= max_mask and rule_mask >= min_mask and rule_ports <= max_ports:
-            continue
-
+    protocol = rule['protocol']
+    rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
+    if rule_mask in notify['netmask_port_limits'][rule['ethertype']]:
+        max_ports = notify['netmask_port_limits'][rule['ethertype']][rule_mask]
+    else:
+        max_ports = notify['netmask_port_limits'][rule['ethertype']]['default']
+    if rule['port_range_max'] is None and rule['port_range_min'] is None:
+        rule_ports = 65536
+    else:
+        rule_ports = int(rule['port_range_max']) - int(rule['port_range_min']) + 1
+    if rule_ports > max_ports:
         verbose_warning(f"[{region}] {project.name} {rule['remote_ip_prefix']} " +
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
         if options.notify:
-            add_or_update_db(
+            do_notify = add_or_update_db(
                 rule_id     = rule['id'],
                 secgroup_id = rule['security_group_id'],
                 project_id  = rule['project_id'],
                 region      = region
             )
+            if do_notify:
+                notify_user(rule, region, project,
+                            violation_type='port_limit')
         return True
     return False
 
