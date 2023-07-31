@@ -6,7 +6,7 @@ projects:
 
   Region: $region
   Project: $project_name (ID: $project_id)
-  Security Group: $secgroup_name (ID: $secgroup_id)
+  Security Group: "$secgroup_name" (ID: $secgroup_id)
 
 Security group rule details:
 
