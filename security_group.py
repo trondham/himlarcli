@@ -179,7 +179,7 @@ def action_check():
         print(f"  TOTAL rules checked in {region}: {count['total']}")
 
 
-def notify_user(rule, region, project, violation_type, minimum_netmask=None):
+def notify_user(rule, region, project, violation_type, minimum_netmask=None, real_ip=None):
     neutron = himutils.get_client(Neutron, options, logger, region)
 
     # Templates
@@ -226,6 +226,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None):
         'rule_netmask'          : rule['remote_ip_prefix'].split('/', 1)[1],
         'region'                : region,
         'minimum_netmask'       : minimum_netmask,
+        'real_ip'               : real_ip,
         'ip_family_0'           : ip_family_0,
     }
     body_content = himutils.load_template(inputfile=template[violation_type],
@@ -310,6 +311,7 @@ def check_wrong_mask(rule, region, project):
     packed = int(ip)
     if packed & int(mask) != packed:
         min_mask = minimum_netmask(ip, rule['ethertype'])
+        real_ip = real_ip_for_netmask(ip, mask)
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
@@ -322,7 +324,8 @@ def check_wrong_mask(rule, region, project):
             if do_notify:
                 notify_user(rule, region, project,
                             violation_type='wrong_mask',
-                            minimum_netmask=min_mask)
+                            minimum_netmask=min_mask,
+                            real_ip=real_ip)
         return True
     return False
 
@@ -339,6 +342,13 @@ def minimum_netmask(ip, family):
             return i+1
     return 0
 
+# Calculates the real IP address after applying the netmask
+def real_ip_for_netmask(ip, netmask):
+    packed = int(ip)
+    real_ip = packed & int(mask)
+    return str(ipaddress.ip_address(real_ip))
+
+# Check if security group rule is in use
 def rule_in_use(sec_group, nova):
     instances = nova.get_project_instances(sec_group['project_id'])
     for i in instances:
@@ -349,6 +359,7 @@ def rule_in_use(sec_group, nova):
                 return True
     return False
 
+# Check if project is enabled
 def is_project_enabled(project):
     return project.enabled
 
