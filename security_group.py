@@ -30,23 +30,23 @@ regions = himutils.get_regions(options, kc)
 # Initialize database connection
 db = himutils.get_client(GlobalState, options, logger)
 
+# Load config
+blacklist, whitelist, notify = load_config()
 
 def action_list():
-    blacklist, whitelist, notify = load_config()
     for region in regions:
-        nova    = himutils.get_client(Nova, options, logger, region)
         neutron = himutils.get_client(Neutron, options, logger, region)
         rules   = neutron.get_security_group_rules(5)
 
-        question = (f"Are you sure you will list {len(rules)} security group rules in {region}?")
+        question = f"Are you sure you will list {len(rules)} security group rules in {region}?"
         if not options.assume_yes and not himutils.confirm_action(question):
             return
 
-        printer.output_dict({'header': f"Rules in {region} (project, ports, protocol, remote ip prefix)"})
+        printer.output_dict({'header': f"Rules in {region} (project, ports, protocol, cidr)"})
         for rule in rules:
-            if is_whitelist(rule, region, whitelist):
+            if is_whitelist(rule, region):
                 continue
-            if is_blacklist(rule, region, blacklist):
+            if is_blacklist(rule, region):
                 continue
 
             # check if project exists
@@ -65,13 +65,12 @@ def action_list():
 
 
 def action_check():
-    blacklist, whitelist, notify = load_config()
     for region in regions:
         nova    = himutils.get_client(Nova, options, logger, region)
         neutron = himutils.get_client(Neutron, options, logger, region)
         rules   = neutron.get_security_group_rules(1000)
 
-        question = (f"Are you sure you will check {len(rules)} security group rules in {region}?")
+        question = f"Are you sure you will check {len(rules)} security group rules in {region}?"
         if not options.assume_yes and not himutils.confirm_action(question):
             return
 
@@ -109,7 +108,7 @@ def action_check():
             # temporary testing
             if project.name != 'PRIVATE-trondham.uio.no':
                 continue
-            
+
             # Ignore if project is disabled
             if not is_project_enabled(project):
                 count['proj_disabled'] += 1
@@ -132,16 +131,16 @@ def action_check():
                 continue
 
             # Run through whitelist
-            if is_whitelist(rule, region, whitelist):
+            if is_whitelist(rule, region):
                 count['whitelist'] += 1
                 continue
 
             # Run through blacklist
-            if is_blacklist(rule, region, blacklist):
+            if is_blacklist(rule, region):
                 continue
 
             # Check port limits
-            if check_port_limits(rule, region, notify, project=project):
+            if check_port_limits(rule, region, project=project):
                 if rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
                     count['port_limit'] += 1
                 else:
@@ -155,7 +154,8 @@ def action_check():
             else:
                 ports = f"{rule['port_range_min']}-{rule['port_range_max']}"
 
-            verbose_info(f"[{region}] OK: Project {project.name}: ports {ports}/{rule['protocol']} " +
+            verbose_info(f"[{region}] OK: Project {project.name}: " +
+                         f"ports {ports}/{rule['protocol']} " +
                          f"to {rule['remote_ip_prefix']}")
             count['ok'] += 1
 
@@ -202,7 +202,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None, rea
     mail.set_dry_run(options.dry_run)
     fromaddr = 'support@nrec.no'
     bccaddr = 'iaas-logs@usit.uio.no'
-    if project_contact is not 'None':
+    if project_contact != 'None':
         ccaddr = project_contact
     else:
         ccaddr = None
@@ -273,13 +273,14 @@ def add_or_update_db(rule_id, secgroup_id, project_id, region):
         rule_object = SecGroupRule.create(rule_entry)
         db.add(rule_object)
         return True
-    else:
-        last_notified = existing_object.notified
-        if datetime.now() > last_notified + timedelta(days=limit):
-            verbose_warning(f"[{region}] More than {limit} days since {rule_id} was notified")
-            rule_diff = { 'notified': datetime.now() }
-            db.update(existing_object, rule_diff)
-            return True
+
+    last_notified = existing_object.notified
+    if datetime.now() > last_notified + timedelta(days=limit):
+        verbose_warning(f"[{region}] More than {limit} days since {rule_id} was notified")
+        rule_diff = { 'notified': datetime.now() }
+        db.update(existing_object, rule_diff)
+        return True
+
     return False
 
 # Check for wrong use of mask 0. Returns true if the mask is 0 and the
@@ -287,7 +288,7 @@ def add_or_update_db(rule_id, secgroup_id, project_id, region):
 def check_bogus_0_mask(rule, region, project):
     ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     if str(rule['remote_ip_prefix']).endswith('/0') and ip.compressed not in ('0.0.0.0', '::'):
-        min_mask = minimum_netmask(ip, rule['ethertype'])
+        min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
                       f"({project.name}). Minimum netmask: {min_mask}")
         if options.notify:
@@ -310,7 +311,7 @@ def check_wrong_mask(rule, region, project):
     ip     = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     packed = int(ip)
     if packed & int(mask) != packed:
-        min_mask = minimum_netmask(ip, rule['ethertype'])
+        min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         real_ip = real_ip_for_netmask(ip, mask)
         verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
                       f"({project.name}). Minimum netmask: {min_mask}")
@@ -330,7 +331,7 @@ def check_wrong_mask(rule, region, project):
     return False
 
 # Calculates minimum netmask for a given IP
-def minimum_netmask(ip, family):
+def calculate_minimum_netmask(ip, family):
     if family == "IPv6":
         maxmask = 128
     elif family == "IPv4":
@@ -363,7 +364,7 @@ def rule_in_use(sec_group, nova):
 def is_project_enabled(project):
     return project.enabled
 
-def check_port_limits(rule, region, notify, project=None):
+def check_port_limits(rule, region, project=None):
     protocol = rule['protocol']
     rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
     if rule_mask in notify['netmask_port_limits'][rule['ethertype']]:
@@ -391,7 +392,7 @@ def check_port_limits(rule, region, notify, project=None):
         return True
     return False
 
-def is_blacklist(rule, region, blacklist):
+def is_blacklist(rule, region):
     # Blacklisting is currently not implemented
     return False
 
@@ -407,8 +408,7 @@ def verbose_error(string):
     if options.verbose >= 1:
         himutils.error(string)
 
-def is_whitelist(rule, region, whitelist):
-    #valid_none_check = ['remote_ip_prefix']
+def is_whitelist(rule, region):
     for k, v in whitelist.items():
         # whitelist none empty property
         if "!None" in v and rule[k]:
