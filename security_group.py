@@ -247,9 +247,9 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None, rea
             print(f"Cc: {ccaddr}")
         if bccaddr:
             print(f"Bcc: {bccaddr}")
-            print(f"From: {fromaddr}")
-            print('---')
-            print(body_content)
+        print(f"From: {fromaddr}")
+        print('---')
+        print(body_content)
     else:
         print(f"Spam sent to {project_admin}")
 
