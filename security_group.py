@@ -343,7 +343,7 @@ def minimum_netmask(ip, family):
     return 0
 
 # Calculates the real IP address after applying the netmask
-def real_ip_for_netmask(ip, netmask):
+def real_ip_for_netmask(ip, mask):
     packed = int(ip)
     real_ip = packed & int(mask)
     return str(ipaddress.ip_address(real_ip))
