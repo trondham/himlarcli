@@ -97,7 +97,6 @@ def action_check():
                 else:
                     rule['remote_ip_prefix'] = '::/0'
 
-
             # check if project exists
             project = kc.get_by_id('project', rule['project_id'])
             if not project:
