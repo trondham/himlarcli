@@ -30,9 +30,9 @@ regions = himutils.get_regions(options, kc)
 # Initialize database connection
 db = himutils.get_client(GlobalState, options, logger)
 
-# Load config
-blacklist, whitelist, notify = load_config()
-
+#---------------------------------------------------------------------
+# Action functions
+#---------------------------------------------------------------------
 def action_list():
     for region in regions:
         neutron = himutils.get_client(Neutron, options, logger, region)
@@ -179,6 +179,9 @@ def action_check():
         print(f"  TOTAL rules checked in {region}: {count['total']}")
 
 
+#---------------------------------------------------------------------
+# Helper functions
+#---------------------------------------------------------------------
 def notify_user(rule, region, project, violation_type, minimum_netmask=None, real_ip=None):
     neutron = himutils.get_client(Neutron, options, logger, region)
 
@@ -364,6 +367,7 @@ def rule_in_use(sec_group, nova):
 def is_project_enabled(project):
     return project.enabled
 
+# Check for port limit violation
 def check_port_limits(rule, region, project=None):
     protocol = rule['protocol']
     rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
@@ -392,22 +396,26 @@ def check_port_limits(rule, region, project=None):
         return True
     return False
 
+# Blacklisting is currently not implemented
 def is_blacklist(rule, region):
-    # Blacklisting is currently not implemented
     return False
 
+# Print verbose info
 def verbose_info(string):
     if options.verbose >= 3:
         himutils.info(string)
 
+# Print verbose warning
 def verbose_warning(string):
     if options.verbose >= 2:
         himutils.warning(string)
 
+# Print verbose error
 def verbose_error(string):
     if options.verbose >= 1:
         himutils.error(string)
 
+# Check if rule is whitelisted
 def is_whitelist(rule, region):
     for k, v in whitelist.items():
         # whitelist none empty property
@@ -441,6 +449,7 @@ def is_whitelist(rule, region):
             return True
     return False
 
+# Load config
 def load_config():
     config_files = {
         'blacklist': 'config/security_group/blacklist.yaml',
@@ -453,7 +462,10 @@ def load_config():
     return [(v) for v in config.values()]
 
 
+#---------------------------------------------------------------------
 # Run local function with the same name as the action (Note: - => _)
+#---------------------------------------------------------------------
+blacklist, whitelist, notify = load_config()
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
     himutils.fatal(f"Function action_{options.action} not implemented")
