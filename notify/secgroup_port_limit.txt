@@ -22,7 +22,7 @@ number of hosts for which the ports are opened.
 
 The purpose of this message is only to bring this to your attention,
 you may fix this problem at your discretion. If this problem persists,
-we will issue a new notification in 30 days.
+we will issue a new notification in $notification_interval days.
 
 For more details about the security group sanity check, visit:
 

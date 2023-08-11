@@ -202,8 +202,8 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None, rea
     mail = himutils.get_client(Mail, options, logger)
     mail = Mail(options.config, debug=options.debug)
     mail.set_dry_run(options.dry_run)
-    fromaddr = 'support@nrec.no'
-    bccaddr = 'iaas-logs@usit.uio.no'
+    fromaddr = general['mail_from_address']
+    bccaddr =  general['mail_bcc_address']
     if project_contact != 'None':
         ccaddr = project_contact
     else:
@@ -230,6 +230,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None, rea
         'minimum_netmask'       : minimum_netmask,
         'real_ip'               : real_ip,
         'ip_family_0'           : ip_family_0,
+        'notifciation_interval' : general['notification_interval_days'],
     }
     body_content = himutils.load_template(inputfile=template[violation_type],
                                           mapping=mapping,
@@ -254,10 +255,10 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None, rea
         print(f"Spam sent to {project_admin}")
 
 # Add entry to the database if it doesn't already exists, or update
-# the entry if it is older than 30 days.  Returns True if database was
+# the entry if it is older than X days.  Returns True if database was
 # updated
 def add_or_update_db(rule_id, secgroup_id, project_id, region):
-    limit = 30
+    limit = general['notification_interval_days']
     existing_object = db.get_first(SecGroupRule,
                                    rule_id=rule_id,
                                    secgroup_id=secgroup_id,
@@ -453,7 +454,9 @@ def load_config():
     config_files = {
         'blacklist': 'config/security_group/blacklist.yaml',
         'whitelist': 'config/security_group/whitelist.yaml',
-        'notify': 'config/security_group/notify.yaml'}
+        'notify':    'config/security_group/notify.yaml',
+        'general':   'config/security_group/general.yaml',
+    }
     config = {}
     for file_type, config_file in config_files.items():
         config[file_type] = himutils.load_config(config_file)
@@ -464,7 +467,7 @@ def load_config():
 #---------------------------------------------------------------------
 # Run local function with the same name as the action (Note: - => _)
 #---------------------------------------------------------------------
-blacklist, whitelist, notify = load_config()
+blacklist, whitelist, notify, general = load_config()
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
     himutils.fatal(f"Function action_{options.action} not implemented")
