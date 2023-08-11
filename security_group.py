@@ -153,7 +153,7 @@ def action_check():
             else:
                 ports = f"{rule['port_range_min']}-{rule['port_range_max']}"
 
-            verbose_info(f"[{region}] OK: Project {project.name}: " +
+            verbose_info(f"[{region}] [{project.name}] OK: " +
                          f"ports {ports}/{rule['protocol']} " +
                          f"to {rule['remote_ip_prefix']}")
             count['ok'] += 1
