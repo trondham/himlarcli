@@ -177,6 +177,8 @@ def action_check():
         print()
         print(f"  TOTAL rules checked in {region}: {count['total']}")
 
+def action_clean():
+    himutils.warning("Database cleaning is not implemented yet");
 
 #---------------------------------------------------------------------
 # Helper functions
