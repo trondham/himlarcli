@@ -3,6 +3,7 @@ desc:   'Management of security groups'
 actions:
   'list':     'List all non-whitelisted security group rules'
   'check':    'Check security group rules'
+  'clean':    'Clean the database of outdated entries'
 
 opt_args:
   '--domain':
