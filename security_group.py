@@ -230,7 +230,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None, rea
         'minimum_netmask'       : minimum_netmask,
         'real_ip'               : real_ip,
         'ip_family_0'           : ip_family_0,
-        'notifciation_interval' : general['notification_interval_days'],
+        'notification_interval' : general['notification_interval_days'],
     }
     body_content = himutils.load_template(inputfile=template[violation_type],
                                           mapping=mapping,
