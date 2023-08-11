@@ -294,8 +294,9 @@ def check_bogus_0_mask(rule, region, project):
     ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     if str(rule['remote_ip_prefix']).endswith('/0') and ip.compressed not in ('0.0.0.0', '::'):
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
-        verbose_error(f"[{region}] Bogus /0 mask: {rule['remote_ip_prefix']} " +
-                      f"({project.name}). Minimum netmask: {min_mask}")
+        verbose_error(f"[{region}] [{project.name}] " +
+                      f"Bogus /0 mask: {rule['remote_ip_prefix']}." +
+                      f"Minimum netmask: {min_mask}")
         if options.notify:
             do_notify = add_or_update_db(
                 rule_id     = rule['id'],
@@ -318,8 +319,9 @@ def check_wrong_mask(rule, region, project):
     if packed & int(mask) != packed:
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         real_ip = real_ip_for_netmask(ip, mask)
-        verbose_error(f"[{region}] {rule['remote_ip_prefix']} has wrong netmask " +
-                      f"({project.name}). Minimum netmask: {min_mask}")
+        verbose_error(f"[{region}] [{project.name}] " +
+                      f"{rule['remote_ip_prefix']} has wrong netmask." +
+                      f"Minimum netmask: {min_mask}")
         if options.notify:
             do_notify = add_or_update_db(
                 rule_id     = rule['id'],
@@ -382,7 +384,7 @@ def check_port_limits(rule, region, project=None):
     else:
         rule_ports = int(rule['port_range_max']) - int(rule['port_range_min']) + 1
     if rule_ports > max_ports:
-        verbose_warning(f"[{region}] {project.name} {rule['remote_ip_prefix']} " +
+        verbose_warning(f"[{region}] [{project.name}] {rule['remote_ip_prefix']} " +
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
         if options.notify:
