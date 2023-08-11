@@ -295,8 +295,8 @@ def check_bogus_0_mask(rule, region, project):
     if str(rule['remote_ip_prefix']).endswith('/0') and ip.compressed not in ('0.0.0.0', '::'):
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] [{project.name}] " +
-                      f"Bogus /0 mask: {rule['remote_ip_prefix']}." +
-                      f"Minimum netmask: {min_mask}")
+                      f"{rule['remote_ip_prefix']} has bogus /0 subnet mask " +
+                      f"(minimum mask: {min_mask})")
         if options.notify:
             do_notify = add_or_update_db(
                 rule_id     = rule['id'],
@@ -320,8 +320,8 @@ def check_wrong_mask(rule, region, project):
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         real_ip = real_ip_for_netmask(ip, mask)
         verbose_error(f"[{region}] [{project.name}] " +
-                      f"{rule['remote_ip_prefix']} has wrong netmask." +
-                      f"Minimum netmask: {min_mask}")
+                      f"{rule['remote_ip_prefix']} has wrong subnet mask " +
+                      f"(minimum mask: {min_mask})")
         if options.notify:
             do_notify = add_or_update_db(
                 rule_id     = rule['id'],
