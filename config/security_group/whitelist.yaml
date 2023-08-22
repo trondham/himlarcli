@@ -6,6 +6,8 @@ protocol:
   - icmp
 remote_group_id: ["!None"]
 remote_ip_prefix:
+  - 10.1.0.0/22
+  - 10.2.0.0/22
   - 129.177.0.0/16
   - 129.240.0.0/16
   - 2001:700:200::/48
