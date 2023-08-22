@@ -479,7 +479,7 @@ def is_whitelist(rule, project, region):
                 if (rule_network.network_address >= rule_white.network_address and
                     rule_network.broadcast_address <= rule_white.broadcast_address):
                     verbose_info(f"[{region}] [{project.name}] WHITELIST " +
-                                 f"CIDR: {rule['remote_ip_prefix']} " +
+                                 f"remote cidr: {rule['remote_ip_prefix']} " +
                                  f"is part of {r}")
                     return True
         # whitelist match
