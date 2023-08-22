@@ -114,19 +114,13 @@ def action_check():
                 continue
 
             # Check for bogus use of /0 mask
-            if check_bogus_0_mask(rule, region, project):
-                if rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
-                    count['bogus_0_mask'] += 1
-                else:
-                    count['unused'] += 1
+            if check_bogus_0_mask(rule, region, project, neutron, nova):
+                count['bogus_0_mask'] += 1
                 continue
 
             # check for wrong netmask
-            if check_wrong_mask(rule, region, project):
-                if rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
-                    count['wrong_mask'] += 1
-                else:
-                    count['unused'] += 1
+            if check_wrong_mask(rule, region, project, neutron, nova):
+                count['wrong_mask'] += 1
                 continue
 
             # Run through whitelist
@@ -139,11 +133,8 @@ def action_check():
                 continue
 
             # Check port limits
-            if check_port_limits(rule, region, project=project):
-                if rule_in_use(neutron.get_security_group(rule['security_group_id']), nova):
-                    count['port_limit'] += 1
-                else:
-                    count['unused'] += 1
+            if check_port_limits(rule, region, project=project, neutron, nova):
+                count['port_limit'] += 1
                 continue
 
             if rule['port_range_min'] is None and rule['port_range_max'] is None:
@@ -290,9 +281,11 @@ def add_or_update_db(rule_id, secgroup_id, project_id, region):
 
 # Check for wrong use of mask 0. Returns true if the mask is 0 and the
 # IP is not one of "0.0.0.0" or "::"
-def check_bogus_0_mask(rule, region, project):
+def check_bogus_0_mask(rule, region, project, neutron, nova):
     ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     if str(rule['remote_ip_prefix']).endswith('/0') and ip.compressed not in ('0.0.0.0', '::'):
+        if not rule_in_use(rule, neutron, nova):
+            return False
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] [{project.name}] " +
                       f"{rule['remote_ip_prefix']} has bogus /0 subnet mask " +
@@ -312,11 +305,13 @@ def check_bogus_0_mask(rule, region, project):
     return False
 
 # Check if the netmask is wrong for the IP
-def check_wrong_mask(rule, region, project):
+def check_wrong_mask(rule, region, project, neutron, nova):
     mask   = ipaddress.ip_interface(rule['remote_ip_prefix']).netmask
     ip     = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     packed = int(ip)
     if packed & int(mask) != packed:
+        if not rule_in_use(rule, neutron, nova):
+            return False
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         real_ip = real_ip_for_netmask(ip, mask)
         verbose_error(f"[{region}] [{project.name}] " +
@@ -357,8 +352,12 @@ def real_ip_for_netmask(ip, mask):
     return str(ipaddress.ip_address(real_ip))
 
 # Check if security group rule is in use
-def rule_in_use(sec_group, nova):
+def rule_in_use(rule, neutron, nova):
     instances = nova.get_project_instances(sec_group['project_id'])
+    sec_group = neutron.get_security_group(rule['security_group_id'])
+    if rule['project_id'] != sec_group['project_id']:
+        verbose_error(f"Security group project {secgroup['project_id']} != rule project {project.id}")
+        return False
     for i in instances:
         if not hasattr(i, 'security_groups'):
             continue
@@ -372,7 +371,7 @@ def is_project_enabled(project):
     return project.enabled
 
 # Check for port limit violation
-def check_port_limits(rule, region, project=None):
+def check_port_limits(rule, region, project=None, neutron, nova):
     protocol = rule['protocol']
     rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
     if rule_mask in notify['netmask_port_limits'][rule['ethertype']]:
@@ -384,6 +383,8 @@ def check_port_limits(rule, region, project=None):
     else:
         rule_ports = int(rule['port_range_max']) - int(rule['port_range_min']) + 1
     if rule_ports > max_ports:
+        if not rule_in_use(rule, neutron, nova):
+            return False
         verbose_warning(f"[{region}] [{project.name}] {rule['remote_ip_prefix']} " +
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
                         f"has too many open ports ({rule_ports} > {max_ports})")
