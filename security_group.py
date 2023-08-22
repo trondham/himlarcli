@@ -97,9 +97,10 @@ def action_check():
                 else:
                     rule['remote_ip_prefix'] = '::/0'
 
-            if check_wrong_rule_owner(rule, neutron):
+            # Check if rule owner and security group owner is same
+            if check_wrong_rule_owner(rule, neutron, region):
                 continue
-                    
+
             # check if project exists
             project = kc.get_by_id('project', rule['project_id'])
             if not project:
@@ -468,10 +469,10 @@ def is_whitelist(rule, project, region):
 
 # Check if the owner of the security group is the same as the owner of
 # the security group rule
-def check_wrong_rule_owner(rule, neutron):
+def check_wrong_rule_owner(rule, neutron, region):
     sec_group = neutron.get_security_group(rule['security_group_id'])
     if rule['project_id'] != sec_group['project_id']:
-        verbose_error(f"Security group project {sec_group['project_id']} != Rule project {rule['project_id']}")
+        verbose_error(f"[{region}] Security group project {sec_group['project_id']} != Rule project {rule['project_id']}")
         return True
     return False
 
