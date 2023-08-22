@@ -29,9 +29,20 @@ remote_ip_prefix:
   - 2001:700:200::/48    # UiB IPv6 range
   - 2001:700:100::/40    # UiO IPv6 range
 
+# Whitelisted projects
+project_name:
+  - nrec-exampleproject     # example
+  - PRIVATE-example.uio.no  # example
+
 # Region specific whitelist
-osl:
-  id:
-    - 85be022a-5f85-471b-8c8f-ddf473cb69ac
-    - f53b90e7-8eb9-435e-ada4-056833f8e88a
-    
+region:
+  osl:
+    rule_id:
+      - xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # example
+    secgroup_id:
+      - xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # example
+  bgo:
+    rule_id:
+      - xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # example
+    secgroup_id:
+      - xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  # example

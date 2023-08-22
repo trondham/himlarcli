@@ -435,17 +435,35 @@ def verbose_error(string):
 
 # Check if rule is whitelisted
 def is_whitelist(rule, project, region):
+    # Whitelist entire projects across regions
+    if project.name in whitelist['project_name']:
+        verbose_info(f"[{region}] [{project.name}] WHITELIST " +
+                     f"project: {rule['project_id']}")
+        return True
+    # Whitelist rule ID in region
+    if rule['id'] in whitelist['region'][region]['rule_id']:
+        verbose_info(f"[{region}] [{project.name}] WHITELIST " +
+                     f"rule ID: {rule['id']}")
+        return True
+    # Whitelist security group ID in region
+    if rule['security_group_id'] in whitelist['region'][region]['secgroup_id']:
+        verbose_info(f"[{region}] [{project.name}] WHITELIST " +
+                     f"security group ID: {rule['security_group_id']}")
+        return True
+    # Regular whitelists
     for k, v in whitelist.items():
+        if k == 'region':
+            continue
         # whitelist none empty property
         if "!None" in v and rule[k]:
-            verbose_info(f"[{region}] [{project.name}] WHITELIST: " +
-                         f"Remote group {rule['remote_group_id']}")
+            verbose_info(f"[{region}] [{project.name}] WHITELIST " +
+                         f"remote group: {rule['remote_group_id']}")
             return True
         # single port match: both port_range_min and port_range_max need to match
-        if k == 'port':
+        elif k == 'port':
             if rule['port_range_min'] in v and rule['port_range_max'] in v:
-                verbose_info(f"[{region}] [{project.name}] WHITELIST: " +
-                             f"port {rule['port_range_min']}")
+                verbose_info(f"[{region}] [{project.name}] WHITELIST " +
+                             f"port: {rule['port_range_min']}")
                 return True
         # remote ip
         elif k == 'remote_ip_prefix':
@@ -460,17 +478,13 @@ def is_whitelist(rule, project, region):
                 # NOTE: If python is 3.7 or newer, replace with subnet_of()
                 if (rule_network.network_address >= rule_white.network_address and
                     rule_network.broadcast_address <= rule_white.broadcast_address):
-                    verbose_info(f"[{region}] [{project.name}] WHITELIST: " +
-                                 f"{rule['remote_ip_prefix']} " +
+                    verbose_info(f"[{region}] [{project.name}] WHITELIST " +
+                                 f"CIDR: {rule['remote_ip_prefix']} " +
                                  f"is part of {r}")
                     return True
-        elif k == region:
-            for foo,bar in v.items:
-                print(foo)
-                print(bar)
         # whitelist match
         elif rule[k] in v:
-            verbose_info(f"[{region}] [{project.name}] WHITELIST: {k} {rule[k]}")
+            verbose_info(f"[{region}] [{project.name}] WHITELIST {k}: {rule[k]}")
             return True
     return False
 
