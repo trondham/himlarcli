@@ -464,6 +464,10 @@ def is_whitelist(rule, project, region):
                                  f"{rule['remote_ip_prefix']} " +
                                  f"is part of {r}")
                     return True
+        elif k == region:
+            for foo,bar in v.items:
+                print(foo)
+                print(bar)
         # whitelist match
         elif rule[k] in v:
             verbose_info(f"[{region}] [{project.name}] WHITELIST: {k} {rule[k]}")
