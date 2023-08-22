@@ -296,7 +296,7 @@ def add_or_update_db(rule_id, secgroup_id, project_id, region):
 def check_bogus_0_mask(rule, region, project, neutron, nova):
     ip = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     if str(rule['remote_ip_prefix']).endswith('/0') and ip.compressed not in ('0.0.0.0', '::'):
-        if not rule_in_use(rule, project, neutron, nova):
+        if not rule_in_use(rule, neutron, nova):
             return "not-in-use"
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         verbose_error(f"[{region}] [{project.name}] " +
@@ -322,7 +322,7 @@ def check_wrong_mask(rule, region, project, neutron, nova):
     ip     = ipaddress.ip_interface(rule['remote_ip_prefix']).ip
     packed = int(ip)
     if packed & int(mask) != packed:
-        if not rule_in_use(rule, project, neutron, nova):
+        if not rule_in_use(rule, neutron, nova):
             return "not-in-use"
         min_mask = calculate_minimum_netmask(ip, rule['ethertype'])
         real_ip = real_ip_for_netmask(ip, mask)
@@ -364,11 +364,11 @@ def real_ip_for_netmask(ip, mask):
     return str(ipaddress.ip_address(real_ip))
 
 # Check if security group rule is in use
-def rule_in_use(rule, project, neutron, nova):
+def rule_in_use(rule, neutron, nova):
     sec_group = neutron.get_security_group(rule['security_group_id'])
     instances = nova.get_project_instances(sec_group['project_id'])
-    if project.id != sec_group['project_id']:
-        verbose_error(f"Security group project {secgroup['project_id']} != project {project.id}")
+    if rule['project_id'] != sec_group['project_id']:
+        verbose_error(f"Security group project {secgroup['project_id']} != Rule project {project.id}")
         return False
     for i in instances:
         if not hasattr(i, 'security_groups'):
@@ -395,7 +395,7 @@ def check_port_limits(rule, region, project, neutron, nova):
     else:
         rule_ports = int(rule['port_range_max']) - int(rule['port_range_min']) + 1
     if rule_ports > max_ports:
-        if not rule_in_use(rule, project, neutron, nova):
+        if not rule_in_use(rule, neutron, nova):
             return "not-in-use"
         verbose_warning(f"[{region}] [{project.name}] {rule['remote_ip_prefix']} " +
                         f"{rule['port_range_min']}-{rule['port_range_max']}/{protocol} " +
