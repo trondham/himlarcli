@@ -44,15 +44,15 @@ def action_list():
 
         printer.output_dict({'header': f"Rules in {region} (project, ports, protocol, cidr)"})
         for rule in rules:
-            if is_whitelist(rule, region):
-                continue
-            if is_blacklist(rule, region):
-                continue
-
             # check if project exists
             project = kc.get_by_id('project', rule['project_id'])
             if not project:
                 kc.debug_log(f"could not find project {rule['project_id']}")
+                continue
+
+            if is_whitelist(rule, project, region):
+                continue
+            if is_blacklist(rule, project, region):
                 continue
 
             output = {
@@ -122,7 +122,7 @@ def action_check():
             if bogus_0_mask == "yes":
                 count['bogus_0_mask'] += 1
                 continue
-            elif bogus_0_mask == "not-in-use":
+            if bogus_0_mask == "not-in-use":
                 count['unused'] += 1
                 continue
 
@@ -131,7 +131,7 @@ def action_check():
             if wrong_mask == "yes":
                 count['wrong_mask'] += 1
                 continue
-            elif wrong_mask == "not-in-use":
+            if wrong_mask == "not-in-use":
                 count['unused'] += 1
                 continue
 
@@ -149,7 +149,7 @@ def action_check():
             if port_limits == "yes":
                 count['port_limit'] += 1
                 continue
-            elif port_limits == "not-in-use":
+            if port_limits == "not-in-use":
                 count['unused'] += 1
                 continue
 
@@ -172,20 +172,20 @@ def action_check():
         print(f"Summary for region {region}:")
         print("====================================================")
         print(f"  OK ({num_ok}):")
-        print(f"    OK rules: . . . . . . . . . {count['ok']}")
-        print(f"    Disabled projects:. . . . . {count['proj_disabled']}")
-        print(f"    Whitelisted rules:. . . . . {count['whitelist']}")
-        print(f"    Unused rules: . . . . . . . {count['unused']}")
+        print(f"    OK rules . . . . . . . . . : {count['ok']}")
+        print(f"    Disabled projects. . . . . : {count['proj_disabled']}")
+        print(f"    Whitelisted rules. . . . . : {count['whitelist']}")
+        print(f"    Unused rules . . . . . . . : {count['unused']}")
         print(f"  PROBLEMS ({num_problems}):")
-        print(f"    Bogus /0 mask:. . . . . . . {count['bogus_0_mask']}")
-        print(f"    Wrong mask: . . . . . . . . {count['wrong_mask']}")
-        print(f"    Port limits exceeded: . . . {count['port_limit']}")
-        print(f"    Orphans:. . . . . . . . . . {count['orphan']}")
+        print(f"    Bogus /0 mask. . . . . . . : {count['bogus_0_mask']}")
+        print(f"    Wrong mask . . . . . . . . : {count['wrong_mask']}")
+        print(f"    Port limits exceeded . . . : {count['port_limit']}")
+        print(f"    Orphans. . . . . . . . . . : {count['orphan']}")
         print()
         print(f"  TOTAL rules checked in {region}: {count['total']}")
 
 def action_clean():
-    himutils.warning("Database cleaning is not implemented yet");
+    himutils.warning("Database cleaning is not implemented yet")
 
 #---------------------------------------------------------------------
 # Helper functions
@@ -438,12 +438,14 @@ def is_whitelist(rule, project, region):
     for k, v in whitelist.items():
         # whitelist none empty property
         if "!None" in v and rule[k]:
-            verbose_info(f"[{region}] [{project.name}] WHITELIST: Remote group {rule['remote_group_id']}")
+            verbose_info(f"[{region}] [{project.name}] WHITELIST: " +
+                         f"Remote group {rule['remote_group_id']}")
             return True
         # single port match: both port_range_min and port_range_max need to match
         if k == 'port':
             if rule['port_range_min'] in v and rule['port_range_max'] in v:
-                verbose_info(f"[{region}] [{project.name}] WHITELIST: port {rule['port_range_min']}")
+                verbose_info(f"[{region}] [{project.name}] WHITELIST: " +
+                             f"port {rule['port_range_min']}")
                 return True
         # remote ip
         elif k == 'remote_ip_prefix':
@@ -458,7 +460,8 @@ def is_whitelist(rule, project, region):
                 # NOTE: If python is 3.7 or newer, replace with subnet_of()
                 if (rule_network.network_address >= rule_white.network_address and
                     rule_network.broadcast_address <= rule_white.broadcast_address):
-                    verbose_info(f"[{region}] [{project.name}] WHITELIST: {rule['remote_ip_prefix']} " +
+                    verbose_info(f"[{region}] [{project.name}] WHITELIST: " +
+                                 f"{rule['remote_ip_prefix']} " +
                                  f"is part of {r}")
                     return True
         # whitelist match
@@ -472,7 +475,8 @@ def is_whitelist(rule, project, region):
 def check_wrong_rule_owner(rule, neutron, region):
     sec_group = neutron.get_security_group(rule['security_group_id'])
     if rule['project_id'] != sec_group['project_id']:
-        verbose_error(f"[{region}] Security group project {sec_group['project_id']} != Rule project {rule['project_id']}")
+        verbose_error(f"[{region}] Security group project {sec_group['project_id']} " +
+                      f"!= Rule project {rule['project_id']}")
         return True
     return False
 
