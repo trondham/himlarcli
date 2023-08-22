@@ -99,22 +99,17 @@ def improved_sys_error(text, msg_type='info', exit_code=0):
     if sys.stdout.isatty():
         COLOR_START = color
         COLOR_END   = DEF
-        FLUSH       = False
     else:
         COLOR_START = ''
         COLOR_END   = ''
-        FLUSH       = True
 
     # Print out the message
     if msg_type == 'info' or msg_type == 'warning':
         sys.stdout.write("[%s%s%s] %s\n" % (COLOR_START,prefix,COLOR_END,text))
-        FLUSH and sys.stdout.flush()
     elif msg_type == 'fatal':
         sys.stderr.write("%s%s: %s%s\n" % (COLOR_START,prefix,text,COLOR_END))
-        FLUSH and sys.stderr.flush()
     else:
         sys.stderr.write("[%s%s%s] %s\n" % (COLOR_START,prefix,COLOR_END,text))
-        FLUSH and sys.stderr.flush()
         
     # If message type is "fatal", exit with the given exit_code
     if msg_type == 'fatal':
