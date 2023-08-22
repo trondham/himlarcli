@@ -370,9 +370,6 @@ def real_ip_for_netmask(ip, mask):
 def rule_in_use(rule, neutron, nova):
     sec_group = neutron.get_security_group(rule['security_group_id'])
     instances = nova.get_project_instances(sec_group['project_id'])
-    if rule['project_id'] != sec_group['project_id']:
-        verbose_error(f"Security group project {sec_group['project_id']} != Rule project {project.id}")
-        return False
     for i in instances:
         if not hasattr(i, 'security_groups'):
             continue
