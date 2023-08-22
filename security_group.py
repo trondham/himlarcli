@@ -451,27 +451,27 @@ def is_whitelist(rule, project, region):
                      f"security group ID: {rule['security_group_id']}")
         return True
     # Regular whitelists
-    for k, v in whitelist.items():
-        if k == 'region' or k == 'project_name':
+    for key,value in whitelist.items():
+        if key == 'region' or key == 'project_name':
             continue
         # whitelist none empty property
-        if "!None" in v and rule[k]:
+        if "!None" in value and rule[key]:
             verbose_info(f"[{region}] [{project.name}] WHITELIST " +
-                         f"remote group: {rule['remote_group_id']}")
+                         f"{key}: not empty")
             return True
         # single port match: both port_range_min and port_range_max need to match
-        elif k == 'port':
-            if rule['port_range_min'] in v and rule['port_range_max'] in v:
+        elif key == 'port':
+            if rule['port_range_min'] in value and rule['port_range_max'] in value:
                 verbose_info(f"[{region}] [{project.name}] WHITELIST " +
                              f"port: {rule['port_range_min']}")
                 return True
         # remote ip
-        elif k == 'remote_ip_prefix':
+        elif key == 'remote_ip_prefix':
             try:
                 rule_network = ipaddress.ip_network(rule['remote_ip_prefix'])
             except ValueError:
                 return False
-            for r in v:
+            for r in value:
                 rule_white = ipaddress.ip_network(r)
                 if rule_network.version != rule_white.version:
                     continue
@@ -483,8 +483,8 @@ def is_whitelist(rule, project, region):
                                  f"is part of {r}")
                     return True
         # whitelist match
-        elif rule[k] in v:
-            verbose_info(f"[{region}] [{project.name}] WHITELIST {k}: {rule[k]}")
+        elif rule[key] in value:
+            verbose_info(f"[{region}] [{project.name}] WHITELIST {key}: {rule[key]}")
             return True
     return False
 
