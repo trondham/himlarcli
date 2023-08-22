@@ -36,7 +36,7 @@ db = himutils.get_client(GlobalState, options, logger)
 def action_list():
     for region in regions:
         neutron = himutils.get_client(Neutron, options, logger, region)
-        rules   = neutron.get_security_group_rules(5)
+        rules   = neutron.get_security_group_rules(1000)
 
         question = f"Are you sure you will list {len(rules)} security group rules in {region}?"
         if not options.assume_yes and not himutils.confirm_action(question):
