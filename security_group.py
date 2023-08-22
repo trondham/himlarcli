@@ -133,7 +133,7 @@ def action_check():
                 continue
 
             # Check port limits
-            if check_port_limits(rule, region, project=project, neutron, nova):
+            if check_port_limits(rule, region, project, neutron, nova):
                 count['port_limit'] += 1
                 continue
 
@@ -371,7 +371,7 @@ def is_project_enabled(project):
     return project.enabled
 
 # Check for port limit violation
-def check_port_limits(rule, region, project=None, neutron, nova):
+def check_port_limits(rule, region, project, neutron, nova):
     protocol = rule['protocol']
     rule_mask = int(ipaddress.ip_network(rule['remote_ip_prefix']).prefixlen)
     if rule_mask in notify['netmask_port_limits'][rule['ethertype']]:
