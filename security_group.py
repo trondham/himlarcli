@@ -132,12 +132,12 @@ def action_check():
                 continue
 
             # Run through whitelist
-            if is_whitelist(rule, region):
+            if is_whitelist(rule, project, region):
                 count['whitelist'] += 1
                 continue
 
             # Run through blacklist
-            if is_blacklist(rule, region):
+            if is_blacklist(rule, project, region):
                 continue
 
             # Check port limits
@@ -414,7 +414,7 @@ def check_port_limits(rule, region, project, neutron, nova):
     return "no"
 
 # Blacklisting is currently not implemented
-def is_blacklist(rule, region):
+def is_blacklist(rule, project, region):
     return False
 
 # Print verbose info
@@ -433,16 +433,16 @@ def verbose_error(string):
         himutils.error(string)
 
 # Check if rule is whitelisted
-def is_whitelist(rule, region):
+def is_whitelist(rule, project, region):
     for k, v in whitelist.items():
         # whitelist none empty property
         if "!None" in v and rule[k]:
-            verbose_info(f"[{region}] WHITELIST: Remote group {rule['remote_group_id']}")
+            verbose_info(f"[{region}] [{project.name}] WHITELIST: Remote group {rule['remote_group_id']}")
             return True
         # single port match: both port_range_min and port_range_max need to match
         if k == 'port':
             if rule['port_range_min'] in v and rule['port_range_max'] in v:
-                verbose_info(f"[{region}] WHITELIST: port {rule['port_range_min']}")
+                verbose_info(f"[{region}] [{project.name}] WHITELIST: port {rule['port_range_min']}")
                 return True
         # remote ip
         elif k == 'remote_ip_prefix':
@@ -457,12 +457,12 @@ def is_whitelist(rule, region):
                 # NOTE: If python is 3.7 or newer, replace with subnet_of()
                 if (rule_network.network_address >= rule_white.network_address and
                     rule_network.broadcast_address <= rule_white.broadcast_address):
-                    verbose_info(f"[{region}] WHITELIST: {rule['remote_ip_prefix']} " +
+                    verbose_info(f"[{region}] [{project.name}] WHITELIST: {rule['remote_ip_prefix']} " +
                                  f"is part of {r}")
                     return True
         # whitelist match
         elif rule[k] in v:
-            verbose_info(f"[{region}] WHITELIST: {k} {rule[k]}")
+            verbose_info(f"[{region}] [{project.name}] WHITELIST: {k} {rule[k]}")
             return True
     return False
 
