@@ -452,7 +452,7 @@ def is_whitelist(rule, project, region):
         return True
     # Regular whitelists
     for k, v in whitelist.items():
-        if k == 'region':
+        if k == 'region' or k == 'project_name':
             continue
         # whitelist none empty property
         if "!None" in v and rule[k]:
