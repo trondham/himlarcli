@@ -475,7 +475,8 @@ def is_whitelist(rule, project, region):
 def check_wrong_rule_owner(rule, neutron, region):
     sec_group = neutron.get_security_group(rule['security_group_id'])
     if rule['project_id'] != sec_group['project_id']:
-        verbose_error(f"[{region}] Security group project {sec_group['project_id']} " +
+        verbose_error(f"[{region}] Mismatch for rule ID={rule['id']}: " +
+                      f"Security group project {sec_group['project_id']} " +
                       f"!= Rule project {rule['project_id']}")
         return True
     return False
