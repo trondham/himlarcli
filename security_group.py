@@ -30,6 +30,11 @@ regions = himutils.get_regions(options, kc)
 # Initialize database connection
 db = himutils.get_client(GlobalState, options, logger)
 
+# Use to (de)activate checks
+ENABLE_BOGUS_0_MASK = True
+ENABLE_WRONG_MASK   = False
+ENABLE_PORT_LIMIT   = False
+
 #---------------------------------------------------------------------
 # Action functions
 #---------------------------------------------------------------------
@@ -118,22 +123,24 @@ def action_check():
                 continue
 
             # Check for bogus use of /0 mask
-            bogus_0_mask = check_bogus_0_mask(rule, region, project, neutron, nova)
-            if bogus_0_mask == "yes":
-                count['bogus_0_mask'] += 1
-                continue
-            if bogus_0_mask == "not-in-use":
-                count['unused'] += 1
-                continue
+            if ENABLE_BOGUS_0_MASK:
+                bogus_0_mask = check_bogus_0_mask(rule, region, project, neutron, nova)
+                if bogus_0_mask == "yes":
+                    count['bogus_0_mask'] += 1
+                    continue
+                if bogus_0_mask == "not-in-use":
+                    count['unused'] += 1
+                    continue
 
             # check for wrong netmask
-            wrong_mask = check_wrong_mask(rule, region, project, neutron, nova)
-            if wrong_mask == "yes":
-                count['wrong_mask'] += 1
-                continue
-            if wrong_mask == "not-in-use":
-                count['unused'] += 1
-                continue
+            if ENABLE_WRONG_MASK:
+                wrong_mask = check_wrong_mask(rule, region, project, neutron, nova)
+                if wrong_mask == "yes":
+                    count['wrong_mask'] += 1
+                    continue
+                if wrong_mask == "not-in-use":
+                    count['unused'] += 1
+                    continue
 
             # Run through whitelist
             if is_whitelist(rule, project, region):
@@ -145,13 +152,14 @@ def action_check():
                 continue
 
             # Check port limits
-            port_limits = check_port_limits(rule, region, project, neutron, nova)
-            if port_limits == "yes":
-                count['port_limit'] += 1
-                continue
-            if port_limits == "not-in-use":
-                count['unused'] += 1
-                continue
+            if ENABLE_PORT_LIMIT:
+                port_limits = check_port_limits(rule, region, project, neutron, nova)
+                if port_limits == "yes":
+                    count['port_limit'] += 1
+                    continue
+                if port_limits == "not-in-use":
+                    count['unused'] += 1
+                    continue
 
             if rule['port_range_min'] is None and rule['port_range_max'] is None:
                 ports = 'ALL'
@@ -166,26 +174,33 @@ def action_check():
             count['ok'] += 1
 
         # Write a summary for the region
-        num_ok = count['ok'] + count['unused'] + count['proj_disabled'] + count['whitelist']
-        num_problems = count['bogus_0_mask'] + count['wrong_mask'] + count['port_limit']
-        print()
-        print(f"Summary for region {region}:")
-        print("====================================================")
-        print(f"  OK ({num_ok}):")
-        print(f"    OK rules . . . . . . . . . : {count['ok']}")
-        print(f"    Disabled projects. . . . . : {count['proj_disabled']}")
-        print(f"    Whitelisted rules. . . . . : {count['whitelist']}")
-        print(f"    Unused rules . . . . . . . : {count['unused']}")
-        print(f"  PROBLEMS ({num_problems}):")
-        print(f"    Bogus /0 mask. . . . . . . : {count['bogus_0_mask']}")
-        print(f"    Wrong mask . . . . . . . . : {count['wrong_mask']}")
-        print(f"    Port limits exceeded . . . : {count['port_limit']}")
-        print(f"    Orphans. . . . . . . . . . : {count['orphan']}")
-        print()
-        print(f"  TOTAL rules checked in {region}: {count['total']}")
+        if not options.notify:
+            num_ok = count['ok'] + count['unused'] + count['proj_disabled'] + count['whitelist']
+            num_problems = count['bogus_0_mask'] + count['wrong_mask'] + count['port_limit']
+            print()
+            print(f"Summary for region {region}:")
+            print("====================================================")
+            print(f"  OK ({num_ok}):")
+            print(f"    OK rules . . . . . . . . . : {count['ok']}")
+            print(f"    Disabled projects. . . . . : {count['proj_disabled']}")
+            print(f"    Whitelisted rules. . . . . : {count['whitelist']}")
+            print(f"    Unused rules . . . . . . . : {count['unused']}")
+            print(f"  PROBLEMS ({num_problems}):")
+            print(f"    Bogus /0 mask. . . . . . . : {count['bogus_0_mask']}")
+            print(f"    Wrong mask . . . . . . . . : {count['wrong_mask']}")
+            print(f"    Port limits exceeded . . . : {count['port_limit']}")
+            print(f"    Orphans. . . . . . . . . . : {count['orphan']}")
+            print()
+            print(f"  TOTAL rules checked in {region}: {count['total']}")
 
 def action_clean():
-    himutils.warning("Database cleaning is not implemented yet")
+    age_limit = general['clean_dbentry_days']
+    rows = db.get_all(SecGroupRule)
+    for row in rows:
+        last_notified = row.notified
+        if datetime.now() > last_notified + timedelta(days=age_limit):
+            verbose_info(f"Deleting rule {row.rule_id} from database")
+            db.delete(row)
 
 #---------------------------------------------------------------------
 # Helper functions
