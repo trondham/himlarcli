@@ -113,10 +113,6 @@ def action_check():
                 kc.debug_log(f"could not find project {rule['project_id']}")
                 continue
 
-            # temporary testing
-            if project.name != 'PRIVATE-trondham.uio.no':
-                continue
-
             # Ignore if project is disabled
             if not is_project_enabled(project):
                 count['proj_disabled'] += 1
@@ -193,6 +189,7 @@ def action_check():
             print()
             print(f"  TOTAL rules checked in {region}: {count['total']}")
 
+
 def action_clean():
     age_limit = general['clean_dbentry_days']
     rows = db.get_all(SecGroupRule)
@@ -260,7 +257,7 @@ def notify_user(rule, region, project, violation_type, minimum_netmask=None, rea
                                           mapping=mapping,
                                           log=logger)
     msg = MIMEText(body_content, 'plain')
-    msg['subject'] = f"TEST!! NREC: Problematic security group rule found in project {project.name}"
+    msg['subject'] = f"NREC: Problematic security group rule found in project {project.name}"
 
     # Send mail to user
     mail.send_mail(project_admin, msg, fromaddr, ccaddr, bccaddr)
