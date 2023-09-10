@@ -129,47 +129,49 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    for project in projects:
-        # Ignore if project is disabled
-        if not is_project_enabled(project):
-            continue
-        if project.name != 'DEMO-lennart.nordgreen.uib.no':
-            continue
-        for region in regions:
-            nc = himutils.get_client(Nova, options, logger, region)
-            instances = nc.get_project_instances(project_id=project.id)
-            for instance in instances:
-                created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
-                active_days = (date.today() - created).days
-                # Get existing db entry
-                entry = db.get_first(DemoInstance,
-                                     instance_id=instance.id,
-                                     project_id=project.id,
-                                     region=region)
+    with Bar('Processing...') as bar:
+        for project in projects:
+            # Ignore if project is disabled
+            if not is_project_enabled(project):
+                continue
+            if project.name != 'DEMO-lennart.nordgreen.uib.no':
+                continue
+            for region in regions:
+                nc = himutils.get_client(Nova, options, logger, region)
+                instances = nc.get_project_instances(project_id=project.id)
+                for instance in instances:
+                    created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
+                    active_days = (date.today() - created).days
+                    # Get existing db entry
+                    entry = db.get_first(DemoInstance,
+                                         instance_id=instance.id,
+                                         project_id=project.id,
+                                         region=region)
 
-                if entry and entry.notified1 is not None:
-                    n1 = f"{grn}{entry.notified1.strftime('%Y-%m-%d')}{DEF}"
-                else:
-                    n1 = f"{red}x{DEF}"
-                if entry and entry.notified2 is not None:
-                    n2 = f"{grn}{entry.notified2.strftime('%Y-%m-%d')}{DEF}"
-                else:
-                    n2 = f"{red}x{DEF}"
-                if entry and entry.notified3 is not None:
-                    n3 = f"{grn}{entry.notified3.strftime('%Y-%m-%d')}{DEF}"
-                else:
-                    n3 = f"{red}x{DEF}"
+                    if entry and entry.notified1 is not None:
+                        n1 = f"{grn}{entry.notified1.strftime('%Y-%m-%d')}{DEF}"
+                    else:
+                        n1 = f"{red}x{DEF}"
+                    if entry and entry.notified2 is not None:
+                        n2 = f"{grn}{entry.notified2.strftime('%Y-%m-%d')}{DEF}"
+                    else:
+                        n2 = f"{red}x{DEF}"
+                    if entry and entry.notified3 is not None:
+                        n3 = f"{grn}{entry.notified3.strftime('%Y-%m-%d')}{DEF}"
+                    else:
+                        n3 = f"{red}x{DEF}"
                 
-                row = [
-                    f"{DIM}{region}{DEF}",
-                    f"{blu}{project.name}{DEF}",
-                    f"{DIM}{instance.id}{DEF}",
-                    f"{ylw}{active_days}{DEF}",
-                    n1,
-                    n2,
-                    n3,
-                ]
-                table.add_row(row)
+                    row = [
+                        f"{DIM}{region}{DEF}",
+                        f"{blu}{project.name}{DEF}",
+                        f"{DIM}{instance.id}{DEF}",
+                        f"{ylw}{active_days}{DEF}",
+                        n1,
+                        n2,
+                        n3,
+                    ]
+                    table.add_row(row)
+                    bar.next()
     table.sortby = header[0]
     print(table)
     
