@@ -332,7 +332,8 @@ def notify_user(instance, project, region, active_days, notification_type):
 
     # Send mail to user
     if options.dry_run:
-        p_info(f"{RED}Did NOT send spam to {project.admin}{DEF}")
+        p_info(f"Did NOT send spam to {project.admin}:")
+        print(f"{DIM}––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––{DEF}")
         print(f"{CYN}Subject:{DEF} {DIM}{msg['subject']}{DEF}")
         print(f"{CYN}To:{DEF} {DIM}{project.admin}{DEF}")
         if bccaddr:
@@ -340,6 +341,7 @@ def notify_user(instance, project, region, active_days, notification_type):
         print(f"{CYN}From:{DEF} {DIM}{fromaddr}{DEF}")
         print(f"{DIM}---{DEF}")
         print(body_content)
+        print(f"{DIM}––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––{DEF}")
         himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
     else:
         mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
