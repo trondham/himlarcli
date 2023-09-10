@@ -18,11 +18,11 @@ be automatically deleted after 90 days.
 If you require a project for more permanent usage, you can apply
 for one using the following link:
 
-  https://request.nrec.no
+  https://request.nrec.no/
 
 For more details about NREC and contact information, please visit:
 
-  https://docs.nrec.no
+  https://docs.nrec.no/
 
 Best Regards,
 -- 
