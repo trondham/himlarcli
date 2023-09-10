@@ -120,7 +120,6 @@ def action_instances():
     table._max_width = {'value' : 70}
     table.border = 0
     table.header = 1
-    table.hrules = prettytable.HEADER
     table.left_padding_width = 2
     table.field_names = header
     table.align[header[0]] = 'l'
