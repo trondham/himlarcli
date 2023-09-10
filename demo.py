@@ -131,10 +131,10 @@ def action_expired():
                         if dbadd:
                             notify_user(instance, project, region, active_days, notification_type='first')
                     else:
-                        p_warning(f"[1st] Expired instance in {project.name} (active: {active_days})")
+                        p_warning(f"[{region}] [1st] Expired instance in {project.name} (active: {active_days})")
                     continue
                 else:
-                    p_info(f"OK instance in {project.name} (active: {active_days})")
+                    p_info(f"[{region}] OK instance in {project.name} (active: {active_days})")
 
                 # Get existing db entry
                 entry = db.get_first(DemoInstance,
@@ -156,7 +156,7 @@ def action_expired():
                         if dbupdate:
                             notify_user(instance, project, region, active_days, notification_type='second')
                     else:
-                        p_warning(f"[2nd] Expired instance in {project.name} (active: {active_days})")
+                        p_warning(f"[{region}] [2nd] Expired instance in {project.name} (active: {active_days})")
                     continue
 
                 # Send third notification?
@@ -171,7 +171,7 @@ def action_expired():
                         if dbupdate:
                             notify_user(instance, project, region, active_days, notification_type='third')
                     else:
-                        p_warning(f"[3rd] Expired instance in {project.name} (active: {active_days})")
+                        p_warning(f"[{region}] [3rd] Expired instance in {project.name} (active: {active_days})")
                     continue
 
 
