@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-from himlarcli import tests as tests
+from datetime import date
+
+from himlarcli import tests
 tests.is_virtual_env()
 
 from himlarcli.keystone import Keystone
@@ -9,8 +11,8 @@ from himlarcli.cinder import Cinder
 from himlarcli.mail import Mail
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
-from himlarcli import utils
-from datetime import date
+from himlarcli import utils as himutils
+from himlarcli.global_state import GlobalState, DemoInstance
 
 parser = Parser()
 options = parser.parse_args()
@@ -20,12 +22,12 @@ kc = Keystone(options.config, debug=options.debug)
 kc.set_domain(options.domain)
 kc.set_dry_run(options.dry_run)
 logger = kc.get_logger()
+regions = himutils.get_regions(options, kc)
 
-# Region
-if hasattr(options, 'region'):
-    regions = kc.find_regions(region_name=options.region)
-else:
-    regions = kc.find_regions()
+today_iso = date.today().isoformat()
+
+# Initialize database connection
+db = himutils.get_client(GlobalState, options, logger)
 
 def action_list():
     projects = kc.get_projects(type='demo')
@@ -35,8 +37,8 @@ def action_list():
         ins_data = {'count': 0, 'vcpu': 0}
         vol_data = dict({'count': 0, 'size': 0})
         for region in regions:
-            nc = utils.get_client(Nova, options, logger, region)
-            cc = utils.get_client(Cinder, options, logger, region)
+            nc = himutils.get_client(Nova, options, logger, region)
+            cc = himutils.get_client(Cinder, options, logger, region)
             instances = nc.get_project_instances(project_id=project.id)
             ins_data = {'count': 0, 'vcpus': 0}
             for i in instances:
@@ -69,10 +71,10 @@ def action_instances():
     count = 0
     for project in projects:
         for region in regions:
-            nc = utils.get_client(Nova, options, logger, region)
+            nc = himutils.get_client(Nova, options, logger, region)
             instances = nc.get_project_instances(project_id=project.id)
             for i in instances:
-                created = utils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
+                created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
                 active_days = (date.today() - created).days
                 if int(active_days) < int(options.day):
                     continue
@@ -91,69 +93,69 @@ def action_expired():
     projects = kc.get_projects(type='demo')
 
     # logfile
-    logfile = 'logs/demo-logs/expired_instances/demo-notify-expired-instances-{}.log'.format(date.today().isoformat())
+    logfile = f'logs/demo-logs/expired_instances/demo-notify-expired-instances-{today_iso}.log'
 
     # mail parameters
-    mail = utils.get_client(Mail, options, logger)
+    mail = himutils.get_client(Mail, options, logger)
     subject = '[NREC] Your demo instance is due for deletion'
     fromaddr = mail.get_config('mail', 'from_addr')
     bccaddr = 'iaas-logs@usit.uio.no'
 
     inputday = options.day
-    question = 'Send mail to instances that have been running for {} days?'.format(inputday)
-    if not options.force and not utils.confirm_action(question):
+    question = f'Send mail to instances that have been running for {inputday} days?'
+    if not options.force and not himutils.confirm_action(question):
         return
     template = options.template
-    if not utils.file_exists(template, logger):
-        utils.sys_error('Could not find template file {}'.format(template))
+    if not himutils.file_exists(template, logger):
+        himutils.fatal(f'Could not find template file {template}')
     if not options.template:
-        utils.sys_error('Specify a template file. E.g. -t notify/demo-notify-expired-instances.txt')
+        himutils.fatal('Specify a template file. E.g. -t notify/demo-notify-expired-instances.txt')
     if not options.day:
-        utils.sys_error('Specify the number of days for running demo instances. E.g. -d 30')
+        himutils.fatal('Specify the number of days for running demo instances. E.g. -d 30')
     for region in regions:
-        nc = utils.get_client(Nova, options, logger, region)
+        nc = himutils.get_client(Nova, options, logger, region)
         for project in projects:
             instances = nc.get_project_instances(project_id=project.id)
             for instance in instances:
-                created = utils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
+                created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
                 active_days = (date.today() - created).days
-                kc.debug_log('{} running for {} days'.format(instance.id, active_days))
+                kc.debug_log(f'{instance.id} running for {active_days} days')
                 if int(active_days) == int(inputday):
                     mapping = dict(project=project.name,
                                    enddate=int((max_days)-int(inputday)),
                                    activity=int(active_days),
                                    region=region.upper(),
                                    instance=instance.name)
-                    body_content = utils.load_template(inputfile=template, mapping=mapping, log=logger)
+                    body_content = himutils.load_template(inputfile=template, mapping=mapping, log=logger)
                     msg = mail.get_mime_text(subject, body_content, fromaddr)
-                    kc.debug_log('Sending mail to {} that has been active for {} days'.format(instance.id, active_days))
+                    kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
                     mail.send_mail(project.admin, msg, fromaddr, None, bccaddr)
-                    utils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
-                    print(('Mail sendt to {}'.format(project.admin)))
+                    himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
+                    print(f'Mail sendt to {project.admin}')
 
 # Delete demo instances older than 90 days
 def action_delete():
     days = 90
-    question = 'Delete demo instances older than {} days?'.format(days)
-    if not options.force and not utils.confirm_action(question):
+    question = f'Delete demo instances older than {days} days?'
+    if not options.force and not himutils.confirm_action(question):
         return
     projects = kc.get_projects(type='demo')
-    logfile = 'logs/demo-logs/deleted_instances/deleted-expired-demo-instances-{}.log'.format(date.today().isoformat())
+    logfile = f'logs/demo-logs/deleted_instances/deleted-expired-demo-instances-{today_iso}.log'
     for region in regions:
         for project in projects:
-            nc = utils.get_client(Nova, options, logger, region)
+            nc = himutils.get_client(Nova, options, logger, region)
             instances = nc.get_project_instances(project_id=project.id)
             for instance in instances:
-                created = utils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
+                created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
                 active_days = (date.today() - created).days
-                kc.debug_log('Found instance {} for user {}'.format(instance.id, project.admin))
+                kc.debug_log(f'Found instance {instance.id} for user {project.admin}')
                 if int(active_days) >= days:
                     nc.delete_instance(instance)
                     if not options.dry_run:
-                        utils.append_to_logfile(logfile, "deleted:", project.name, instance.name, "active for:", active_days)
+                        himutils.append_to_logfile(logfile, "deleted:", project.name, instance.name, "active for:", active_days)
 
 # Run local function with the same name as the action (Note: - => _)
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
-    utils.sys_error("Function action_%s() not implemented" % options.action)
+    himutils.fatal(f"Function action_{options.action} not implemented")
 action()
