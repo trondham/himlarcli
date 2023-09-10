@@ -20,11 +20,6 @@ opt_args:
     'action':   'store_const'
     'const':    true
     'default':  false
-  '--days':
-    'sub':      ['instances']
-    'dest':     'days'
-    'help':     'number of days instances have run'
-    'required': true
   '--force':
     'sub':      ['expired', 'delete']
     'dest':     'force'
