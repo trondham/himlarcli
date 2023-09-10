@@ -280,7 +280,7 @@ def notify_user(instance, project, region, active_days, notification_type):
 # if database was updated
 def add_to_db(instance_id, project_id, region):
     existing_object = db.get_first(DemoInstance,
-                                   instance_id=rule_id,
+                                   instance_id=instance_id,
                                    project_id=project_id,
                                    region=region)
     if existing_object is None:
@@ -303,7 +303,7 @@ def add_to_db(instance_id, project_id, region):
 def update_db(instance_id, project_id, region, **kwargs):
     try:
         existing_object = db.get_first(DemoInstance,
-                                       instance_id=rule_id,
+                                       instance_id=instance_id,
                                        project_id=project_id,
                                        region=region)
     except:
