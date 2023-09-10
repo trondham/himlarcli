@@ -129,15 +129,14 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    print(len(projects))
     with Bar('Processing...', suffix='%(percent).1f%% - %(eta)ds', max=len(projects)) as bar:
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
                 bar.next()
                 continue
-            if project.name != 'DEMO-lennart.nordgreen.uib.no':
-                continue
+#            if project.name != 'DEMO-lennart.nordgreen.uib.no':
+#                continue
             for region in regions:
                 nc = himutils.get_client(Nova, options, logger, region)
                 instances = nc.get_project_instances(project_id=project.id)
@@ -174,7 +173,7 @@ def action_instances():
                         f"{DIM}{region}{DEF}",
                         f"{blu}{project.name}{DEF}",
                         f"{DIM}{instance.id}{DEF}",
-                        f"{ylw}{active_days}{DEF}",
+                        days,
                         n1,
                         n2,
                         n3,
