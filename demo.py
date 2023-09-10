@@ -129,7 +129,7 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    with Bar('Processing...') as bar:
+    with Bar('Processing...', suffix='%(percent).1f%% - %(eta)ds', max=length(projects)) as bar:
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
