@@ -169,7 +169,7 @@ def action_expired():
                         if dbupdate:
                             notify_user(instance, project, region, active_days, notification_type='third')
                     else:
-                        verbose_warning(f"[2nd] Expired instance in {project.name} (active: {active_days})")
+                        verbose_warning(f"[3rd] Expired instance in {project.name} (active: {active_days})")
                     continue
 
 
@@ -200,6 +200,22 @@ def action_delete():
 #---------------------------------------------------------------------
 # Helper functions
 #---------------------------------------------------------------------
+
+# Print verbose info
+def verbose_info(string):
+    if options.verbose >= 3:
+        himutils.info(string)
+
+# Print verbose warning
+def verbose_warning(string):
+    if options.verbose >= 2:
+        himutils.warning(string)
+
+# Print verbose error
+def verbose_error(string):
+    if options.verbose >= 1:
+        himutils.error(string)
+
 def notify_user(instance, project, region, active_days, notification_type):
     # Template to use
     template = 'notify/demo/instance_expiration.txt'
