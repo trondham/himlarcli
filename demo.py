@@ -342,16 +342,15 @@ def notify_user(instance, project, region, active_days, notification_type):
         print(f"{DIM}---{DEF}")
         print(body_content)
         print(f"{DIM}––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––{DEF}")
-        himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
-    else:
-        mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
-        kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
         himutils.append_to_logfile(logfile,
                                    date.today(),
                                    region,
                                    f"Sent expiration notification 1 to {project.admin}",
                                    instance.name,
                                    f"active for: {active_days}")
+    else:
+        mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
+        kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
         p_info(f"Spam sent to {project.admin}")
 
 
