@@ -3,6 +3,8 @@
 from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
 from prettytable import PrettyTable
+from progress import Bar
+from time import sleep
 
 from himlarcli import tests
 tests.is_virtual_env()
@@ -106,13 +108,13 @@ def action_instances():
 
     # Define pretty table
     header = [
-        f"{UND}REGION{DEF}",
-        f"{UND}PROJECT{DEF}",
-        f"{UND}INSTANCE ID{DEF}",
-        f"{UND}AGE{DEF}",
-        f"{UND}NOTIFY 1{DEF}",
-        f"{UND}NOTIFY 2{DEF}",
-        f"{UND}NOTIFY 3{DEF}",
+        f"{MGN}{BLD}REGION{DEF}",
+        f"{MGN}{BLD}PROJECT{DEF}",
+        f"{MGN}{BLD}INSTANCE ID{DEF}",
+        f"{MGN}{BLD}AGE{DEF}",
+        f"{MGN}{BLD}NOTIFY 1{DEF}",
+        f"{MGN}{BLD}NOTIFY 2{DEF}",
+        f"{MGN}{BLD}NOTIFY 3{DEF}",
     ]
     table = PrettyTable()
     table._max_width = {'value' : 70}
