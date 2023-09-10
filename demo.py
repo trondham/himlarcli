@@ -129,7 +129,7 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    with ShadyBar('Processing...', suffix='%(percent).1f%% - %(elapsed)ds / %(eta_td)s', max=len(projects)) as bar:
+    with ShadyBar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as bar:
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
