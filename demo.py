@@ -307,17 +307,10 @@ def update_db(instance_id, project_id, region, **kwargs):
                                        project_id=project_id,
                                        region=region)
     except:
-        print("error updating database")
+        error("update_db(): Couldn't get existing object")
         return False
 
-    demo_instance_entry = {
-        'instance_id' : instance_id,
-        'project_id'  : project_id,
-        'region'      : region,
-        **kwargs,
-    }
-    demo_instance_object = DemoInstance.create(demo_instance_entry)
-    db.add(demo_instance_object)
+    db.update(existing_object, **kwargs)
     return True
 
 
