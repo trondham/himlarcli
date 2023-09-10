@@ -136,8 +136,8 @@ def action_instances():
         for region in regions:
             nc = himutils.get_client(Nova, options, logger, region)
             instances = nc.get_project_instances(project_id=project.id)
-            for i in instances:
-                created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
+            for instance in instances:
+                created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
                 active_days = (date.today() - created).days
                 # Get existing db entry
                 entry = db.get_first(DemoInstance,
