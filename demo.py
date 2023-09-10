@@ -108,7 +108,7 @@ def action_expired():
 
     # Interactive confirmation
     question = f'Really send emails to users?'
-    if not options.force and not options.dry_run and not himutils.confirm_action(question):
+    if options.notify and not options.force and not options.dry_run and not himutils.confirm_action(question):
         return
 
     for region in regions:
@@ -122,14 +122,17 @@ def action_expired():
 
                 # Send first notification?
                 if int(active_days) >= (MAX_AGE - FIRST_NOTIFICATION):
-                    dbadd = add_to_db(
-                        instance_id = instance.id,
-                        project_id  = project.id,
-                        region      = region
-                    )
-                    if dbadd:
-                        notify_user(instance, project, region, active_days, notification_type='first')
-                        continue
+                    if options.notify:
+                        dbadd = add_to_db(
+                            instance_id = instance.id,
+                            project_id  = project.id,
+                            region      = region
+                        )
+                        if dbadd:
+                            notify_user(instance, project, region, active_days, notification_type='first')
+                    else:
+                        verbose_warning(f"[1st] Expired instance in {project.name} (active: {active_days})")
+                    continue
 
                 # Get existing db entry
                 entry = db.get_first(DemoInstance,
@@ -141,27 +144,33 @@ def action_expired():
 
                 # Send second notification?
                 if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(MAX_AGE - SECOND_NOTIFICATION)):
-                    dbupate = update_db(
-                        instance_id = instance.id,
-                        project_id  = project.id,
-                        region      = region,
-                        notified2   = datetime.now()
-                    )
-                    if dbupdate:
-                        notify_user(instance, project, region, active_days, notification_type='second')
-                        continue
+                    if options.notify:
+                        dbupate = update_db(
+                            instance_id = instance.id,
+                            project_id  = project.id,
+                            region      = region,
+                            notified2   = datetime.now()
+                        )
+                        if dbupdate:
+                            notify_user(instance, project, region, active_days, notification_type='second')
+                    else:
+                        verbose_warning(f"[2nd] Expired instance in {project.name} (active: {active_days})")
+                    continue
 
                 # Send third notification?
                 if entry.notified3 is None and datetime.now() > entry.notified2 + timedelta(days=(MAX_AGE - THIRD_NOTIFICATION)):
-                    dbupate = update_db(
-                        instance_id = instance.id,
-                        project_id  = project.id,
-                        region      = region,
-                        notified3   = datetime.now()
-                    )
-                    if dbupdate:
-                        notify_user(instance, project, region, active_days, notification_type='third')
-                        continue
+                    if options.notify:
+                        dbupate = update_db(
+                            instance_id = instance.id,
+                            project_id  = project.id,
+                            region      = region,
+                            notified3   = datetime.now()
+                        )
+                        if dbupdate:
+                            notify_user(instance, project, region, active_days, notification_type='third')
+                    else:
+                        verbose_warning(f"[2nd] Expired instance in {project.name} (active: {active_days})")
+                    continue
 
 
 # Delete instance when

@@ -13,6 +13,13 @@ opt_args:
   '--region':
     'dest':     'region'
     'help':     'only use this region'
+  '--notify':
+    'sub':      ['expired']
+    'dest':     'notify'
+    'help':     'Toggle notification (email to users)'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
   '--days':
     'sub':      ['instances']
     'dest':     'days'
