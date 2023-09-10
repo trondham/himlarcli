@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from datetime import date
+from datetime import date, datetime, timedelta
+from email.mime.text import MIMEText
 
 from himlarcli import tests
 tests.is_virtual_env()
@@ -24,12 +25,22 @@ kc.set_dry_run(options.dry_run)
 logger = kc.get_logger()
 regions = himutils.get_regions(options, kc)
 
+# Today's date in ISO format
 today_iso = date.today().isoformat()
 
 # Initialize database connection
 db = himutils.get_client(GlobalState, options, logger)
 
-def action_list():
+# Age and notification config
+MAX_AGE             = 90 # Max age of a demo instance, in days
+FIRST_NOTIFICATION  = 30 # Days until deletion for 1st notification
+SECOND_NOTIFICATION = 14 # Days until deletion for 2nd notification
+THIRD_NOTIFICATION  = 7  # Days until deletion for 3rd notification
+
+#---------------------------------------------------------------------
+# Action functions
+#---------------------------------------------------------------------
+def action_projects():
     projects = kc.get_projects(type='demo')
     printer.output_dict({'header': 'Demo project (instances, vcpus, volumes, gb, name)'})
     count = {'size': 0, 'vcpus': 0, 'instances': 0}
@@ -88,30 +99,19 @@ def action_instances():
                 printer.output_dict(output, one_line=True)
     printer.output_dict({'header': 'Count', 'count': count})
 
+# Notify user when:
+#   - 1st: instance age >= 60 days and notification 1 has not been sent
+#   - 2nd: 16 days since notification 1 was sent
+#   - 3rd: 7 days since notification 2 was sent
 def action_expired():
-    max_days = 90
     projects = kc.get_projects(type='demo')
 
-    # logfile
-    logfile = f'logs/demo-logs/expired_instances/demo-notify-expired-instances-{today_iso}.log'
-
-    # mail parameters
-    mail = himutils.get_client(Mail, options, logger)
-    subject = '[NREC] Your demo instance is due for deletion'
-    fromaddr = mail.get_config('mail', 'from_addr')
-    bccaddr = 'iaas-logs@usit.uio.no'
-
-    inputday = options.day
-    question = f'Send mail to instances that have been running for {inputday} days?'
-    if not options.force and not himutils.confirm_action(question):
+    # Interactive confirmation
+    question = f'Really send emails to users?'
+    if not options.force and not options.dry_run
+    and not himutils.confirm_action(question):
         return
-    template = options.template
-    if not himutils.file_exists(template, logger):
-        himutils.fatal(f'Could not find template file {template}')
-    if not options.template:
-        himutils.fatal('Specify a template file. E.g. -t notify/demo-notify-expired-instances.txt')
-    if not options.day:
-        himutils.fatal('Specify the number of days for running demo instances. E.g. -d 30')
+
     for region in regions:
         nc = himutils.get_client(Nova, options, logger, region)
         for project in projects:
@@ -120,20 +120,54 @@ def action_expired():
                 created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
                 active_days = (date.today() - created).days
                 kc.debug_log(f'{instance.id} running for {active_days} days')
-                if int(active_days) == int(inputday):
-                    mapping = dict(project=project.name,
-                                   enddate=int((max_days)-int(inputday)),
-                                   activity=int(active_days),
-                                   region=region.upper(),
-                                   instance=instance.name)
-                    body_content = himutils.load_template(inputfile=template, mapping=mapping, log=logger)
-                    msg = mail.get_mime_text(subject, body_content, fromaddr)
-                    kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
-                    mail.send_mail(project.admin, msg, fromaddr, None, bccaddr)
-                    himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
-                    print(f'Mail sendt to {project.admin}')
 
-# Delete demo instances older than 90 days
+                # Send first notification?
+                if int(active_days) >= (MAX_AGE - FIRST_NOTIFICATION):
+                    dbadd = add_to_db(
+                        instance_id = instance.id,
+                        project_id  = project.id,
+                        region      = region
+                    )
+                    if dbadd:
+                        notify_user(instance, project, region, active_days, notification_type='first')
+                        continue
+
+                # Get existing db entry
+                entry = db.get_first(DemoInstance,
+                                     instance_id=rule_id,
+                                     project_id=project_id,
+                                     region=region)
+                if entry is None:
+                    print("Error: this shouldn't happen")
+
+                # Send second notification?
+                if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(MAX_AGE - SECOND_NOTIFICATION)):
+                    dbupate = update_db(
+                        instance_id = instance.id,
+                        project_id  = project.id,
+                        region      = region,
+                        notified2   = datetime.now()
+                    )
+                    if dbupdate:
+                        notify_user(instance, project, region, active_days, notification_type='second')
+                        continue
+
+                # Send third notification?
+                if entry.notified3 is None and datetime.now() > entry.notified2 + timedelta(days=(MAX_AGE - THIRD_NOTIFICATION)):
+                    dbupate = update_db(
+                        instance_id = instance.id,
+                        project_id  = project.id,
+                        region      = region,
+                        notified3   = datetime.now()
+                    )
+                    if dbupdate:
+                        notify_user(instance, project, region, active_days, notification_type='third')
+                        continue
+
+
+# Delete instance when
+#   - 7 days since notification 3 was sent
+# NB! We only care about when notifications were sent when deciding to delete instances
 def action_delete():
     days = 90
     question = f'Delete demo instances older than {days} days?'
@@ -154,7 +188,110 @@ def action_delete():
                     if not options.dry_run:
                         himutils.append_to_logfile(logfile, "deleted:", project.name, instance.name, "active for:", active_days)
 
+
+#---------------------------------------------------------------------
+# Helper functions
+#---------------------------------------------------------------------
+def notify_user(instance, project, region, active_days, notification_type):
+    # Template to use
+    template = 'notify/demo/instance_expiration.txt'
+
+    # logfile
+    logfile = f'logs/demo-logs/expired_instances/demo-notify-expired-instances-{today_iso}.log'
+
+    # mail parameters
+    mail = himutils.get_client(Mail, options, logger)
+    mail = Mail(options.config, debug=options.debug)
+    mail.set_dry_run(options.dry_run)
+    fromaddr = mail.get_config('mail', 'from_addr')
+    bccaddr = 'iaas-logs@usit.uio.no'
+    ccaddr = None
+
+    # Calculate the days until deletion
+    enddate = {
+        'first'  : FIRST_NOTIFICATION,
+        'second' : SECOND_NOTIFICATION,
+        'third'  : THIRD_NOTIFICATION,
+    }
+
+    mapping = {
+        'project'  : project.name,
+        'enddate'  : enddate[notification_type],
+        'activity' : int(active_days),
+        'region'   : region.upper(),
+        'instance' : instance.name
+    }
+    body_content = himutils.load_template(inputfile=template,
+                                          mapping=mapping,
+                                          log=logger)
+    msg = MIMEText(body_content, 'plain')
+    msg['subject'] = '[NREC] Your demo instance is due for deletion in {FIXME} days'
+
+    # Send mail to user
+    #mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
+    #kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
+    #himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
+    if options.dry_run:
+        print(f"Did NOT send spam to {project.admin}")
+        print(f"Subject: {msg['subject']}")
+        print(f"To: {project.admin}")
+        if bccaddr:
+            print(f"Bcc: {bccaddr}")
+        print(f"From: {fromaddr}")
+        print('---')
+        print(body_content)
+    else:
+        print(f"Spam sent to {project.admin}")
+
+
+# Add entry to the database if it doesn't already exists. Returns True
+# if database was updated
+def add_to_db(instance_id, project_id, region):
+    existing_object = db.get_first(DemoInstance,
+                                   instance_id=rule_id,
+                                   project_id=project_id,
+                                   region=region)
+    if existing_object is None:
+        demo_instance_entry = {
+            'instance_id' : instance_id,
+            'project_id'  : project_id,
+            'region'      : region,
+            'created'     : datetime.now(),
+            'notified1'   : datetime.now(),
+            'notified2'   : None,
+            'notified3'   : None,
+        }
+        demo_instance_object = DemoInstance.create(demo_instance_entry)
+        db.add(demo_instance_object)
+        return True
+
+    return False
+
+# Update entry in the database. Returns True if database was updated
+def update_db(instance_id, project_id, region, **kwargs):
+    try:
+        existing_object = db.get_first(DemoInstance,
+                                       instance_id=rule_id,
+                                       project_id=project_id,
+                                       region=region)
+    except:
+        print("error updating database")
+        return False
+
+    demo_instance_entry = {
+        'instance_id' : instance_id,
+        'project_id'  : project_id,
+        'region'      : region,
+        **kwargs,
+    }
+    demo_instance_object = DemoInstance.create(demo_instance_entry)
+    db.add(demo_instance_object)
+    return True
+
+
+#---------------------------------------------------------------------
 # Run local function with the same name as the action (Note: - => _)
+#---------------------------------------------------------------------
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
     himutils.fatal(f"Function action_{options.action} not implemented")
