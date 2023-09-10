@@ -115,6 +115,7 @@ def action_instances():
         f"{MGN}{BLD}NOTIFY 1{DEF}",
         f"{MGN}{BLD}NOTIFY 2{DEF}",
         f"{MGN}{BLD}NOTIFY 3{DEF}",
+        divider=True
     ]
     table = PrettyTable()
     table._max_width = {'value' : 70}
@@ -136,8 +137,8 @@ def action_instances():
             if not is_project_enabled(project):
                 bar.next()
                 continue
-#            if project.name != 'DEMO-lennart.nordgreen.uib.no':
-#                continue
+            if project.name != 'DEMO-lennart.nordgreen.uib.no':
+                continue
             for region in regions:
                 nc = himutils.get_client(Nova, options, logger, region)
                 instances = nc.get_project_instances(project_id=project.id)
@@ -150,6 +151,13 @@ def action_instances():
                                          project_id=project.id,
                                          region=region)
 
+                    if active_days >= MAX_AGE:
+                        days = f"{red}{active_days}{DEF}"
+                    elif active_days < MAX_AGE and active_days >= (MAX_AGE - FIRST_NOTIFICATION):
+                        days = f"{ylw}{active_days}{DEF}"
+                    else:
+                        days = f"{grn}{active_days}{DEF}"
+                    
                     if entry and entry.notified1 is not None:
                         n1 = f"{grn}{entry.notified1.strftime('%Y-%m-%d')}{DEF}"
                     else:
