@@ -227,7 +227,7 @@ def action_expired():
                         continue
 
                 if entry is None:
-                    continue
+                    continue # this shouldn't happen
 
                 # Send second notification?
                 if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(FIRST_NOTIFICATION - SECOND_NOTIFICATION)):
@@ -331,12 +331,12 @@ def notify_user(instance, project, region, active_days, notification_type):
                                           mapping=mapping,
                                           log=logger)
     msg = MIMEText(body_content, 'plain')
-    msg['subject'] = '[NREC] Your demo instance is due for deletion in {FIXME} days'
+    msg['subject'] = '[NREC] Your demo instance is due for deletion in {enddate[notification_type]} days'
 
     # Send mail to user
-    #mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
-    #kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
-    #himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
+    mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
+    kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
+    himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
     if options.dry_run:
         print(f"Did NOT send spam to {project.admin}")
         print(f"Subject: {msg['subject']}")
