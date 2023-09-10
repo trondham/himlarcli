@@ -144,12 +144,18 @@ def action_instances():
                                      instance_id=instance.id,
                                      project_id=project.id,
                                      region=region)
+
+                if entry and entry.notified1 is not None:
+                    n1 = f"{grn}{date(entry.notified1).isoformat()}{DEF}"
+                else:
+                    n1 = f"{red}x{DEF}"
+                
                 row = [
                     f"{DIM}{region}{DEF}",
-                    f"{blu}project.name{DEF}",
+                    f"{blu}{project.name}{DEF}",
                     f"{DIM}{instance.id}{DEF}",
                     f"{ylw}{active_days}{DEF}",
-                    f"{grn}{entry.notified1.isoformat()}{DEF}" or f"{red}x{DEF}",
+                    n1,
                     f"{grn}{entry.notified2}{DEF}" or f"{red}x{DEF}",
                     f"{grn}{entry.notified3}{DEF}" or f"{red}x{DEF}",
                 ]
