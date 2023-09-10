@@ -136,11 +136,11 @@ def action_expired():
 
                 # Get existing db entry
                 entry = db.get_first(DemoInstance,
-                                     instance_id=rule_id,
+                                     instance_id=instance_id,
                                      project_id=project_id,
                                      region=region)
                 if entry is None:
-                    print("Error: this shouldn't happen")
+                    p_error("this shouldn't happen")
 
                 # Send second notification?
                 if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(MAX_AGE - SECOND_NOTIFICATION)):
