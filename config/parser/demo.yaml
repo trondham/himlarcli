@@ -32,3 +32,10 @@ opt_args:
     'action':   'store_const'
     'const':    true
     'default':  false
+  '-v':
+    'sub':      ['expired']
+    'dest':     'verbose'
+    'help':     'Verbosity level (0-3)'
+    'type':     'int'
+    'metavar':  '<integer>'
+    'default':  0
