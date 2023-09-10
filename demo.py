@@ -243,7 +243,7 @@ def action_expired():
 
                 # Send third notification?
                 if entry.notified3 is None and datetime.now() > entry.notified2 + timedelta(days=(SECOND_NOTIFICATION - THIRD_NOTIFICATION)):
-                    dbupate = update_db(
+                    dbupdate = update_db(
                         instance_id = instance.id,
                         project_id  = project.id,
                         region      = region,
