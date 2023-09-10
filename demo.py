@@ -310,7 +310,7 @@ def update_db(instance_id, project_id, region, **kwargs):
         error("update_db(): Couldn't get existing object")
         return False
 
-    db.update(existing_object, **kwargs)
+    db.update(existing_object, kwargs)
     return True
 
 
