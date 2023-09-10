@@ -104,8 +104,6 @@ def action_instances():
     CON='\033[?25h' #Cursor On                                                   |
     #----------------------------------------------------------------------------+
 
-    projects = kc.get_projects(type='demo')
-
     # Define pretty table
     header = [
         f"{UND}REGION{DEF}",
@@ -128,7 +126,13 @@ def action_instances():
     table.align[header[3]] = 'r'
 
     # Loop through projects
+    projects = kc.get_projects(type='demo')
     for project in projects:
+        # Ignore if project is disabled
+        if not is_project_enabled(project):
+            continue
+        if project.name != 'DEMO-lennart.nordgreen.uib.no':
+            continue
         for region in regions:
             nc = himutils.get_client(Nova, options, logger, region)
             instances = nc.get_project_instances(project_id=project.id)
