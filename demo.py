@@ -114,6 +114,9 @@ def action_expired():
     for region in regions:
         nc = himutils.get_client(Nova, options, logger, region)
         for project in projects:
+            # Ignore if project is disabled
+            if not is_project_enabled(project):
+                continue
             instances = nc.get_project_instances(project_id=project.id)
             for instance in instances:
                 created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
@@ -214,6 +217,10 @@ def p_warning(string):
 # Print error message
 def p_error(string):
     himutils.error(string)
+
+# Check if project is enabled
+def is_project_enabled(project):
+    return project.enabled
 
 def notify_user(instance, project, region, active_days, notification_type):
     # Template to use
