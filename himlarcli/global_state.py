@@ -128,7 +128,7 @@ class DemoInstance(Base):
     notified3 = Column(DateTime, default=None)
 
     def to_str(self):
-        return f'demo instance: {self.id} ({self.region}) => {self.notified}'
+        return f'demo instance: {self.id} ({self.region}) => {self.created}'
 
     def compare(self, attributes):
         pass
