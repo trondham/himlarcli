@@ -133,6 +133,8 @@ def action_expired():
                     else:
                         p_warning(f"[1st] Expired instance in {project.name} (active: {active_days})")
                     continue
+                else:
+                    p_info(f"OK instance in {project.name} (active: {active_days})")
 
                 # Get existing db entry
                 entry = db.get_first(DemoInstance,
@@ -140,7 +142,7 @@ def action_expired():
                                      project_id=project.id,
                                      region=region)
                 if entry is None:
-                    p_error("this shouldn't happen")
+                    continue
 
                 # Send second notification?
                 if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(MAX_AGE - SECOND_NOTIFICATION)):
