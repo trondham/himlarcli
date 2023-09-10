@@ -3,7 +3,7 @@
 from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
 from prettytable import PrettyTable
-from progress import Bar
+from progress.bar import Bar
 from time import sleep
 
 from himlarcli import tests
