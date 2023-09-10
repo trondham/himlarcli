@@ -40,6 +40,32 @@ FIRST_NOTIFICATION  = 30 # Days until deletion for 1st notification
 SECOND_NOTIFICATION = 14 # Days until deletion for 2nd notification
 THIRD_NOTIFICATION  = 7  # Days until deletion for 3rd notification
 
+#------------------------------+-----------------------------------+---------+
+#       Text color             |       Background color            |         |
+#--------------+---------------+----------------+------------------+         |
+# Base color   |Lighter shade  |  Base color    | Lighter shade    |         |
+#--------------+---------------+----------------+------------------+         |
+BLK='\033[30m'; blk='\033[90m'; BBLK='\033[40m'; bblk='\033[100m' #| Black   |
+RED='\033[31m'; red='\033[91m'; BRED='\033[41m'; bred='\033[101m' #| Red     |
+GRN='\033[32m'; grn='\033[92m'; BGRN='\033[42m'; bgrn='\033[102m' #| Green   |
+YLW='\033[33m'; ylw='\033[93m'; BYLW='\033[43m'; bylw='\033[103m' #| Yellow  |
+BLU='\033[34m'; blu='\033[94m'; BBLU='\033[44m'; bblu='\033[104m' #| Blue    |
+MGN='\033[35m'; mgn='\033[95m'; BMGN='\033[45m'; bmgn='\033[105m' #| Magenta |
+CYN='\033[36m'; cyn='\033[96m'; BCYN='\033[46m'; bcyn='\033[106m' #| Cyan    |
+WHT='\033[37m'; wht='\033[97m'; BWHT='\033[47m'; bwht='\033[107m' #| White   |
+#------------------------------------------------------------------+---------+
+# Effects                                                                    |
+#----------------------------------------------------------------------------+
+DEF='\033[0m'   #Default color and effects                                   |
+BLD='\033[1m'   #Bold\brighter                                               |
+DIM='\033[2m'   #Dim\darker                                                  |
+CUR='\033[3m'   #Italic font                                                 |
+UND='\033[4m'   #Underline                                                   |
+INV='\033[7m'   #Inverted                                                    |
+COF='\033[?25l' #Cursor Off                                                  |
+CON='\033[?25h' #Cursor On                                                   |
+#----------------------------------------------------------------------------+
+
 #---------------------------------------------------------------------
 # Action functions
 #---------------------------------------------------------------------
@@ -80,32 +106,6 @@ def action_projects():
         'vcpus': count['vcpus']})
 
 def action_instances():
-    #------------------------------+-----------------------------------+---------+
-    #       Text color             |       Background color            |         |
-    #--------------+---------------+----------------+------------------+         |
-    # Base color   |Lighter shade  |  Base color    | Lighter shade    |         |
-    #--------------+---------------+----------------+------------------+         |
-    BLK='\033[30m'; blk='\033[90m'; BBLK='\033[40m'; bblk='\033[100m' #| Black   |
-    RED='\033[31m'; red='\033[91m'; BRED='\033[41m'; bred='\033[101m' #| Red     |
-    GRN='\033[32m'; grn='\033[92m'; BGRN='\033[42m'; bgrn='\033[102m' #| Green   |
-    YLW='\033[33m'; ylw='\033[93m'; BYLW='\033[43m'; bylw='\033[103m' #| Yellow  |
-    BLU='\033[34m'; blu='\033[94m'; BBLU='\033[44m'; bblu='\033[104m' #| Blue    |
-    MGN='\033[35m'; mgn='\033[95m'; BMGN='\033[45m'; bmgn='\033[105m' #| Magenta |
-    CYN='\033[36m'; cyn='\033[96m'; BCYN='\033[46m'; bcyn='\033[106m' #| Cyan    |
-    WHT='\033[37m'; wht='\033[97m'; BWHT='\033[47m'; bwht='\033[107m' #| White   |
-    #------------------------------------------------------------------+---------+
-    # Effects                                                                    |
-    #----------------------------------------------------------------------------+
-    DEF='\033[0m'   #Default color and effects                                   |
-    BLD='\033[1m'   #Bold\brighter                                               |
-    DIM='\033[2m'   #Dim\darker                                                  |
-    CUR='\033[3m'   #Italic font                                                 |
-    UND='\033[4m'   #Underline                                                   |
-    INV='\033[7m'   #Inverted                                                    |
-    COF='\033[?25l' #Cursor Off                                                  |
-    CON='\033[?25h' #Cursor On                                                   |
-    #----------------------------------------------------------------------------+
-
     # Define pretty table
     header = [
         f"{MGN}{BLD}REGION{DEF}",
@@ -332,20 +332,20 @@ def notify_user(instance, project, region, active_days, notification_type):
 
     # Send mail to user
     if options.dry_run:
-        print(f"Did NOT send spam to {project.admin}")
-        print(f"Subject: {msg['subject']}")
-        print(f"To: {project.admin}")
+        p_info(f"{RED}Did NOT send spam to {project.admin}{DEF}")
+        print(f"{CYN}Subject:{DEF} {DIM}{msg['subject']}{DEF}")
+        print(f"{CYN}To:{DEF} {DIM}{project.admin}{DEF}")
         if bccaddr:
-            print(f"Bcc: {bccaddr}")
-        print(f"From: {fromaddr}")
-        print('---')
+            print(f"{CYN}Bcc:{DEF} {DIM}{bccaddr}{DEF}")
+        print(f"{CYN}From:{DEF} {DIM}{fromaddr}{DEF}")
+        print(f"{DIM}---{DEF}")
         print(body_content)
         himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
     else:
         mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
         kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
         himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
-        print(f"Spam sent to {project.admin}")
+        p_info(f"Spam sent to {project.admin}")
 
 
 # Add entry to the database if it doesn't already exists. Returns True
