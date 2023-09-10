@@ -192,7 +192,7 @@ def action_expired():
 
     # Interactive confirmation
     question = f'Really send emails to users?'
-    if options.notify and not options.force and not options.dry_run and not himutils.confirm_action(question):
+    if not options.force and not options.dry_run and not himutils.confirm_action(question):
         return
 
     for region in regions:
@@ -217,55 +217,41 @@ def action_expired():
 
                 # Send first notification?
                 if int(active_days) >= (MAX_AGE - FIRST_NOTIFICATION):
-                    if options.notify:
-                        dbadd = add_to_db(
-                            instance_id = instance.id,
-                            project_id  = project.id,
-                            region      = region
-                        )
-                        if dbadd:
-                            notify_user(instance, project, region, active_days, notification_type='first')
+                    dbadd = add_to_db(
+                        instance_id = instance.id,
+                        project_id  = project.id,
+                        region      = region
+                    )
+                    if dbadd:
+                        notify_user(instance, project, region, active_days, notification_type='first')
                         continue
-                    else:
-                        if entry is None:
-                            p_warning(f"[{region}] [1st] Expired instance in {project.name} (active: {active_days})")
-                            continue
-                else:
-                    p_info(f"[{region}] OK instance in {project.name} (active: {active_days})")
-                    continue
 
                 if entry is None:
                     continue
 
                 # Send second notification?
                 if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(MAX_AGE - SECOND_NOTIFICATION)):
-                    if options.notify:
-                        dbupate = update_db(
-                            instance_id = instance.id,
-                            project_id  = project.id,
-                            region      = region,
-                            notified2   = datetime.now()
-                        )
-                        if dbupdate:
-                            notify_user(instance, project, region, active_days, notification_type='second')
-                    else:
-                        p_warning(f"[{region}] [2nd] Expired instance in {project.name} (active: {active_days})")
-                    continue
+                    dbupate = update_db(
+                        instance_id = instance.id,
+                        project_id  = project.id,
+                        region      = region,
+                        notified2   = datetime.now()
+                    )
+                    if dbupdate:
+                        notify_user(instance, project, region, active_days, notification_type='second')
+                        continue
 
                 # Send third notification?
                 if entry.notified3 is None and datetime.now() > entry.notified2 + timedelta(days=(MAX_AGE - THIRD_NOTIFICATION)):
-                    if options.notify:
-                        dbupate = update_db(
-                            instance_id = instance.id,
-                            project_id  = project.id,
-                            region      = region,
-                            notified3   = datetime.now()
-                        )
-                        if dbupdate:
-                            notify_user(instance, project, region, active_days, notification_type='third')
-                    else:
-                        p_warning(f"[{region}] [3rd] Expired instance in {project.name} (active: {active_days})")
-                    continue
+                    dbupate = update_db(
+                        instance_id = instance.id,
+                        project_id  = project.id,
+                        region      = region,
+                        notified3   = datetime.now()
+                    )
+                    if dbupdate:
+                        notify_user(instance, project, region, active_days, notification_type='third')
+                        continue
 
 
 # Delete instance when
