@@ -159,15 +159,15 @@ def action_instances():
                     if entry and entry.notified1 is not None:
                         n1 = f"{grn}{entry.notified1.strftime('%Y-%m-%d')}{DEF}"
                     else:
-                        n1 = f"{red}x{DEF}"
+                        n1 = f"{DIM}x{DEF}"
                     if entry and entry.notified2 is not None:
                         n2 = f"{grn}{entry.notified2.strftime('%Y-%m-%d')}{DEF}"
                     else:
-                        n2 = f"{red}x{DEF}"
+                        n2 = f"{DIM}x{DEF}"
                     if entry and entry.notified3 is not None:
                         n3 = f"{grn}{entry.notified3.strftime('%Y-%m-%d')}{DEF}"
                     else:
-                        n3 = f"{red}x{DEF}"
+                        n3 = f"{DIM}x{DEF}"
                 
                     row = [
                         f"{DIM}{region}{DEF}",
