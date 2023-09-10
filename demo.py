@@ -146,9 +146,17 @@ def action_instances():
                                      region=region)
 
                 if entry and entry.notified1 is not None:
-                    n1 = f"{grn}{date(entry.notified1).isoformat()}{DEF}"
+                    n1 = f"{grn}{entry.notified1.strftime('%Y-%m-%d')}{DEF}"
                 else:
                     n1 = f"{red}x{DEF}"
+                if entry and entry.notified2 is not None:
+                    n2 = f"{grn}{entry.notified2.strftime('%Y-%m-%d')}{DEF}"
+                else:
+                    n2 = f"{red}x{DEF}"
+                if entry and entry.notified3 is not None:
+                    n3 = f"{grn}{entry.notified3.strftime('%Y-%m-%d')}{DEF}"
+                else:
+                    n3 = f"{red}x{DEF}"
                 
                 row = [
                     f"{DIM}{region}{DEF}",
@@ -156,8 +164,8 @@ def action_instances():
                     f"{DIM}{instance.id}{DEF}",
                     f"{ylw}{active_days}{DEF}",
                     n1,
-                    f"{grn}{entry.notified2}{DEF}" or f"{red}x{DEF}",
-                    f"{grn}{entry.notified3}{DEF}" or f"{red}x{DEF}",
+                    n2,
+                    n3,
                 ]
                 table.add_row(row)
     table.sortby = header[0]
