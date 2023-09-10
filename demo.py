@@ -307,10 +307,15 @@ def update_db(instance_id, project_id, region, **kwargs):
                                        project_id=project_id,
                                        region=region)
     except:
-        error("update_db(): Couldn't get existing object")
+        p_error("update_db(): Couldn't get existing object")
         return False
 
-    db.update(existing_object, kwargs)
+    try:
+        db.update(existing_object, kwargs)
+    except:
+        p_error("Failed to update database")
+        return False
+        
     return True
 
 
