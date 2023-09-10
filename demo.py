@@ -136,8 +136,8 @@ def action_expired():
 
                 # Get existing db entry
                 entry = db.get_first(DemoInstance,
-                                     instance_id=instance_id,
-                                     project_id=project_id,
+                                     instance_id=instance.id,
+                                     project_id=project.id,
                                      region=region)
                 if entry is None:
                     p_error("this shouldn't happen")
