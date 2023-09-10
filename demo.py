@@ -108,8 +108,7 @@ def action_expired():
 
     # Interactive confirmation
     question = f'Really send emails to users?'
-    if not options.force and not options.dry_run
-    and not himutils.confirm_action(question):
+    if not options.force and not options.dry_run and not himutils.confirm_action(question):
         return
 
     for region in regions:
