@@ -149,9 +149,9 @@ def action_instances():
                     f"{blu}project.name{DEF}",
                     f"{DIM}{instance.id}{DEF}",
                     f"{ylw}{active_days}{DEF}",
-                    f"{grn}{entry.notified1}{DEF}" or f"{red}-{DEF}",
-                    entry.notified2 or f"{red}-{DEF}",
-                    entry.notified3 or f"{red}-{DEF}",
+                    f"{grn}{entry.notified1.isoformat()}{DEF}" or f"{red}x{DEF}",
+                    f"{grn}{entry.notified2}{DEF}" or f"{red}x{DEF}",
+                    f"{grn}{entry.notified3}{DEF}" or f"{red}x{DEF}",
                 ]
                 table.add_row(row)
     table.sortby = header[0]
