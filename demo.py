@@ -3,7 +3,7 @@
 from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
 from prettytable import PrettyTable
-from progress.bar import Bar
+from progress.bar import Bar, IncrementalBar
 from time import sleep
 
 from himlarcli import tests
@@ -129,7 +129,7 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    with Bar('Processing...', suffix='%(percent).1f%% - %(eta)ds', max=len(projects)) as bar:
+    with IncrementalBar('Processing...', suffix='%(percent).1f%% - %(elapsed)ds / %(eta_td)s', max=len(projects)) as bar:
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
