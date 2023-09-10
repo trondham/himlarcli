@@ -131,7 +131,7 @@ def action_expired():
                         if dbadd:
                             notify_user(instance, project, region, active_days, notification_type='first')
                     else:
-                        verbose_warning(f"[1st] Expired instance in {project.name} (active: {active_days})")
+                        p_warning(f"[1st] Expired instance in {project.name} (active: {active_days})")
                     continue
 
                 # Get existing db entry
@@ -154,7 +154,7 @@ def action_expired():
                         if dbupdate:
                             notify_user(instance, project, region, active_days, notification_type='second')
                     else:
-                        verbose_warning(f"[2nd] Expired instance in {project.name} (active: {active_days})")
+                        p_warning(f"[2nd] Expired instance in {project.name} (active: {active_days})")
                     continue
 
                 # Send third notification?
@@ -169,7 +169,7 @@ def action_expired():
                         if dbupdate:
                             notify_user(instance, project, region, active_days, notification_type='third')
                     else:
-                        verbose_warning(f"[3rd] Expired instance in {project.name} (active: {active_days})")
+                        p_warning(f"[3rd] Expired instance in {project.name} (active: {active_days})")
                     continue
 
 
@@ -201,20 +201,17 @@ def action_delete():
 # Helper functions
 #---------------------------------------------------------------------
 
-# Print verbose info
-def verbose_info(string):
-    if options.verbose >= 3:
-        himutils.info(string)
+# Print info message
+def p_info(string):
+    himutils.info(string)
 
-# Print verbose warning
-def verbose_warning(string):
-    if options.verbose >= 2:
-        himutils.warning(string)
+# Print warning message
+def p_warning(string):
+    himutils.warning(string)
 
-# Print verbose error
-def verbose_error(string):
-    if options.verbose >= 1:
-        himutils.error(string)
+# Print error message
+def p_error(string):
+    himutils.error(string)
 
 def notify_user(instance, project, region, active_days, notification_type):
     # Template to use
