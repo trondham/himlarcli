@@ -2,6 +2,7 @@
 
 from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
+from prettytable import PrettyTable
 
 from himlarcli import tests
 tests.is_virtual_env()
@@ -77,9 +78,56 @@ def action_projects():
         'vcpus': count['vcpus']})
 
 def action_instances():
+    #------------------------------+-----------------------------------+---------+
+    #       Text color             |       Background color            |         |
+    #--------------+---------------+----------------+------------------+         |
+    # Base color   |Lighter shade  |  Base color    | Lighter shade    |         |
+    #--------------+---------------+----------------+------------------+         |
+    BLK='\033[30m'; blk='\033[90m'; BBLK='\033[40m'; bblk='\033[100m' #| Black   |
+    RED='\033[31m'; red='\033[91m'; BRED='\033[41m'; bred='\033[101m' #| Red     |
+    GRN='\033[32m'; grn='\033[92m'; BGRN='\033[42m'; bgrn='\033[102m' #| Green   |
+    YLW='\033[33m'; ylw='\033[93m'; BYLW='\033[43m'; bylw='\033[103m' #| Yellow  |
+    BLU='\033[34m'; blu='\033[94m'; BBLU='\033[44m'; bblu='\033[104m' #| Blue    |
+    MGN='\033[35m'; mgn='\033[95m'; BMGN='\033[45m'; bmgn='\033[105m' #| Magenta |
+    CYN='\033[36m'; cyn='\033[96m'; BCYN='\033[46m'; bcyn='\033[106m' #| Cyan    |
+    WHT='\033[37m'; wht='\033[97m'; BWHT='\033[47m'; bwht='\033[107m' #| White   |
+    #------------------------------------------------------------------+---------+
+    # Effects                                                                    |
+    #----------------------------------------------------------------------------+
+    DEF='\033[0m'   #Default color and effects                                   |
+    BLD='\033[1m'   #Bold\brighter                                               |
+    DIM='\033[2m'   #Dim\darker                                                  |
+    CUR='\033[3m'   #Italic font                                                 |
+    UND='\033[4m'   #Underline                                                   |
+    INV='\033[7m'   #Inverted                                                    |
+    COF='\033[?25l' #Cursor Off                                                  |
+    CON='\033[?25h' #Cursor On                                                   |
+    #----------------------------------------------------------------------------+
+
     projects = kc.get_projects(type='demo')
-    printer.output_dict({'header': 'Demo instances (id, lifetime in days, name, flavor)'})
-    count = 0
+
+    # Define pretty table
+    header = [
+        f"{UND}REGION{DEF}",
+        f"{UND}PROJECT{DEF}",
+        f"{UND}INSTANCE ID{DEF}",
+        f"{UND}AGE{DEF}",
+        f"{UND}NOTIFY 1{DEF}",
+        f"{UND}NOTIFY 2{DEF}",
+        f"{UND}NOTIFY 3{DEF}",
+    ]
+    table = PrettyTable()
+    table._max_width = {'value' : 70}
+    table.border = 0
+    table.header = 1
+    table.left_padding_width = 2
+    table.field_names = header
+    table.align[header[0]] = 'l'
+    table.align[header[1]] = 'l'
+    table.align[header[2]] = 'l'
+    table.align[header[3]] = 'r'
+
+    # Loop through projects
     for project in projects:
         for region in regions:
             nc = himutils.get_client(Nova, options, logger, region)
@@ -87,18 +135,24 @@ def action_instances():
             for i in instances:
                 created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
                 active_days = (date.today() - created).days
-                if int(active_days) < int(options.day):
-                    continue
-                output = {
-                    '0': i.id,
-                    '2': i.name,
-                    '1': (date.today() - created).days,
-                    '3': i.flavor['original_name']
-                }
-                count += 1
-                printer.output_dict(output, one_line=True)
-    printer.output_dict({'header': 'Count', 'count': count})
-
+                # Get existing db entry
+                entry = db.get_first(DemoInstance,
+                                     instance_id=instance.id,
+                                     project_id=project.id,
+                                     region=region)
+                row = [
+                    region,
+                    project.name,
+                    instance.id,
+                    active_days,
+                    entry.notified1 or "None",
+                    entry.notified2 or "None",
+                    entry.notified3 or "None",
+                ]
+                table.add_row(row)
+    table.sortby = header[0]
+    print(table)
+    
 # Notify user when:
 #   - 1st: instance age >= 60 days and notification 1 has not been sent
 #   - 2nd: 16 days since notification 1 was sent
@@ -125,6 +179,12 @@ def action_expired():
                 active_days = (date.today() - created).days
                 kc.debug_log(f'{instance.id} running for {active_days} days')
 
+                # Get existing db entry
+                entry = db.get_first(DemoInstance,
+                                     instance_id=instance.id,
+                                     project_id=project.id,
+                                     region=region)
+
                 # Send first notification?
                 if int(active_days) >= (MAX_AGE - FIRST_NOTIFICATION):
                     if options.notify:
@@ -135,17 +195,15 @@ def action_expired():
                         )
                         if dbadd:
                             notify_user(instance, project, region, active_days, notification_type='first')
+                        continue
                     else:
-                        p_warning(f"[{region}] [1st] Expired instance in {project.name} (active: {active_days})")
-                    continue
+                        if entry is None:
+                            p_warning(f"[{region}] [1st] Expired instance in {project.name} (active: {active_days})")
+                            continue
                 else:
                     p_info(f"[{region}] OK instance in {project.name} (active: {active_days})")
+                    continue
 
-                # Get existing db entry
-                entry = db.get_first(DemoInstance,
-                                     instance_id=instance.id,
-                                     project_id=project.id,
-                                     region=region)
                 if entry is None:
                     continue
 
