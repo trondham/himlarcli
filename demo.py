@@ -230,7 +230,7 @@ def action_expired():
                     continue
 
                 # Send second notification?
-                if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(MAX_AGE - SECOND_NOTIFICATION)):
+                if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(FIRST_NOTIFICATION - SECOND_NOTIFICATION)):
                     dbupate = update_db(
                         instance_id = instance.id,
                         project_id  = project.id,
@@ -242,7 +242,7 @@ def action_expired():
                         continue
 
                 # Send third notification?
-                if entry.notified3 is None and datetime.now() > entry.notified2 + timedelta(days=(MAX_AGE - THIRD_NOTIFICATION)):
+                if entry.notified3 is None and datetime.now() > entry.notified2 + timedelta(days=(SECOND_NOTIFICATION - THIRD_NOTIFICATION)):
                     dbupate = update_db(
                         instance_id = instance.id,
                         project_id  = project.id,
