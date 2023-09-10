@@ -145,13 +145,13 @@ def action_instances():
                                      project_id=project.id,
                                      region=region)
                 row = [
-                    region,
-                    project.name,
-                    instance.id,
-                    active_days,
-                    entry.notified1 or "None",
-                    entry.notified2 or "None",
-                    entry.notified3 or "None",
+                    f"{DIM}{region}{DEF}",
+                    f"{blu}project.name{DEF}",
+                    f"{DIM}{instance.id}{DEF}",
+                    f"{ylw}{active_days}{DEF}",
+                    f"{grn}{entry.notified1}{DEF}" or f"{red}-{DEF}",
+                    entry.notified2 or f"{red}-{DEF}",
+                    entry.notified3 or f"{red}-{DEF}",
                 ]
                 table.add_row(row)
     table.sortby = header[0]
