@@ -183,10 +183,7 @@ def action_instances():
     table.sortby = header[0]
     print(table)
     
-# Notify user when:
-#   - 1st: instance age >= 60 days and notification 1 has not been sent
-#   - 2nd: 16 days since notification 1 was sent
-#   - 3rd: 7 days since notification 2 was sent
+# Notify user about instance about to expire
 def action_expired():
     projects = kc.get_projects(type='demo')
 
@@ -331,12 +328,9 @@ def notify_user(instance, project, region, active_days, notification_type):
                                           mapping=mapping,
                                           log=logger)
     msg = MIMEText(body_content, 'plain')
-    msg['subject'] = '[NREC] Your demo instance is due for deletion in {enddate[notification_type]} days'
+    msg['subject'] = f"[NREC] Your demo instance is due for deletion in {enddate[notification_type]} days"
 
     # Send mail to user
-    mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
-    kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
-    himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
     if options.dry_run:
         print(f"Did NOT send spam to {project.admin}")
         print(f"Subject: {msg['subject']}")
@@ -346,7 +340,11 @@ def notify_user(instance, project, region, active_days, notification_type):
         print(f"From: {fromaddr}")
         print('---')
         print(body_content)
+        himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
     else:
+        mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
+        kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
+        himutils.append_to_logfile(logfile, date.today(), region, project.admin, instance.name, active_days)
         print(f"Spam sent to {project.admin}")
 
 
