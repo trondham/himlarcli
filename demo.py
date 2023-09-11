@@ -3,8 +3,9 @@
 from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
 from prettytable import PrettyTable
-from progress.bar import Bar
+#from progress.bar import Bar
 from time import sleep
+import progressbar
 
 from himlarcli import tests
 tests.is_virtual_env()
@@ -132,11 +133,11 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    with Bar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as bar:
+    with Bar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as progbar:
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
-                bar.next()
+                progbar.next()
                 continue
 #            if project.name != 'DEMO-lennart.nordgreen.uib.no':
 #                continue
@@ -158,7 +159,7 @@ def action_instances():
                         days = f"{ylw}{active_days}{DEF}"
                     else:
                         days = f"{grn}{active_days}{DEF}"
-                    
+
                     if entry and entry.notified1 is not None:
                         n1 = f"{grn}{entry.notified1.strftime('%Y-%m-%d')}{DEF}"
                     else:
@@ -171,7 +172,7 @@ def action_instances():
                         n3 = f"{grn}{entry.notified3.strftime('%Y-%m-%d')}{DEF}"
                     else:
                         n3 = f"{DIM}x{DEF}"
-                
+
                     row = [
                         f"{DIM}{region}{DEF}",
                         f"{blu}{project.name}{DEF}",
@@ -182,10 +183,10 @@ def action_instances():
                         n3,
                     ]
                     table.add_row(row)
-            bar.next()
+            progbar.next()
     table.sortby = header[0]
     print(table)
-    
+
 # Notify user about instance about to expire
 def action_expired():
     projects = kc.get_projects(type='demo')
@@ -212,7 +213,7 @@ def action_expired():
                 # next instance if it's not yet time for notifications
                 if int(active_days) < (MAX_AGE - FIRST_NOTIFICATION):
                     continue
-                
+
                 # Get existing db entry, if it exists
                 entry = db.get_first(DemoInstance,
                                      instance_id=instance.id,
@@ -412,7 +413,7 @@ def update_db(instance_id, project_id, region, **kwargs):
     except:
         p_error("Failed to update database")
         return False
-        
+
     return True
 
 
