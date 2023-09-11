@@ -259,27 +259,25 @@ def action_expired():
 
 
 # Delete instance when
-#   - 7 days since notification 3 was sent
+#   - Z days since notification 3 was sent
 # NB! We only care about when notifications were sent when deciding to delete instances
 def action_delete():
-    days = 90
     question = f'Delete demo instances older than {days} days?'
-    if not options.force and not himutils.confirm_action(question):
+    if not options.force and not options.dry_run and not himutils.confirm_action(question):
         return
-    projects = kc.get_projects(type='demo')
-    logfile = f'logs/demo-logs/deleted_instances/deleted-expired-demo-instances-{today_iso}.log'
-    for region in regions:
-        for project in projects:
-            nc = himutils.get_client(Nova, options, logger, region)
-            instances = nc.get_project_instances(project_id=project.id)
-            for instance in instances:
-                created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
-                active_days = (date.today() - created).days
-                kc.debug_log(f'Found instance {instance.id} for user {project.admin}')
-                if int(active_days) >= days:
-                    nc.delete_instance(instance)
-                    if not options.dry_run:
-                        himutils.append_to_logfile(logfile, "deleted:", project.name, instance.name, "active for:", active_days)
+
+    rows = db.get_all(DemoInstance)
+    for row in rows:
+        last_notified = row.notified3
+        if datetime.now() > last_notified + timedelta(days=THIRD_NOTIFICATION):
+            if options.dry_run:
+                p_info(f"DRYRUN: [{row.region}] [project_id={row.project_id}] Deleting instance {row.instance_id} from database")
+            else:
+                nc = himutils.get_client(Nova, options, logger, row.region)
+                #nc.delete_instance(instance)
+                himutils.append_to_logfile(logfile, "deleted:", project.name, instance.name, "active for:", active_days)
+                p_info(f"[{row.region}] [project_id={row.project_id}] Deleting instance {row.instance_id} from database")
+                db.delete(row)
 
 
 #---------------------------------------------------------------------
