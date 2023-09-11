@@ -135,10 +135,12 @@ def action_instances():
     projects = kc.get_projects(type='demo')
     #    with Bar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as progbar:
     with progressbar.ProgressBar(max_value=len(projects)) as progbar:
+        count = 0
         for project in projects:
+            count += 1
             # Ignore if project is disabled
             if not is_project_enabled(project):
-                progbar.update()
+                progbar.update(count)
                 continue
 #            if project.name != 'DEMO-lennart.nordgreen.uib.no':
 #                continue
@@ -184,7 +186,7 @@ def action_instances():
                         n3,
                     ]
                     table.add_row(row)
-            progbar.update()
+            progbar.update(count)
     table.sortby = header[0]
     print(table)
 
