@@ -138,7 +138,7 @@ def action_instances():
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
-                progbar.update(1)
+                progbar.update()
                 continue
 #            if project.name != 'DEMO-lennart.nordgreen.uib.no':
 #                continue
@@ -184,7 +184,7 @@ def action_instances():
                         n3,
                     ]
                     table.add_row(row)
-            progbar.update(1)
+            progbar.update()
     table.sortby = header[0]
     print(table)
 
