@@ -27,9 +27,6 @@ kc.set_dry_run(options.dry_run)
 logger = kc.get_logger()
 regions = himutils.get_regions(options, kc)
 
-# Today's date in ISO format
-today_iso = date.today().isoformat()
-
 # Logfile
 logfile = f'logs/demo-expired-instances.log'
 
