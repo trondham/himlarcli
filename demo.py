@@ -3,8 +3,6 @@
 from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
 from prettytable import PrettyTable
-#from progress.bar import Bar
-#from time import sleep
 import progressbar
 
 from himlarcli import tests
@@ -133,7 +131,6 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    #    with Bar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as progbar:
     with progressbar.ProgressBar(max_value=len(projects)) as progbar:
         count = 0
         for project in projects:
@@ -142,8 +139,6 @@ def action_instances():
             if not is_project_enabled(project):
                 progbar.update(count)
                 continue
-#            if project.name != 'DEMO-lennart.nordgreen.uib.no':
-#                continue
             for region in regions:
                 nc = himutils.get_client(Nova, options, logger, region)
                 instances = nc.get_project_instances(project_id=project.id)
