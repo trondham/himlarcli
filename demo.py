@@ -190,7 +190,7 @@ def action_expired():
     projects = kc.get_projects(type='demo')
 
     # Interactive confirmation
-    question = f'Really send emails to users?'
+    question = "Really send emails to users?"
     if not options.force and not options.dry_run and not himutils.confirm_action(question):
         return
 
@@ -264,7 +264,7 @@ def action_expired():
 #   - Z days since notification 3 was sent
 # NB! We only care about when notifications were sent when deciding to delete instances
 def action_delete():
-    question = f'Really delete expired demo instances?'
+    question = "Really delete expired demo instances?"
     if not options.force and not options.dry_run and not himutils.confirm_action(question):
         return
 
