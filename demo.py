@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta
 from email.mime.text import MIMEText
 from prettytable import PrettyTable
 #from progress.bar import Bar
-from time import sleep
+#from time import sleep
 import progressbar
 
 from himlarcli import tests
@@ -133,11 +133,12 @@ def action_instances():
 
     # Loop through projects
     projects = kc.get_projects(type='demo')
-    with Bar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as progbar:
+    #    with Bar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as progbar:
+    with progressbar.ProgressBar(max_value=10) as progbar:
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
-                progbar.next()
+                progbar.update(1)
                 continue
 #            if project.name != 'DEMO-lennart.nordgreen.uib.no':
 #                continue
@@ -183,7 +184,7 @@ def action_instances():
                         n3,
                     ]
                     table.add_row(row)
-            progbar.next()
+            progbar.update(1)
     table.sortby = header[0]
     print(table)
 
