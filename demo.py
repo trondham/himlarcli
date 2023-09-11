@@ -31,6 +31,9 @@ regions = himutils.get_regions(options, kc)
 # Today's date in ISO format
 today_iso = date.today().isoformat()
 
+# Logfile
+logfile = f'logs/demo-expired-instances-{today_iso}.log'
+
 # Initialize database connection
 db = himutils.get_client(GlobalState, options, logger)
 
@@ -274,8 +277,18 @@ def action_delete():
                 p_info(f"DRYRUN: [{row.region}] [project_id={row.project_id}] Deleting instance {row.instance_id} from database")
             else:
                 nc = himutils.get_client(Nova, options, logger, row.region)
+                instance = nc.get_by_id("instance", row.instance_id)
+                created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
+                active_days = (date.today() - created).days
                 #nc.delete_instance(instance)
-                himutils.append_to_logfile(logfile, "deleted:", project.name, instance.name, "active for:", active_days)
+                himutils.append_to_logfile(
+                    logfile,
+                    date.today(),
+                    region,
+                    f"Deleted instance: {instance.id}",
+                    f"Project ID: {row.project_id}",
+                    f"Active for: {active_days}"
+                )
                 p_info(f"[{row.region}] [project_id={row.project_id}] Deleting instance {row.instance_id} from database")
                 db.delete(row)
 
@@ -303,9 +316,6 @@ def is_project_enabled(project):
 def notify_user(instance, project, region, active_days, notification_type):
     # Template to use
     template = 'notify/demo/instance_expiration.txt'
-
-    # logfile
-    logfile = f'logs/demo-logs/expired_instances/demo-notify-expired-instances-{today_iso}.log'
 
     # mail parameters
     mail = himutils.get_client(Mail, options, logger)
