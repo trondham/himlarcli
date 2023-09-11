@@ -277,7 +277,7 @@ def action_delete():
                 p_info(f"DRYRUN: [{row.region}] [project_id={row.project_id}] Deleting instance {row.instance_id} from database")
             else:
                 nc = himutils.get_client(Nova, options, logger, row.region)
-                instance = nc.get_by_id("instance", row.instance_id)
+                instance = nc.get_by_id("server", row.instance_id)
                 created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
                 active_days = (date.today() - created).days
                 #nc.delete_instance(instance)
