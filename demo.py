@@ -284,7 +284,7 @@ def action_delete():
                 himutils.append_to_logfile(
                     logfile,
                     date.today(),
-                    region,
+                    row.region,
                     f"Deleted instance: {instance.id}",
                     f"Project ID: {row.project_id}",
                     f"Active for: {active_days}"
