@@ -271,10 +271,12 @@ def action_delete():
 
     rows = db.get_all(DemoInstance)
     for row in rows:
+        if row.notified3 is None:
+            continue
         last_notified = row.notified3
         if datetime.now() > last_notified + timedelta(days=THIRD_NOTIFICATION):
             if options.dry_run:
-                p_info(f"DRYRUN: [{row.region}] [project_id={row.project_id}] Deleting instance {row.instance_id} from database")
+                p_info(f"(dry-run) [{row.region}] [project_id={row.project_id}] Would delete instance {row.instance_id}")
             else:
                 nc = himutils.get_client(Nova, options, logger, row.region)
                 instance = nc.get_by_id("server", row.instance_id)
@@ -287,7 +289,7 @@ def action_delete():
                     row.region,
                     f"Deleted instance: {instance.id}",
                     f"Project ID: {row.project_id}",
-                    f"Active for: {active_days}"
+                    f"Active for: {active_days} days"
                 )
                 p_info(f"[{row.region}] [project_id={row.project_id}] Deleting instance {row.instance_id} from database")
                 db.delete(row)
@@ -360,12 +362,14 @@ def notify_user(instance, project, region, active_days, notification_type):
     else:
         #mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
         #kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
-        himutils.append_to_logfile(logfile,
-                                   date.today(),
-                                   region,
-                                   f"Notification 1 to: {project.admin}",
-                                   f"Instance name: {instance.name}",
-                                   f"Active for: {active_days}")
+        himutils.append_to_logfile(
+            logfile,
+            date.today(),
+            region,
+            f"Notification 1 to: {project.admin}",
+            f"Instance name: {instance.name}",
+            f"Active for: {active_days} days"
+        )
         p_info(f"Spam sent to {project.admin}")
 
 
