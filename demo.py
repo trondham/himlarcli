@@ -232,28 +232,30 @@ def action_expired():
                     continue
 
                 # Send second notification?
-                if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(FIRST_NOTIFICATION - SECOND_NOTIFICATION)):
-                    dbupdate = update_db(
-                        instance_id = instance.id,
-                        project_id  = project.id,
-                        region      = region,
-                        notified2   = datetime.now()
-                    )
-                    if dbupdate:
-                        notify_user(instance, project, region, active_days, notification_type='second')
-                        continue
+                if entry.notified2 is None:
+                    if datetime.now() > entry.notified1 + timedelta(days=(FIRST_NOTIFICATION - SECOND_NOTIFICATION)):
+                        dbupdate = update_db(
+                            instance_id = instance.id,
+                            project_id  = project.id,
+                            region      = region,
+                            notified2   = datetime.now()
+                        )
+                        if dbupdate:
+                            notify_user(instance, project, region, active_days, notification_type='second')
+                    continue
 
                 # Send third notification?
-                if entry.notified3 is None and datetime.now() > entry.notified2 + timedelta(days=(SECOND_NOTIFICATION - THIRD_NOTIFICATION)):
-                    dbupdate = update_db(
-                        instance_id = instance.id,
-                        project_id  = project.id,
-                        region      = region,
-                        notified3   = datetime.now()
-                    )
-                    if dbupdate:
-                        notify_user(instance, project, region, active_days, notification_type='third')
-                        continue
+                if entry.notified3 is None:
+                    if datetime.now() > entry.notified2 + timedelta(days=(SECOND_NOTIFICATION - THIRD_NOTIFICATION)):
+                        dbupdate = update_db(
+                            instance_id = instance.id,
+                            project_id  = project.id,
+                            region      = region,
+                            notified3   = datetime.now()
+                        )
+                        if dbupdate:
+                            notify_user(instance, project, region, active_days, notification_type='third')
+                    continue
 
 
 # Delete instance when
