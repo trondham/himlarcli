@@ -120,7 +120,7 @@ class DemoInstance(Base):
 
     id = Column(Integer, primary_key=True)
     instance_id = Column(String(63), nullable=False, index=True)
-    project_name = Column(String(63), nullable=False, index=True)
+    project_id = Column(String(63), nullable=False, index=True)
     region = Column(String(15), index=True)
     created = Column(DateTime, default=datetime.now)
     notified1 = Column(DateTime, default=None)
