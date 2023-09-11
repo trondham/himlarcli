@@ -134,7 +134,7 @@ def action_instances():
     # Loop through projects
     projects = kc.get_projects(type='demo')
     #    with Bar('Processing...', suffix='%(percent).1f%% - Elapsed: %(elapsed)ds / ETA: %(eta_td)s', max=len(projects)) as progbar:
-    with progressbar.ProgressBar(max_value=10) as progbar:
+    with progressbar.ProgressBar(max_value=len(projects)) as progbar:
         for project in projects:
             # Ignore if project is disabled
             if not is_project_enabled(project):
