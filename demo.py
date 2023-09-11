@@ -410,15 +410,10 @@ def add_to_db(instance_id, project_id, region):
 
 # Update entry in the database. Returns True if database was updated
 def update_db(instance_id, project_id, region, **kwargs):
-    try:
-        existing_object = db.get_first(DemoInstance,
-                                       instance_id=instance_id,
-                                       project_id=project_id,
-                                       region=region)
-    except:
-        p_error("update_db(): Couldn't get existing object")
-        return False
-
+    existing_object = db.get_first(DemoInstance,
+                                   instance_id=instance_id,
+                                   project_id=project_id,
+                                   region=region)
     try:
         db.update(existing_object, kwargs)
     except:
