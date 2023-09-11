@@ -373,7 +373,7 @@ def notify_user(instance, project, region, active_days, notification_type):
         print(f"{DIM}––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––{DEF}")
     else:
         #mail.send_mail(project.admin, msg, fromaddr, ccaddr, bccaddr)
-        #kc.debug_log(f'Sending mail to {instance.id} that has been active for {active_days} days')
+        #kc.debug_log(f'Sending mail to {project.admin} regarding {instance.id} that has been active for {active_days} days')
         himutils.append_to_logfile(
             logfile,
             date.today(),
