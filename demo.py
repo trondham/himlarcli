@@ -31,7 +31,7 @@ regions = himutils.get_regions(options, kc)
 today_iso = date.today().isoformat()
 
 # Logfile
-logfile = f'logs/demo-expired-instances-{today_iso}.log'
+logfile = f'logs/demo-expired-instances.log'
 
 # Initialize database connection
 db = himutils.get_client(GlobalState, options, logger)
@@ -246,7 +246,7 @@ def action_expired():
                             notify_user(instance, project, region, active_days, notification_type='second')
                     continue
 
-                # Send third notification?
+                # Send final notification?
                 if entry.notified3 is None:
                     if datetime.now() > entry.notified2 + timedelta(days=(SECOND_NOTIFICATION - THIRD_NOTIFICATION)):
                         dbupdate = update_db(
@@ -256,7 +256,7 @@ def action_expired():
                             notified3   = datetime.now()
                         )
                         if dbupdate:
-                            notify_user(instance, project, region, active_days, notification_type='third')
+                            notify_user(instance, project, region, active_days, notification_type='final')
                     continue
 
 
@@ -270,7 +270,7 @@ def action_delete():
 
     rows = db.get_all(DemoInstance)
     for row in rows:
-        if row.notified3 is None:
+        if row.notified3 is None or row.notified2 is None or row.notified1 is None:
             continue
         last_notified = row.notified3
         if datetime.now() > last_notified + timedelta(days=THIRD_NOTIFICATION):
@@ -284,7 +284,7 @@ def action_delete():
                 #nc.delete_instance(instance)
                 himutils.append_to_logfile(
                     logfile,
-                    date.today(),
+                    datetime.now(),
                     row.region,
                     f"Deleted instance: {instance.id}",
                     f"Project ID: {row.project_id}",
@@ -343,7 +343,7 @@ def notify_user(instance, project, region, active_days, notification_type):
     enddate = {
         'first'  : FIRST_NOTIFICATION,
         'second' : SECOND_NOTIFICATION,
-        'third'  : THIRD_NOTIFICATION,
+        'final'  : THIRD_NOTIFICATION,
     }
 
     mapping = {
@@ -351,7 +351,8 @@ def notify_user(instance, project, region, active_days, notification_type):
         'enddate'  : enddate[notification_type],
         'activity' : int(active_days),
         'region'   : region.upper(),
-        'instance' : instance.name
+        'instance' : instance.name,
+        'number'   : notification_type,
     }
     body_content = himutils.load_template(inputfile=template,
                                           mapping=mapping,
@@ -376,9 +377,9 @@ def notify_user(instance, project, region, active_days, notification_type):
         #kc.debug_log(f'Sending mail to {project.admin} regarding {instance.id} that has been active for {active_days} days')
         himutils.append_to_logfile(
             logfile,
-            date.today(),
+            datetime.now(),
             region,
-            f"Notification 1 to: {project.admin}",
+            f"{notification_type} notification to: {project.admin}",
             f"Instance name: {instance.name}",
             f"Active for: {active_days} days"
         )
@@ -414,12 +415,7 @@ def update_db(instance_id, project_id, region, **kwargs):
                                    instance_id=instance_id,
                                    project_id=project_id,
                                    region=region)
-    try:
-        db.update(existing_object, kwargs)
-    except:
-        p_error("Failed to update database")
-        return False
-
+    db.update(existing_object, kwargs)
     return True
 
 

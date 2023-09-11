@@ -1,7 +1,7 @@
 Dear NREC user,
 
-This is a reminder that your demo instance has almost reached its
-end date and will be deleted in $enddate days.
+This is the $number reminder that your demo instance has almost
+reached its end date and will be deleted in $enddate days.
 
   Project: $project
   Region: $region
