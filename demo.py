@@ -137,7 +137,8 @@ def action_instances():
             count += 1
             # Ignore if project is disabled
             if not is_project_enabled(project):
-                progbar.update(count)
+                #progbar.update(count)
+                progbar.next()
                 continue
             for region in regions:
                 nc = himutils.get_client(Nova, options, logger, region)
@@ -181,7 +182,8 @@ def action_instances():
                         n3,
                     ]
                     table.add_row(row)
-            progbar.update(count)
+            #progbar.update(count)
+            progbar.next()
     table.sortby = header[0]
     print(table)
 
