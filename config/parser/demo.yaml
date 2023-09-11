@@ -1,5 +1,5 @@
 ---
-desc:           'Helper script to move from personal project to demo.'
+desc:           'Automate policy for DEMO projects'
 actions:
   'projects':   'List all demo projects'
   'instances':  'List all instances in demo projects'
