@@ -294,6 +294,19 @@ def action_delete():
                 db.delete(row)
 
 
+# Remove entries from database that was created more than 180 days ago
+def action_cleandb():
+    rows = db.get_all(DemoInstance)
+    for row in rows:
+        created = row.created
+        if datetime.now() > created + timedelta(days=180):
+            if options.dry_run:
+                p_info(f"(dry-run) [{row.region}] [project_id={row.project_id}] Would clean instance {row.instance_id} from DB")
+            else:
+                p_info(f"[{row.region}] [project_id={row.project_id}] Cleaning instance {row.instance_id} from database")
+                db.delete(row)
+
+
 #---------------------------------------------------------------------
 # Helper functions
 #---------------------------------------------------------------------

@@ -5,6 +5,7 @@ actions:
   'instances':  'List all instances in demo projects'
   'expired':    'Notify demo project users about expired instances'
   'delete':     'Delete obsolete demo instances'
+  'cleandb':    'Clean database of stale entries'
 opt_args:
   '--domain':
     'dest':     'domain'
