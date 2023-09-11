@@ -265,7 +265,7 @@ def action_expired():
 #   - Z days since notification 3 was sent
 # NB! We only care about when notifications were sent when deciding to delete instances
 def action_delete():
-    question = f'Delete demo instances older than {days} days?'
+    question = f'Really delete expired demo instances?'
     if not options.force and not options.dry_run and not himutils.confirm_action(question):
         return
 
