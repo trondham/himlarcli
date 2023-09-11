@@ -206,7 +206,11 @@ def action_expired():
                 active_days = (date.today() - created).days
                 kc.debug_log(f'{instance.id} running for {active_days} days')
 
-                # Get existing db entry
+                # next instance if it's not yet time for notifications
+                if int(active_days) < (MAX_AGE - FIRST_NOTIFICATION):
+                    continue
+                
+                # Get existing db entry, if it exists
                 entry = db.get_first(DemoInstance,
                                      instance_id=instance.id,
                                      project_id=project.id,
@@ -223,8 +227,9 @@ def action_expired():
                         notify_user(instance, project, region, active_days, notification_type='first')
                         continue
 
+                # This shouldn't happen(?)
                 if entry is None:
-                    continue # this shouldn't happen
+                    continue
 
                 # Send second notification?
                 if entry.notified2 is None and datetime.now() > entry.notified1 + timedelta(days=(FIRST_NOTIFICATION - SECOND_NOTIFICATION)):
