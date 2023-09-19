@@ -65,17 +65,18 @@ def action_instances():
 
         # status color
         if i.status == 'ACTIVE':
-            status_color = f"{Color.fg.red}{Color.bold}"
+            status_color = f"{Color.fg.RED}{Color.bold}"
         elif i.status == 'SHUTOFF':
             status_color = Color.fg.GRN
         elif i.status == 'PAUSED':
-            status_color = Color.fg.blu
+            status_color = Color.fg.BLU
         else:
             status_color = Color.fg.YLW
 
         # project color
         if project is None:
-            project_name = f"{Color.fg.red}{Color.bold}None{Color.reset}"
+            #project_name = f"{Color.fg.red}None{Color.reset}"
+            project_name = Color.fg.red + "None" + Color.reset
         else:
             project_name = f"{Color.fg.cyn}{project.name}{Color.reset}"
             
