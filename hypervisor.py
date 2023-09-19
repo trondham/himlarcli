@@ -44,7 +44,7 @@ def action_instances():
     table.align[header[1]] = 'l'
     table.align[header[2]] = 'l'
     table.align[header[3]] = 'r'
-    table.align[header[4]] = 'c'
+    #table.align[header[4]] = 'c'
     table.align[header[5]] = 'l'
 
     host = nc.get_host(nc.get_fqdn(options.host))
@@ -63,9 +63,9 @@ def action_instances():
         created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
         active_days = (date.today() - created).days
         if i.status == 'ACTIVE':
-            status_color = f"{Color.bg.RED}{Color.fg.wht}{Color.bold}"
+            status_color = f"{Color.bg.BLK}{Color.fg.red}{Color.bold}"
         elif i.status == 'SHUTOFF':
-            status_color = f"{Color.bg.GRN}{Color.fg.BLK}"
+            status_color = f"{Color.bg.BLK}{Color.fg.grn}"
         else:
             status_color = Color.fg.YLW
         row = [
