@@ -69,7 +69,7 @@ def action_instances():
             f"{Color.fg.WHT}{project.name}{Color.reset}",
             active_days,
             f"{Color.fg.red}{i.status}{Color.reset}",
-            f"{Color.fg.WHT}{i.flavor['origina_name']}{Color.reset}",
+            f"{Color.fg.WHT}{i.flavor['original_name']}{Color.reset}",
         ]
         table.add_row(row)
         status['total'] += 1
