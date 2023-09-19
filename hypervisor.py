@@ -65,28 +65,27 @@ def action_instances():
 
         # status color
         if i.status == 'ACTIVE':
-            status_color = f"{Color.fg.RED}{Color.bold}"
+            instance_status = Color.fg.RED + Color.bold + i.status + Color.reset
         elif i.status == 'SHUTOFF':
-            status_color = Color.fg.GRN
+            instance_status = Color.fg.GRN + i.status + Color.reset
         elif i.status == 'PAUSED':
-            status_color = Color.fg.BLU
+            instance_status = Color.fg.BLU + i.status + Color.reset
         else:
-            status_color = Color.fg.YLW
+            instance_status = Color.fg.YLW + i.status + Color.reset
 
         # project color
         if project is None:
-            #project_name = f"{Color.fg.red}None{Color.reset}"
             project_name = Color.fg.red + "None" + Color.reset
         else:
-            project_name = f"{Color.fg.cyn}{project.name}{Color.reset}"
+            project_name = Color.fg.cyn + project.name + Color.reset
             
         row = [
-            f"{Color.dim}{i.id}{Color.reset}",
-            f"{Color.fg.GRN}{i.name}{Color.reset}",
+            Color.dim + i.id + Color.reset,
+            Color.fg.GRN + i.name + Color.reset,
             project_name,
             active_days,
-            f"{status_color}{i.status}{Color.reset}",
-            f"{Color.fg.WHT}{i.flavor['original_name']}{Color.reset}",
+            instance_status,
+            Color.fg.WHT + i.flavor['original_name'] + Color.reset,
         ]
         table.add_row(row)
         status['total'] += 1
