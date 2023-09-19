@@ -65,7 +65,7 @@ def action_instances():
 
         # status color
         if i.status == 'ACTIVE':
-            instance_status = Color.fg.RED + Color.bold + i.status + Color.reset
+            instance_status = Color.fg.RED + i.status + Color.reset
         elif i.status == 'SHUTOFF':
             instance_status = Color.fg.GRN + i.status + Color.reset
         elif i.status == 'PAUSED':
