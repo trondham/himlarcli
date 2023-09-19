@@ -65,7 +65,7 @@ def action_instances():
         if i.status == 'ACTIVE':
             status_color = Color.fg.red
         elif i.status == 'SHUTOFF':
-            status_color = Color.fg.dim
+            status_color = Color.dim
         else:
             status_color = Color.fg.blu
         row = [
