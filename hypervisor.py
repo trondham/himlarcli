@@ -55,9 +55,9 @@ def action_instances():
     printer.output_dict({'header': 'Instance list (id, name, status, updated)'})
     status = dict({'total': 0})
     for i in instances:
+        project = kc.get_by_id('project', i.tenant_id)
         # Filter for project type
         if options.type:
-            project = kc.get_by_id('project', i.tenant_id)
             if hasattr(project, 'type') and project.type != options.type:
                 status['type'] = options.type
                 continue
