@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 
+from datetime import date
+from prettytable import PrettyTable
+
 from himlarcli import tests as tests
 tests.is_virtual_env()
 
@@ -8,6 +11,7 @@ from himlarcli.nova import Nova
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
+from himlarcli.color import Color
 
 parser = Parser()
 options = parser.parse_args()
@@ -21,6 +25,28 @@ nc.set_dry_run(options.dry_run)
 
 
 def action_instances():
+    # Define pretty table
+    header = [
+        f"{Color.fg.MGN}{Color.bold}ID{Color.reset}",
+        f"{Color.fg.MGN}{Color.bold}NAME{Color.reset}",
+        f"{Color.fg.MGN}{Color.bold}PROJECT{Color.reset}",
+        f"{Color.fg.MGN}{Color.bold}AGE{Color.reset}",
+        f"{Color.fg.MGN}{Color.bold}STATUS{Color.reset}",
+        f"{Color.fg.MGN}{Color.bold}FLAVOR{Color.reset}",
+    ]
+    table = PrettyTable()
+    table._max_width = {'value' : 70}
+    table.border = 0
+    table.header = 1
+    table.left_padding_width = 2
+    table.field_names = header
+    table.align[header[0]] = 'l'
+    table.align[header[1]] = 'l'
+    table.align[header[2]] = 'l'
+    table.align[header[3]] = 'r'
+    table.align[header[4]] = 'l'
+    table.align[header[5]] = 'l'
+
     host = nc.get_host(nc.get_fqdn(options.host))
     if not host:
         himutils.sys_error('Could not find valid host %s' % options.host)
@@ -35,17 +61,21 @@ def action_instances():
             if hasattr(project, 'type') and project.type != options.type:
                 status['type'] = options.type
                 continue
-        output = {
-            '1': i.id,
-            '3': i.name,
-            '4': i.status,
-            #'2': i.updated,
-            #'6'': getattr(i, 'OS-EXT-SRV-ATTR:instance_name'),
-            '5': i.flavor['original_name']
-        }
-        printer.output_dict(output, sort=True, one_line=True)
+        created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
+        active_days = (date.today() - created).days
+        row = [
+            f"{Color.dim}{i.id}{Color.reset}",
+            f"{Color.fg.WHT}{i.name}{Color.reset}",
+            f"{Color.fg.WHT}{project.name}{Color.reset}",
+            active_days,
+            f"{Color.fg.red}{i.status}{Color.reset}",
+            f"{Color.fg.WHT}{i.flavor['origina_name']}{Color.reset}",
+        ]
+        table.add_row(row)
         status['total'] += 1
         status[str(i.status).lower()] = status.get(str(i.status).lower(), 0) + 1
+    table.sortby = header[3]
+    print(table)
     printer.output_dict({'header': 'Counts'})
     printer.output_dict(status)
 

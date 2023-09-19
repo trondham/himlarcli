@@ -16,7 +16,7 @@ from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
 from himlarcli.global_state import GlobalState, DemoInstance
-from himlarcli import Color
+from himlarcli.color import Color
 
 parser = Parser()
 options = parser.parse_args()
