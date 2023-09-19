@@ -75,7 +75,7 @@ def action_instances():
 
         # project color
         if project is None:
-            project_name = f"{Color.bg.RED}{Color.fg.wht}{Color.bold}  >>> UKNOWN <<<  {Color.reset}"
+            project_name = f"{Color.fg.red}{Color.bold}None{Color.reset}"
         else:
             project_name = f"{Color.fg.cyn}{project.name}{Color.reset}"
             
