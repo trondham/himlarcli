@@ -61,7 +61,7 @@ def action_instances():
             if hasattr(project, 'type') and project.type != options.type:
                 status['type'] = options.type
                 continue
-        created = himutils.get_date(instance.created, None, '%Y-%m-%dT%H:%M:%SZ')
+        created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
         active_days = (date.today() - created).days
         row = [
             f"{Color.dim}{i.id}{Color.reset}",
