@@ -62,19 +62,26 @@ def action_instances():
                 continue
         created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
         active_days = (date.today() - created).days
+        if i.status == 'ACTIVE':
+            status_color = Color.fg.red
+        elif i.status == 'SHUTOFF':
+            status_color = Color.fg.dim
+        else:
+            status_color = Color.fg.blu
         row = [
             f"{Color.dim}{i.id}{Color.reset}",
-            f"{Color.fg.WHT}{i.name}{Color.reset}",
-            f"{Color.fg.WHT}{project.name}{Color.reset}",
+            f"{Color.fg.GRN}{i.name}{Color.reset}",
+            f"{Color.fg.cyn}{project.name}{Color.reset}",
             active_days,
-            f"{Color.fg.red}{i.status}{Color.reset}",
+            f"{status_color}{i.status}{Color.reset}",
             f"{Color.fg.WHT}{i.flavor['original_name']}{Color.reset}",
         ]
         table.add_row(row)
         status['total'] += 1
         status[str(i.status).lower()] = status.get(str(i.status).lower(), 0) + 1
-    table.sortby = header[3]
+    table.sortby = header[2]  # sort by project name
     print(table)
+    print()
     printer.output_dict(status)
 
 
