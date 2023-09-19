@@ -44,7 +44,7 @@ def action_instances():
     table.align[header[1]] = 'l'
     table.align[header[2]] = 'l'
     table.align[header[3]] = 'r'
-    table.align[header[4]] = 'l'
+    table.align[header[4]] = 'c'
     table.align[header[5]] = 'l'
 
     host = nc.get_host(nc.get_fqdn(options.host))
@@ -65,7 +65,7 @@ def action_instances():
         if i.status == 'ACTIVE':
             status_color = f"{Color.bg.RED}{Color.fg.wht}{Color.bold}"
         elif i.status == 'SHUTOFF':
-            status_color = f"{Color.bg.grn}{Color.fg.WHT}"
+            status_color = f"{Color.bg.GRN}{Color.fg.BLK}"
         else:
             status_color = Color.fg.YLW
         row = [
