@@ -52,7 +52,6 @@ def action_instances():
         himutils.sys_error('Could not find valid host %s' % options.host)
     search_opts = dict(all_tenants=1, host=host.hypervisor_hostname)
     instances = nc.get_all_instances(search_opts=search_opts)
-    printer.output_dict({'header': 'Instance list (id, name, status, updated)'})
     status = dict({'total': 0})
     for i in instances:
         project = kc.get_by_id('project', i.tenant_id)
@@ -76,7 +75,6 @@ def action_instances():
         status[str(i.status).lower()] = status.get(str(i.status).lower(), 0) + 1
     table.sortby = header[3]
     print(table)
-    printer.output_dict({'header': 'Counts'})
     printer.output_dict(status)
 
 
