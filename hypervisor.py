@@ -62,6 +62,8 @@ def action_instances():
                 continue
         created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
         active_days = (date.today() - created).days
+
+        # status color
         if i.status == 'ACTIVE':
             status_color = f"{Color.fg.red}{Color.bold}"
         elif i.status == 'SHUTOFF':
@@ -70,10 +72,17 @@ def action_instances():
             status_color = Color.fg.blu
         else:
             status_color = Color.fg.YLW
+
+        # project color
+        if project is None:
+            project_name = f"{Color.stk}UKNOWN{Color.reset}"
+        else:
+            project_name = f"{Color.fg.cyn}{project.name}{Color.reset}"
+            
         row = [
             f"{Color.dim}{i.id}{Color.reset}",
             f"{Color.fg.GRN}{i.name}{Color.reset}",
-            f"{Color.fg.cyn}{project.name}{Color.reset}",
+            project_name,
             active_days,
             f"{status_color}{i.status}{Color.reset}",
             f"{Color.fg.WHT}{i.flavor['original_name']}{Color.reset}",
