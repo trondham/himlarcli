@@ -132,7 +132,7 @@ class Printer(object):
         table.header = 1
         table.field_names = objects[0]
 
-        for k,v in objects:
+        for k,v in objects.items():
             if k == 0:
                 continue
             table.add_row(v)
