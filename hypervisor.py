@@ -138,6 +138,7 @@ def action_list():
     else:
         hosts = nc.get_aggregate_hosts(options.aggregate, True)
     if options.format == 'table':
+        output = {}
         header = [
             'NAME',
             'AGGREGATE',
@@ -147,19 +148,19 @@ def action_list():
             'STATE',
             'STATUS',
         ]
-        output = [ header ]
+        output[0] = header
+        counter = 1
         for host in hosts:
-            output.append(
-                [
-                    host.hypervisor_hostname,
-                    aggregates.get(host.hypervisor_hostname, 'unknown'),
-                    host.running_vms,
-                    host.vcpus_used,
-                    int(host.memory_mb_used/1024),
-                    host.state,
-                    host.status,
-                ]
-            )
+            output[counter] = [
+                host.hypervisor_hostname,
+                aggregates.get(host.hypervisor_hostname, 'unknown'),
+                host.running_vms,
+                host.vcpus_used,
+                int(host.memory_mb_used/1024),
+                host.state,
+                host.status,
+            ]
+            counter += 1
         printer.output_dict(output, sort=True, one_line=False)
     else:
         header = {'header': 'Hypervisor list (name, aggregate, vms, vcpu_used,' +

@@ -132,7 +132,7 @@ class Printer(object):
         table.header = 1
         table.field_names = objects[0]
 
-        for l in objects:
+        for l in objects[1::]:
             table.add_row(l)
         print(table)
 
