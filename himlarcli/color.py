@@ -21,7 +21,7 @@ class Color:
 
     class fg:
         # Foreground colors
-        TTY = super().TTY
+        TTY = super.TTY
 
         # Base color
         BLK = '\033[30m' if TTY else ''
