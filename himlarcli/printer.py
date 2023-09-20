@@ -124,7 +124,6 @@ class Printer(object):
 
     @staticmethod
     def __dict_to_table(objects, order_by=0, sort=False, one_line=False):
-        print(objects)
         table = PrettyTable()
         table._max_width = {'value' : 70}
         table.border = 0
