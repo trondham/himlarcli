@@ -77,12 +77,8 @@ class Printer(object):
         else:
             sorted_objects = objects.items()
         if 'header' in objects:
-            if isinstance(objects['header'], list):
-                my_header = objects['header'][0] + ' (' + ', '.join(objects['header'][1::1]) + ')'
-            else:
-                my_header = objects['header']
             print("".ljust(80, "="))
-            print("  %s" % my_header.ljust(76))
+            print("  %s" % objects['header'].ljust(76))
             print("".ljust(80, "="))
         out_line = str()
         for k, v in sorted_objects:
