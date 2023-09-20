@@ -4,6 +4,7 @@ from himlarcli.cinder import Cinder
 from himlarcli.designate import Designate
 from himlarcli.glance import Glance
 from himlarcli import utils
+from himlarcli.color import Color
 from prettytable import PrettyTable
 import re
 import json
