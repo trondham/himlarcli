@@ -120,6 +120,9 @@ class Printer(object):
 
     @staticmethod
     def __dict_to_table(objects):
+        if not objects.hasitem('table'):
+            utils.fatal("Table output not support for this action")
+
         table = PrettyTable()
         table._max_width = {'value' : 70}
         table.border = 0
