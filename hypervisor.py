@@ -30,7 +30,7 @@ def action_instances():
         himutils.sys_error('Could not find valid host %s' % options.host)
     search_opts = dict(all_tenants=1, host=host.hypervisor_hostname)
     instances = nc.get_all_instances(search_opts=search_opts)
-    #status = dict({'total': 0})
+
     if options.format == 'table':
         output = {}
         output['header'] = [
@@ -89,7 +89,7 @@ def action_instances():
         printer.output_dict(output, sort=True, one_line=False)
     else:
         printer.output_dict({'header': 'Instance list (id, name, status, updated)'})
-        status = dict({'total': 0})
+        status = {'total': 0}
         for i in instances:
             # Filter for project type
             if options.type:

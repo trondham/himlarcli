@@ -139,7 +139,7 @@ class Printer(object):
             table.align[header[i]] = objects['align'][i]
 
         for k,v in objects.items():
-            if k == 'header' or k == 'align' or k == 'sortby':
+            if not isinstance(k, int):
                 continue
             table.add_row(v)
 
