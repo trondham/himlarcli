@@ -152,6 +152,7 @@ class Printer(object):
                 else:
                     value = v
                 print("%s = %s" % (k, value))
+        print(table)
         if out_line:
             print(out_line.strip())
 
