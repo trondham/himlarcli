@@ -20,7 +20,7 @@ class Color:
     stk   = '\033[09m'  if __HAVE_TTY else '' # Strikethrough
     inv   = '\033[08m'  if __HAVE_TTY else '' # Invisible
 
-    class fg: # Foreground colors
+    class fg: # Foreground color
         
         # Check if we are on a TTY
         if sys.stdout.isatty():
