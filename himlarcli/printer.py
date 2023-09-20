@@ -42,7 +42,7 @@ class Printer(object):
         if self.format == 'text':
             self.__dict_to_text(objects=objects, sort=sort, one_line=one_line)
         elif self.format == 'table':
-            self.__dict_to_table(objects=objects, sort=sort, one_line=one_line)
+            self.__dict_to_table(objects=objects)
         elif self.format == 'json':
             self.__dict_to_json(objects=objects, sort=sort)
         elif self.format == 'csv':
@@ -119,7 +119,7 @@ class Printer(object):
             writer.writerow(sorted_objects)
 
     @staticmethod
-    def __dict_to_table(objects, order_by=0, sort=False, one_line=False):
+    def __dict_to_table(objects):
         table = PrettyTable()
         table._max_width = {'value' : 70}
         table.border = 0
