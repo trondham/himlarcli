@@ -25,75 +25,91 @@ nc.set_dry_run(options.dry_run)
 
 
 def action_instances():
-    # Define pretty table
-    header = [
-        f"{Color.fg.MGN}{Color.bold}ID{Color.reset}",
-        f"{Color.fg.MGN}{Color.bold}NAME{Color.reset}",
-        f"{Color.fg.MGN}{Color.bold}PROJECT{Color.reset}",
-        f"{Color.fg.MGN}{Color.bold}AGE{Color.reset}",
-        f"{Color.fg.MGN}{Color.bold}STATUS{Color.reset}",
-        f"{Color.fg.MGN}{Color.bold}FLAVOR{Color.reset}",
-    ]
-    table = PrettyTable()
-    table._max_width = {'value' : 70}
-    table.border = 0
-    table.header = 1
-    table.left_padding_width = 2
-    table.field_names = header
-    table.align[header[0]] = 'l'
-    table.align[header[1]] = 'l'
-    table.align[header[2]] = 'l'
-    table.align[header[3]] = 'r'
-    table.align[header[4]] = 'l'
-    table.align[header[5]] = 'l'
-
     host = nc.get_host(nc.get_fqdn(options.host))
     if not host:
         himutils.sys_error('Could not find valid host %s' % options.host)
     search_opts = dict(all_tenants=1, host=host.hypervisor_hostname)
     instances = nc.get_all_instances(search_opts=search_opts)
-    status = dict({'total': 0})
-    for i in instances:
-        project = kc.get_by_id('project', i.tenant_id)
-        # Filter for project type
-        if options.type:
-            if hasattr(project, 'type') and project.type != options.type:
-                status['type'] = options.type
-                continue
-        created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
-        active_days = (date.today() - created).days
-
-        # status color
-        if i.status == 'ACTIVE':
-            instance_status = Color.fg.red + i.status + Color.reset
-        elif i.status == 'SHUTOFF':
-            instance_status = Color.fg.GRN + i.status + Color.reset
-        elif i.status == 'PAUSED':
-            instance_status = Color.fg.BLU + i.status + Color.reset
-        else:
-            instance_status = Color.fg.YLW + i.status + Color.reset
-
-        # project color
-        if project is None:
-            project_name = Color.fg.red + "None" + Color.reset
-        else:
-            project_name = Color.fg.cyn + project.name + Color.reset
-            
-        row = [
-            Color.dim + i.id + Color.reset,
-            Color.fg.GRN + i.name + Color.reset,
-            project_name,
-            active_days,
-            instance_status,
-            Color.fg.WHT + i.flavor['original_name'] + Color.reset,
+    #status = dict({'total': 0})
+    if options.format == 'table':
+        output = {}
+        output['header'] = [
+            'ID',
+            'NAME',
+            'PROJECT',
+            'AGE',
+            'STATUS',
+            'FLAVOR',
         ]
-        table.add_row(row)
-        status['total'] += 1
-        status[str(i.status).lower()] = status.get(str(i.status).lower(), 0) + 1
-    table.sortby = header[2]  # sort by project name
-    print(table)
-    print()
-    printer.output_dict(status)
+        output['align'] = [
+            'l',
+            'l',
+            'l',
+            'r',
+            'l',
+            'l',
+        ]
+        output['sortby'] = 2
+        counter = 0
+        for i in instances:
+            project = kc.get_by_id('project', i.tenant_id)
+            # Filter for project type
+            if options.type:
+                if hasattr(project, 'type') and project.type != options.type:
+                    status['type'] = options.type
+                    continue
+            created = himutils.get_date(i.created, None, '%Y-%m-%dT%H:%M:%SZ')
+            active_days = (date.today() - created).days
+
+            # status color
+            if i.status == 'ACTIVE':
+                instance_status = Color.fg.red + i.status + Color.reset
+            elif i.status == 'SHUTOFF':
+                instance_status = Color.fg.GRN + i.status + Color.reset
+            elif i.status == 'PAUSED':
+                instance_status = Color.fg.BLU + i.status + Color.reset
+            else:
+                instance_status = Color.fg.YLW + i.status + Color.reset
+
+            # project color
+            if project is None:
+                project_name = Color.fg.red + "None" + Color.reset
+            else:
+                project_name = Color.fg.cyn + project.name + Color.reset
+            
+            output[counter] = [
+                Color.dim + i.id + Color.reset,
+                Color.fg.GRN + i.name + Color.reset,
+                project_name,
+                active_days,
+                instance_status,
+                Color.fg.WHT + i.flavor['original_name'] + Color.reset,
+            ]
+            counter += 1
+        printer.output_dict(output, sort=True, one_line=False)
+    else:
+        printer.output_dict({'header': 'Instance list (id, name, status, updated)'})
+        status = dict({'total': 0})
+        for i in instances:
+            # Filter for project type
+            if options.type:
+                project = kc.get_by_id('project', i.tenant_id)
+                if hasattr(project, 'type') and project.type != options.type:
+                    status['type'] = options.type
+                    continue
+            output = {
+                '1': i.id,
+                '3': i.name,
+                '4': i.status,
+                #'2': i.updated,
+                #'6'': getattr(i, 'OS-EXT-SRV-ATTR:instance_name'),
+                '5': i.flavor['original_name']
+            }
+            printer.output_dict(output, sort=True, one_line=True)
+            status['total'] += 1
+            status[str(i.status).lower()] = status.get(str(i.status).lower(), 0) + 1
+        printer.output_dict({'header': 'Counts'})
+        printer.output_dict(status)
 
 
 def action_show():
