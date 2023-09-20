@@ -19,11 +19,15 @@ class Color:
     stk   = '\033[09m' if TTY else ''  # Strikethrough
     inv   = '\033[08m' if TTY else ''  # Invisible
 
-    class fg(Color):
+    class fg:
         # Foreground colors
+        if sys.stdout.isatty():
+            TTY = True
+        else:
+            TTY = False
 
         # Base color
-        BLK = '\033[30m' if Color.TTY else ''
+        BLK = '\033[30m' if TTY else ''
         RED = '\033[31m' if TTY else ''
         GRN = '\033[32m' if TTY else ''
         YLW = '\033[33m' if TTY else ''
@@ -44,6 +48,10 @@ class Color:
 
     class bg:
         # Background color
+        if sys.stdout.isatty():
+            TTY = True
+        else:
+            TTY = False
 
         # Base color
         BLK = '\033[40m' if TTY else '' # Black
