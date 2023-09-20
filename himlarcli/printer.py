@@ -124,6 +124,7 @@ class Printer(object):
 
     @staticmethod
     def __dict_to_table(objects, order_by=0, sort=False, one_line=False):
+        print(objects)
         if sort:
             sorted_objects = sorted(objects.items(), key=operator.itemgetter(order_by))
         else:
@@ -138,7 +139,7 @@ class Printer(object):
             for h in objects['header'][1::1]:
                 my_header.append(Color.fg.MGN + Color.bold + h + Color.reset)
             table.header = 1
-            table.field_names = objects['header'][1::1]
+            table.field_names = my_header
 
         out_line = str()
         for k, v in sorted_objects:
