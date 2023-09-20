@@ -76,7 +76,7 @@ def action_instances():
                 project_name = Color.fg.red + "None" + Color.reset
             else:
                 project_name = Color.fg.cyn + project.name + Color.reset
-            
+
             output[counter] = [
                 Color.dim + i.id + Color.reset,
                 Color.fg.GRN + i.name + Color.reset,
@@ -159,7 +159,7 @@ def action_list():
             'NAME',
             'AGGREGATE',
             'VMs',
-            'vCPU_USED',
+            'vCPU USED',
             'RAM GB USED',
             'STATE',
             'STATUS',
