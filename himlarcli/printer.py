@@ -123,7 +123,7 @@ class Printer(object):
             writer.writerow(sorted_objects)
 
     @staticmethod
-    def __dict_to_table(objects, order_by=0, sort=True, one_line=False):
+    def __dict_to_table(objects, order_by=0, sort=False, one_line=False):
         if sort:
             sorted_objects = sorted(objects.items(), key=operator.itemgetter(order_by))
         else:
@@ -147,14 +147,15 @@ class Printer(object):
             elif isinstance(v, list):
                 print("foo")
                 table.add_row(v[1::1])
-            elif one_line:
-                out_line += '%s ' % v
+#            elif one_line:
+#                out_line += '%s ' % v
             else:
                 if isinstance(v, int) or isinstance(v, float):
                     value = '{:n}'.format(v)
                 else:
                     value = v
-                print("%s = %s" % (k, value))
+                table.add_row(v[1::1])
+                #print("%s = %s" % (k, value))
         print(table)
         if out_line:
             print(out_line.strip())
