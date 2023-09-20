@@ -2,31 +2,28 @@ import sys
 
 class Color:
 
-    def __init__(self):
-        if sys.stdout.isatty():
-            self.tty = True
-        else:
-            self.tty = False
+    if sys.stdout.isatty():
+        TTY = True
+    else:
+        TTY = False
 
     # General effects
-    reset = '\033[0m' if tty else ''   # Default color and effects
-    bold  = '\033[1m' if self.tty else ''   # Bold/brighter
-    dim   = '\033[2m' if self.tty else ''   # Dim/darker
-    cur   = '\033[3m' if self.tty else ''   # Italic font
-    und   = '\033[4m' if self.tty else ''   # Underline
-    rev   = '\033[7m' if self.tty else ''   # Reverse/Inverted
-    cof   = '\033[?25l' if self.tty else '' # Cursor Off
-    con   = '\033[?25h' if self.tty else '' # Cursor On
-    stk   = '\033[09m' if self.tty else ''  # Strikethrough
-    inv   = '\033[08m' if self.tty else ''  # Invisible
+    reset = '\033[0m' if TTY else ''   # Default color and effects
+    bold  = '\033[1m' if TTY else ''   # Bold/brighter
+    dim   = '\033[2m' if TTY else ''   # Dim/darker
+    cur   = '\033[3m' if TTY else ''   # Italic font
+    und   = '\033[4m' if TTY else ''   # Underline
+    rev   = '\033[7m' if TTY else ''   # Reverse/Inverted
+    cof   = '\033[?25l' if TTY else '' # Cursor Off
+    con   = '\033[?25h' if TTY else '' # Cursor On
+    stk   = '\033[09m' if TTY else ''  # Strikethrough
+    inv   = '\033[08m' if TTY else ''  # Invisible
 
-    class fg:
+    class fg(Color):
         # Foreground colors
-        def __init__(self):
-            self.tty = super().tty
 
         # Base color
-        BLK = '\033[30m' if self.tty else ''
+        BLK = '\033[30m' if Color.TTY else ''
         RED = '\033[31m' if TTY else ''
         GRN = '\033[32m' if TTY else ''
         YLW = '\033[33m' if TTY else ''
