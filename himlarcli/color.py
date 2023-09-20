@@ -2,7 +2,10 @@ import sys
 
 class Color:
 
-    TTY = True if sys.stdout.isatty() else False
+    if sys.stdout.isatty():
+        TTY = True
+    else:
+        TTY = False
 
     # General effects
     reset = '\033[0m' if self.TTY else ''   # Default color and effects
