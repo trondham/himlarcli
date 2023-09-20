@@ -9,7 +9,7 @@ class Color:
             self.tty = False
 
     # General effects
-    reset = '\033[0m' if self.tty else ''   # Default color and effects
+    reset = '\033[0m' if tty else ''   # Default color and effects
     bold  = '\033[1m' if self.tty else ''   # Bold/brighter
     dim   = '\033[2m' if self.tty else ''   # Dim/darker
     cur   = '\033[3m' if self.tty else ''   # Italic font
