@@ -166,7 +166,7 @@ def action_list():
                 host.vcpus_used,
                 int(host.memory_mb_used/1024),
                 Color.fg.GRN + host.state.upper() + Color.reset if host.state == 'up' else Color.fg.red + host.state.upper() + Color.reset,
-                host.status,
+                Color.fg.GRN + host.status.upper() + Color.reset if host.status == 'enabled' else Color.fg.red + host.status.upper() + Color.reset,
             ]
             counter += 1
         printer.output_dict(output, sort=True, one_line=False)
