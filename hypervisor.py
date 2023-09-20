@@ -137,32 +137,45 @@ def action_list():
         hosts = nc.get_hosts()
     else:
         hosts = nc.get_aggregate_hosts(options.aggregate, True)
-#    header = {'header': 'Hypervisor list (name, aggregate, vms, vcpu_used,' +
-#                        'ram_gb_used, state, status)'}
-    header = {
-        'header': [
-            'Hypervisor list',
-            'name',
-            'aggregate',
-            'vms',
-            'vcpu_used',
-            'ram_gb_used',
-            'state',
-            'status',
+    if options.format == 'table':
+        header = [
+            'NAME',
+            'AGGREGATE',
+            'VMs',
+            'vCPU_USED',
+            'RAM GB USED',
+            'STATE',
+            'STATUS',
         ]
-    }
-    printer.output_dict(header)
-    for host in hosts:
-        output = {
-            '1': host.hypervisor_hostname,
-            '6': host.state,
-            '7': host.status,
-            '3': host.running_vms,
-            '4': host.vcpus_used,
-            '5': int(host.memory_mb_used/1024),
-            '2': aggregates.get(host.hypervisor_hostname, 'unknown')
-        }
-        printer.output_dict(output, sort=True, one_line=True)
+        output = [ header ]
+        for host in hosts:
+            output.append(
+                [
+                    host.hypervisor_hostname,
+                    aggregates.get(host.hypervisor_hostname, 'unknown')
+                    host.running_vms,
+                    host.vcpus_used,
+                    int(host.memory_mb_used/1024),
+                    host.state,
+                    host.status,
+                ]
+            )
+        printer.output_dict(output, sort=True, one_line=False)
+    else:
+        header = {'header': 'Hypervisor list (name, aggregate, vms, vcpu_used,' +
+                  'ram_gb_used, state, status)'}
+        printer.output_dict(header)
+        for host in hosts:
+            output = {
+                '1': host.hypervisor_hostname,
+                '6': host.state,
+                '7': host.status,
+                '3': host.running_vms,
+                '4': host.vcpus_used,
+                '5': int(host.memory_mb_used/1024),
+                '2': aggregates.get(host.hypervisor_hostname, 'unknown')
+            }
+            printer.output_dict(output, sort=True, one_line=True)
 
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)

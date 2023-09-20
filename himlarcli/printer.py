@@ -125,42 +125,16 @@ class Printer(object):
     @staticmethod
     def __dict_to_table(objects, order_by=0, sort=False, one_line=False):
         print(objects)
-        if sort:
-            sorted_objects = sorted(objects.items(), key=operator.itemgetter(order_by))
-        else:
-            sorted_objects = objects.items()
-
         table = PrettyTable()
         table._max_width = {'value' : 70}
         table.border = 0
         table.left_padding_width = 2
-        if 'header' in objects and isinstance(objects['header'], list):
-            my_header = []
-            for h in objects['header'][1::1]:
-                my_header.append(Color.fg.MGN + Color.bold + h + Color.reset)
-            table.header = 1
-            table.field_names = my_header
+        table.header = 1
+        table.field_names = objects[0]
 
-        out_line = str()
-        for k, v in sorted_objects:
-            if k == 'header':
-                continue
-            elif isinstance(v, list):
-                print("foo")
-                table.add_row(v[1::1])
-#            elif one_line:
-#                out_line += '%s ' % v
-            else:
-                if isinstance(v, int) or isinstance(v, float):
-                    value = '{:n}'.format(v)
-                else:
-                    value = v
-                #table.add_row(v)
-                print(f"foo = {v}")
-                #print("%s = %s" % (k, value))
+        for l in objects:
+            table.add_row(l])
         print(table)
-        if out_line:
-            print(out_line.strip())
 
     @staticmethod
     def log_error(msg, code=0):
