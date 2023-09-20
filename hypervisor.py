@@ -176,14 +176,32 @@ def action_list():
         output['sortby'] = 0
         counter = 0
         for host in hosts:
+            if host.status == 'enabled':
+                r_hostname = Color.fg.blu + host.hypervisor_hostname + Color.reset
+                r_aggregate = Color.fg.ylw + aggregates.get(host.hypervisor_hostname, 'unknown') + Color.reset
+                r_vms = host.running_vms
+                r_vcpus = host.vcpus_used
+                r_mem = int(host.memory_mb_used/1024)
+                r_status = Color.fg.GRN + host.status.upper() + Color.reset
+            else:
+                r_hostname = Color.fg.BLU + host.hypervisor_hostname + Color.reset
+                r_aggregate = Color.fg.YLW + aggregates.get(host.hypervisor_hostname, 'unknown') + Color.reset
+                r_vms = Color.dim + host.running_vms + Color.reset
+                r_vcpus = Color.dim + host.vcpus_used + Color.reset
+                r_mem = Color.dim + int(host.memory_mb_used/1024) + Color.reset
+                r_status = Color.fg.red + host.state.upper() + Color.reset
+            if host.state == 'up':
+                r_state = Color.fg.GRN + host.state.upper() + Color.reset
+            else:
+                r_state = Color.fg.red + host.status.upper() + Color.reset
             output[counter] = [
-                Color.fg.blu + host.hypervisor_hostname + Color.reset,
-                Color.fg.YLW + aggregates.get(host.hypervisor_hostname, 'unknown') + Color.reset,
-                host.running_vms,
-                host.vcpus_used,
-                int(host.memory_mb_used/1024),
-                Color.fg.GRN + host.state.upper() + Color.reset if host.state == 'up' else Color.fg.red + host.state.upper() + Color.reset,
-                Color.fg.GRN + host.status.upper() + Color.reset if host.status == 'enabled' else Color.fg.red + host.status.upper() + Color.reset,
+                r_hostname,
+                r_aggregate,
+                r_vms,
+                r_vcpus,
+                r_mem,
+                r_state,
+                r_status,
             ]
             counter += 1
         printer.output_dict(output, sort=True, one_line=False)
