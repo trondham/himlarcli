@@ -154,7 +154,8 @@ class Printer(object):
                     value = '{:n}'.format(v)
                 else:
                     value = v
-                table.add_row(v)
+                #table.add_row(v)
+                print(v)
                 #print("%s = %s" % (k, value))
         print(table)
         if out_line:
