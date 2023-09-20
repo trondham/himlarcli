@@ -127,17 +127,16 @@ class Printer(object):
         table.header = 1
 
         header = []
-        for h in objects['header']:
-            header.append( Color.fg.MGN + Color.bold + h + Color.reset )
+        for string in objects['header']:
+            header.append( Color.fg.MGN + Color.bold + string + Color.reset )
         table.field_names = header
 
         for i in range(0,len(header),1):
             table.align[header[i]] = objects['align'][i]
 
         for k,v in objects.items():
-            if not isinstance(k, int):
-                continue
-            table.add_row(v)
+            if isinstance(k, int):
+                table.add_row(v)
 
         table.sortby = header[objects['sortby']]
         print(table)
