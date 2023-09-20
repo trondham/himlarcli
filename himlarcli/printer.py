@@ -17,7 +17,7 @@ locale.setlocale(locale.LC_ALL, 'en_DK.UTF-8')
 
 class Printer(object):
 
-    VALID_OPTIONS = ['text', 'json', 'csv']
+    VALID_OPTIONS = ['text', 'table', 'json', 'csv']
     INDENT = 2
 
     def __init__(self, output_format):
@@ -39,6 +39,8 @@ class Printer(object):
             self.log_error('cannot output dict in printer. wrong object type')
             return
         if self.format == 'text':
+            self.__dict_to_text(objects=objects, sort=sort, one_line=one_line)
+        elif self.format == 'table':
             self.__dict_to_text(objects=objects, sort=sort, one_line=one_line)
         elif self.format == 'json':
             self.__dict_to_json(objects=objects, sort=sort)
@@ -125,18 +127,23 @@ class Printer(object):
             sorted_objects = sorted(objects.items(), key=operator.itemgetter(order_by))
         else:
             sorted_objects = objects.items()
-        if 'header' in objects:
-            print("".ljust(80, "="))
-            print("  %s" % objects['header'].ljust(76))
-            print("".ljust(80, "="))
+
+        table = PrettyTable()
+        table._max_width = {'value' : 70}
+        table.border = 0
+        table.header = 1
+        table.left_padding_width = 2
+        if 'header' in objects and isinstance(objects['header'], list):
+            for h in objects['header'][1::1]:
+                objects['header'][h] = Color.fg.MGN + Color.bold + objects['header'][h] + Color.reset
+            table.field_names = objects['header'][1::1]
+
         out_line = str()
         for k, v in sorted_objects:
             if k == 'header':
                 continue
             elif isinstance(v, list):
-                print('%s =' % k)
-                for i in v:
-                    print("  %s" % i)
+                table.add_row(v)
             elif one_line:
                 out_line += '%s ' % v
             else:
