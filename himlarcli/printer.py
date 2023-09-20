@@ -155,7 +155,7 @@ class Printer(object):
                 else:
                     value = v
                 #table.add_row(v)
-                print(v)
+                print(f"foo = {v}")
                 #print("%s = %s" % (k, value))
         print(table)
         if out_line:
