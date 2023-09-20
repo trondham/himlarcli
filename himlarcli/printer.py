@@ -41,7 +41,7 @@ class Printer(object):
         if self.format == 'text':
             self.__dict_to_text(objects=objects, sort=sort, one_line=one_line)
         elif self.format == 'table':
-            self.__dict_to_text(objects=objects, sort=sort, one_line=one_line)
+            self.__dict_to_table(objects=objects, sort=sort, one_line=one_line)
         elif self.format == 'json':
             self.__dict_to_json(objects=objects, sort=sort)
         elif self.format == 'csv':
