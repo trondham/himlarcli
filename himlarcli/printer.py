@@ -129,7 +129,11 @@ class Printer(object):
         table.border = 0
         table.left_padding_width = 2
         table.header = 1
-        table.field_names = objects['header']
+
+        header = []
+        for h in objects['header']:
+            header = Color.fg.MGN + Color.bold + h + Color.reset
+        table.field_names = header
 
         for i in range(0,len(objects[0]),1):
             table.align[objects['header'][i]] = objects['align'][i]
