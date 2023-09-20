@@ -135,8 +135,9 @@ class Printer(object):
         table.header = 1
         table.left_padding_width = 2
         if 'header' in objects and isinstance(objects['header'], list):
+            my_header = []
             for h in objects['header'][1::1]:
-                objects['header'][h] = Color.fg.MGN + Color.bold + h + Color.reset
+                my_header.append(Color.fg.MGN + Color.bold + h + Color.reset)
             table.field_names = objects['header'][1::1]
 
         out_line = str()
@@ -144,7 +145,7 @@ class Printer(object):
             if k == 'header':
                 continue
             elif isinstance(v, list):
-                table.add_row(v)
+                table.add_row(v[1::1])
             elif one_line:
                 out_line += '%s ' % v
             else:
