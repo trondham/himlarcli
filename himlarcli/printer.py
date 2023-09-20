@@ -135,8 +135,8 @@ class Printer(object):
             header.append( Color.fg.MGN + Color.bold + h + Color.reset )
         table.field_names = header
 
-        for i in range(0,len(objects[0]),1):
-            table.align[objects['header'][i]] = objects['align'][i]
+        for i in range(0,len(header),1):
+            table.align[header[i]] = objects['align'][i]
 
         for k,v in objects.items():
             if k == 'header' or k == 'align':
