@@ -152,7 +152,7 @@ def action_list():
             output.append(
                 [
                     host.hypervisor_hostname,
-                    aggregates.get(host.hypervisor_hostname, 'unknown')
+                    aggregates.get(host.hypervisor_hostname, 'unknown'),
                     host.running_vms,
                     host.vcpus_used,
                     int(host.memory_mb_used/1024),
