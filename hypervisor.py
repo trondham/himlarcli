@@ -181,14 +181,14 @@ def action_list():
                 r_aggregate = Color.fg.ylw + aggregates.get(host.hypervisor_hostname, 'unknown') + Color.reset
                 r_vms = host.running_vms
                 r_vcpus = host.vcpus_used
-                r_mem = int(host.memory_mb_used/1024)
+                r_mem = host.memory_mb_used/1024
                 r_status = Color.fg.GRN + host.status.upper() + Color.reset
             else:
                 r_hostname = Color.fg.BLU + host.hypervisor_hostname + Color.reset
                 r_aggregate = Color.fg.YLW + aggregates.get(host.hypervisor_hostname, 'unknown') + Color.reset
-                r_vms = Color.dim + host.running_vms + Color.reset
-                r_vcpus = Color.dim + host.vcpus_used + Color.reset
-                r_mem = Color.dim + int(host.memory_mb_used/1024) + Color.reset
+                r_vms = Color.dim + str(host.running_vms) + Color.reset
+                r_vcpus = Color.dim + str(host.vcpus_used) + Color.reset
+                r_mem = Color.dim + str(host.memory_mb_used/1024) + Color.reset
                 r_status = Color.fg.red + host.state.upper() + Color.reset
             if host.state == 'up':
                 r_state = Color.fg.GRN + host.state.upper() + Color.reset
