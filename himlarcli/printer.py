@@ -120,7 +120,7 @@ class Printer(object):
 
     @staticmethod
     def __dict_to_table(objects):
-        if not objects.hasitem('table'):
+        if not hasattr(objects, 'table'):
             utils.fatal("Table output not support for this action")
 
         table = PrettyTable()
