@@ -157,6 +157,7 @@ def action_list():
             'l',
             'l',
         ]
+        output['sortby'] = 0
         counter = 0
         for host in hosts:
             output[counter] = [
