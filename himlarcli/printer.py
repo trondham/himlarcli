@@ -132,7 +132,7 @@ class Printer(object):
 
         header = []
         for h in objects['header']:
-            header = Color.fg.MGN + Color.bold + h + Color.reset
+            header.append( Color.fg.MGN + Color.bold + h + Color.reset )
         table.field_names = header
 
         for i in range(0,len(objects[0]),1):
