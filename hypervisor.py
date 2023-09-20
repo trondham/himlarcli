@@ -165,7 +165,7 @@ def action_list():
                 host.running_vms,
                 host.vcpus_used,
                 int(host.memory_mb_used/1024),
-                host.state,
+                Color.fg.GRN + host.state.upper() + Color.reset if host.state == 'up' else Color.fg.red + host.state.upper() + Color.reset,
                 host.status,
             ]
             counter += 1
