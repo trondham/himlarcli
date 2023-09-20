@@ -137,8 +137,20 @@ def action_list():
         hosts = nc.get_hosts()
     else:
         hosts = nc.get_aggregate_hosts(options.aggregate, True)
-    header = {'header': 'Hypervisor list (name, aggregate, vms, vcpu_used,' +
-                        'ram_gb_used, state, status)'}
+#    header = {'header': 'Hypervisor list (name, aggregate, vms, vcpu_used,' +
+#                        'ram_gb_used, state, status)'}
+    header = {
+        'header': [
+            'Hypervisor list',
+            'name',
+            'aggregate',
+            'vms',
+            'vcpu_used',
+            'ram_gb_used',
+            'state',
+            'status',
+        ]
+    }
     printer.output_dict(header)
     for host in hosts:
         output = {

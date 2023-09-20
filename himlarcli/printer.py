@@ -116,6 +116,35 @@ class Printer(object):
             writer.writerow(sorted_objects)
 
     @staticmethod
+    def __dict_to_table(objects, order_by=0, sort=True, one_line=False):
+        if sort:
+            sorted_objects = sorted(objects.items(), key=operator.itemgetter(order_by))
+        else:
+            sorted_objects = objects.items()
+        if 'header' in objects:
+            print("".ljust(80, "="))
+            print("  %s" % objects['header'].ljust(76))
+            print("".ljust(80, "="))
+        out_line = str()
+        for k, v in sorted_objects:
+            if k == 'header':
+                continue
+            elif isinstance(v, list):
+                print('%s =' % k)
+                for i in v:
+                    print("  %s" % i)
+            elif one_line:
+                out_line += '%s ' % v
+            else:
+                if isinstance(v, int) or isinstance(v, float):
+                    value = '{:n}'.format(v)
+                else:
+                    value = v
+                print("%s = %s" % (k, value))
+        if out_line:
+            print(out_line.strip())
+
+    @staticmethod
     def log_error(msg, code=0):
         sys.stderr.write("%s\n" % msg)
         if code > 0:
