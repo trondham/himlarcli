@@ -130,7 +130,10 @@ class Printer(object):
         table.border = 0
         table.left_padding_width = 2
         table.header = 1
-        table.field_names = objects[0]
+        table.field_names = objects['header']
+
+        for i in range(0,len(objects[0]),1):
+            table.align[objects['header'][i]] = objects['align'][i]
 
         for k,v in objects.items():
             if k == 0:
