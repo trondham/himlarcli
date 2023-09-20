@@ -136,7 +136,7 @@ class Printer(object):
             table.align[objects['header'][i]] = objects['align'][i]
 
         for k,v in objects.items():
-            if k == 0:
+            if k == 'header' or k == 'align':
                 continue
             table.add_row(v)
         print(table)
