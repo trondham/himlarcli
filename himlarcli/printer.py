@@ -132,8 +132,10 @@ class Printer(object):
         table.header = 1
         table.field_names = objects[0]
 
-        for l in objects[1::]:
-            table.add_row(l)
+        for k,v in objects:
+            if k == 0:
+                continue
+            table.add_row(v)
         print(table)
 
     @staticmethod
