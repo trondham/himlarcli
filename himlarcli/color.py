@@ -21,7 +21,7 @@ class Color:
     inv   = '\033[08m'  if __HAVE_TTY else '' # Invisible
 
     class fg: # Foreground color
-        
+
         # Check if we are on a TTY
         if sys.stdout.isatty():
             __HAVE_TTY = True
