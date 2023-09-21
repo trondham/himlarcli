@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from datetime import date
-from prettytable import PrettyTable
 
 from himlarcli import tests as tests
 tests.is_virtual_env()
