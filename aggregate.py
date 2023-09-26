@@ -52,7 +52,7 @@ def action_list():
                     Color.fg.ylw + aggr.name + Color.reset,
                     len(aggr.hosts),
                     Color.fg.CYN + aggr.metadata['availability_zone'] + Color.reset,
-                ]                    
+                ]
                 counter += 1
         printer.output_dict(output, one_line=True)
     else:
@@ -68,7 +68,7 @@ def action_list():
                     '1': len(aggr.hosts)
                 }
                 printer.output_dict(output, one_line=True)
-            
+
 def action_show():
     for region in regions:
         nova = utils.get_client(Nova, options, logger, region)
