@@ -49,8 +49,8 @@ def action_list():
 
             for aggr in aggregates:
                 output[counter] = [
-                    len(aggr.hosts),
                     Color.fg.ylw + aggr.name + Color.reset,
+                    len(aggr.hosts),
                     Color.fg.CYN + aggr.metadata['availability_zone'] + Color.reset,
                 ]                    
                 counter += 1
