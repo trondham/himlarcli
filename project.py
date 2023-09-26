@@ -7,6 +7,7 @@ from himlarcli.glance import Glance
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli.mail import Mail
+from himlarcli.color import Color
 from himlarcli import utils as himutils
 from datetime import datetime
 from datetime import timedelta
@@ -904,32 +905,6 @@ def action_access():
 
 
 def action_access_list():
-    #------------------------------+-----------------------------------+---------+
-    #       Text color             |       Background color            |         |
-    #--------------+---------------+----------------+------------------+         |
-    # Base color   |Lighter shade  |  Base color    | Lighter shade    |         |
-    #--------------+---------------+----------------+------------------+         |
-    BLK='\033[30m'; blk='\033[90m'; BBLK='\033[40m'; bblk='\033[100m' #| Black   |
-    RED='\033[31m'; red='\033[91m'; BRED='\033[41m'; bred='\033[101m' #| Red     |
-    GRN='\033[32m'; grn='\033[92m'; BGRN='\033[42m'; bgrn='\033[102m' #| Green   |
-    YLW='\033[33m'; ylw='\033[93m'; BYLW='\033[43m'; bylw='\033[103m' #| Yellow  |
-    BLU='\033[34m'; blu='\033[94m'; BBLU='\033[44m'; bblu='\033[104m' #| Blue    |
-    MGN='\033[35m'; mgn='\033[95m'; BMGN='\033[45m'; bmgn='\033[105m' #| Magenta |
-    CYN='\033[36m'; cyn='\033[96m'; BCYN='\033[46m'; bcyn='\033[106m' #| Cyan    |
-    WHT='\033[37m'; wht='\033[97m'; BWHT='\033[47m'; bwht='\033[107m' #| White   |
-    #------------------------------------------------------------------+---------+
-    # Effects                                                                    |
-    #----------------------------------------------------------------------------+
-    DEF='\033[0m'   #Default color and effects                                   |
-    BLD='\033[1m'   #Bold\brighter                                               |
-    DIM='\033[2m'   #Dim\darker                                                  |
-    CUR='\033[3m'   #Italic font                                                 |
-    UND='\033[4m'   #Underline                                                   |
-    INV='\033[7m'   #Inverted                                                    |
-    COF='\033[?25l' #Cursor Off                                                  |
-    CON='\033[?25h' #Cursor On                                                   |
-    #----------------------------------------------------------------------------+
-
     resource = options.resource
 
     # Search for projects
@@ -937,22 +912,22 @@ def action_access_list():
     search_filter['tags_any'] = ['%s_access' % resource]
     projects = ksclient.get_projects(**search_filter)
 
-    print('%sRESOURCE: %s%s' % (mgn, resource, DEF))
-    header = [ '%sPROJECT%s' % (UND,DEF),
-               '%sSTART DATE%s' % (UND,DEF),
-               '%sEND DATE%s' % (UND,DEF)]
-    for region in regions:
-        header.append('%s%s%s' % (UND,region.upper(),DEF))
-    table_resource = PrettyTable()
-    table_resource._max_width = {'value' : 70}
-    table_resource.border = 0
-    table_resource.header = 1
-    table_resource.left_padding_width = 2
-    table_resource.field_names = header
-    table_resource.align[header[0]] = 'l'
-    table_resource.align[header[1]] = 'l'
-    table_resource.align[header[2]] = 'l'
+    print('%sRESOURCE: %s%s' % (Color.fg.mgn, resource, Color.reset))
+    if options.format == 'table':
+        output = {}
+        output['header'] = [ '%sPROJECT%s' % (Color.und,Color.reset),
+                             '%sSTART DATE%s' % (Color.und,Color.reset),
+                             '%sEND DATE%s' % (Color.und,Color.reset)]
+        output['align'] = [ 'l', 'l', 'l' ]
+        for region in regions:
+            output['header'].append('%s%s%s' % (Color.und,region.upper(),Color.reset))
+            output['align'].append('l')
+        output['sortby'] = 0
+    else:
+        header = {'header': f'Resource {resource} (project, start_date, end_date, regions)'}
+        printer.output_dict(header)
 
+    counter = 0
     for project in projects:
         tags = ksclient.list_project_tags(project.id)
         for tag in tags:
@@ -962,17 +937,35 @@ def action_access_list():
                 start = mstart.group(1)
             if mend:
                 end = mend.group(1)
+        if options.format == 'table':
+            output[counter] = [ project.name, start, end ]
+        else:
+            output = {
+                '1': project.name,
+                '2': start,
+                '3': end,
+            }
 
-        row = [ project.name, start, end ]
+        region_count = 0
         for region in regions:
             if ksclient.check_project_tag(project.id, '%s_region_%s' % (resource, region)):
-                row.append('%s\u2713%s' % (grn,DEF))
+                if options.format == 'table':
+                    output[counter].append('%s\u2713%s' % (Color.fg.grn,Color.reset))
+                else:
+                    output[region_count + 4] = 'yes'
             else:
-                row.append('%s-%s' % (red,DEF))
-        table_resource.add_row(row)
+                if options.format == 'table':
+                    output[counter].append('%s-%s' % (Color.fg.red,Color.reset))
+                else:
+                    output[region_count + 4] = 'no'
+            region_count += 1
 
-    table_resource.sortby = header[0]
-    print(table_resource)
+        counter += 1
+        if options.format != 'table':
+            printer.output_dict(output, sort=True, one_line=True)
+
+    if options.format == 'table':
+        printer.output_dict(output, sort=False, one_line=False)
 
 
 # Run local function with the same name as the action (Note: - => _)
