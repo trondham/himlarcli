@@ -34,6 +34,7 @@ def action_list():
         aggregates = nova.get_aggregates(simple=False)
 
         for aggr in aggregates:
+            print(aggr.__dir__())
             output = {
                 '2': aggr.name,
                 '3': aggr.metadata['availability_zone'],
