@@ -909,18 +909,20 @@ def action_access_list():
 
     # Search for projects
     search_filter = {}
-    search_filter['tags_any'] = ['%s_access' % resource]
+    search_filter['tags_any'] = [f'{resource}_access']
     projects = ksclient.get_projects(**search_filter)
 
-    print('%sRESOURCE: %s%s' % (Color.fg.mgn, resource, Color.reset))
+    print(f'RESOURCE: {resource}')
     if options.format == 'table':
         output = {}
-        output['header'] = [ '%sPROJECT%s' % (Color.und,Color.reset),
-                             '%sSTART DATE%s' % (Color.und,Color.reset),
-                             '%sEND DATE%s' % (Color.und,Color.reset)]
+        output['header'] = [
+            'PROJECT',
+            'START DATE',
+            'END DATE',
+        ]
         output['align'] = [ 'l', 'l', 'l' ]
         for region in regions:
-            output['header'].append('%s%s%s' % (Color.und,region.upper(),Color.reset))
+            output['header'].append(region.upper())
             output['align'].append('l')
         output['sortby'] = 0
     else:
