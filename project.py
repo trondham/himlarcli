@@ -755,9 +755,9 @@ def action_access():
             row = [ r, rdict[r][0], rdict[r][1] ]
             for region in regions:
                 if ksclient.check_project_tag(project.id, '%s_region_%s' % (r, region)):
-                    row.append('%s\u2713%s' % (grn,Color.reset))
+                    row.append('%s\u2713%s' % (Color.fg.grn,Color.reset))
                 else:
-                    row.append('%s-%s' % (red,Color.reset))
+                    row.append('%s-%s' % (Color.fg.red,Color.reset))
             table_resource.add_row(row)
         table_resource.sortby = header[0]
         print(table_resource)
