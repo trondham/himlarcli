@@ -737,11 +737,11 @@ def action_access():
                     rdict[r][1] = mend.group(1)
         # print info about resources and return
         print('%sPROJECT: %s%s' % (Color.fg.blu, project.name, Color.reset))
-        header = [ '%sRESOURCE%s' % (Color.und,Color.reset),
-                   '%sSTART DATE%s' % (Color.und,Color.reset),
-                   '%sEND DATE%s' % (Color.und,Color.reset)]
+        header = [ '%sRESOURCE%s' % (Color.fg.mgn,Color.reset),
+                   '%sSTART DATE%s' % (Color.fg.mgn,Color.reset),
+                   '%sEND DATE%s' % (Color.fg.mgn,Color.reset)]
         for region in regions:
-            header.append('%s%s%s' % (Color.und,region.upper(),Color.reset))
+            header.append('%s%s%s' % (Color.fg.mgn,region.upper(),Color.reset))
         table_resource = PrettyTable()
         table_resource._max_width = {'value' : 70}
         table_resource.border = 0
@@ -752,7 +752,11 @@ def action_access():
         table_resource.align[header[1]] = 'l'
         table_resource.align[header[2]] = 'l'
         for r in rdict.keys():
-            row = [ r, rdict[r][0], rdict[r][1] ]
+            row = [
+                Color.fg.ylw + r + Color.reset,
+                rdict[r][0],
+                rdict[r][1],
+            ]
             for region in regions:
                 if ksclient.check_project_tag(project.id, '%s_region_%s' % (r, region)):
                     row.append('%s\u2713%s' % (Color.fg.grn,Color.reset))
