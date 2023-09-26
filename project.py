@@ -924,7 +924,7 @@ def action_access_list():
             output['align'].append('l')
         output['sortby'] = 0
     else:
-        header = {'header': f'Resource {resource} (project, start_date, end_date, regions)'}
+        header = {'header': f'Resource {resource} (project, start_date, end_date, {", ".join(regions)})'}
         printer.output_dict(header)
 
     counter = 0
@@ -938,7 +938,11 @@ def action_access_list():
             if mend:
                 end = mend.group(1)
         if options.format == 'table':
-            output[counter] = [ project.name, start, end ]
+            output[counter] = [
+                Color.fg.blu + project.name + Color.reset,
+                start,
+                end,
+            ]
         else:
             output = {
                 1: project.name,
