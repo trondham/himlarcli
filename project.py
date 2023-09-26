@@ -912,7 +912,6 @@ def action_access_list():
     search_filter['tags_any'] = [f'{resource}_access']
     projects = ksclient.get_projects(**search_filter)
 
-    print(f'RESOURCE: {resource}')
     if options.format == 'table':
         output = {}
         output['header'] = [
@@ -923,7 +922,7 @@ def action_access_list():
         output['align'] = [ 'l', 'l', 'l' ]
         for region in regions:
             output['header'].append(region.upper())
-            output['align'].append('l')
+#            output['align'].append('l')
         output['sortby'] = 0
     else:
         header = {'header': f'Resource {resource} (project, start_date, end_date, {", ".join(regions)})'}
