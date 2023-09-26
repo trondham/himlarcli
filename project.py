@@ -922,7 +922,7 @@ def action_access_list():
         output['align'] = [ 'l', 'l', 'l' ]
         for region in regions:
             output['header'].append(region.upper())
-#            output['align'].append('l')
+            output['align'].append('c')
         output['sortby'] = 0
     else:
         header = {'header': f'Resource {resource} (project, start_date, end_date, {", ".join(regions)})'}
