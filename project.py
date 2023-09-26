@@ -941,9 +941,9 @@ def action_access_list():
             output[counter] = [ project.name, start, end ]
         else:
             output = {
-                '1': project.name,
-                '2': start,
-                '3': end,
+                1: project.name,
+                2: start,
+                3: end,
             }
 
         region_count = 0
