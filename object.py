@@ -45,6 +45,8 @@ def action_grant():
 
     # Grant object role for all users
     for user in users:
+        if user['role'] != 'user':
+            continue
         rc = ksclient.grant_role(email=user['group'], project_name=options.project, role_name='object')
         if rc == ksclient.ReturnCode.OK:
             himutils.info(f"Granted object access in {options.project} to {user['group']}")
