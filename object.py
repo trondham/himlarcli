@@ -40,6 +40,7 @@ def action_grant():
     for user in users:
         if options.users and user not in options.users:
             continue
+        print(user)
 #        rc = ksclient.grant_role(email=user['group'], project_name=options.project, role_name='object')
 #        if rc == ksclient.ReturnCode.OK:
 #            himutils.info(f"Granted object access in {options.project} to {user.group}")
