@@ -50,7 +50,7 @@ def action_grant():
         rc = ksclient.grant_role(email=user['group'], project_name=options.project, role_name='object')
         this_user = user['group'].replace('-group','')
         if rc == ksclient.ReturnCode.OK:
-            himutils.info(f"Granted object access in {options.project} to {this_user}")
+            himutils.info(f"Granted object access in {options.project} for {this_user}")
         elif rc == ksclient.ReturnCode.ALREADY_MEMBER:
             himutils.warning(f"User {this_user} already has object access in {options.project}")
 
@@ -76,7 +76,7 @@ def action_revoke():
             email = re.sub('(-group|-disabled)$', '', user['group'])
             rc = ksclient.revoke_role(email=email, project_name=options.project, role_name='object')
             if rc == ksclient.ReturnCode.OK:
-                himutils.info(f"Revoked object access in {options.project} from {email}")
+                himutils.info(f"Revoked object access in {options.project} for {email}")
 
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)
