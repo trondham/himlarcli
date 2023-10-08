@@ -48,10 +48,11 @@ def action_grant():
         if user['role'] != 'user':
             continue
         rc = ksclient.grant_role(email=user['group'], project_name=options.project, role_name='object')
+        this_user = user['group'].replace('-group','')
         if rc == ksclient.ReturnCode.OK:
-            himutils.info(f"Granted object access in {options.project} to {user['group']}")
+            himutils.info(f"Granted object access in {options.project} to {this_user}")
         elif rc == ksclient.ReturnCode.ALREADY_MEMBER:
-            himutils.warning(f"User {user['group']} already has object access in {options.project}")
+            himutils.warning(f"User {this_user} already has object access in {options.project}")
 
 def action_revoke():
     # Get project, make sure it is valid
