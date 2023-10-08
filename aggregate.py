@@ -149,7 +149,7 @@ def action_instances():
                     project_name = Color.fg.red + "None" + Color.reset
                 else:
                     project_name = Color.fg.blu + project.name + Color.reset
-                
+
                 # status color
                 if i.status == 'ACTIVE':
                     instance_status = Color.fg.red + i.status + Color.reset
