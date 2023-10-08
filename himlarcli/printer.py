@@ -168,14 +168,14 @@ class Printer(object):
         project_created = re.sub(r'T\d\d:\d\d:\d\d.\d\d\d\d\d\d', '', project_created)
 
         # Disabled project?
-        status = "**DISABLED** " if not project.enabled else ''
+        status = Color.fg.red + "**DISABLED** " + Color.reset if not project.enabled else ''
         
         # Print header for project
-        out_str += "%sPROJECT: %s" % (status, project.name)
+        out_str += f"{status}PROJECT: {project.name}"
         if user is not None and not options.admin:
-            prole = 'admin' if user == project_admin else 'member'
-            out_str += " (%s)" % prole
-        out_str += "\n" + '=' * 80 + "\n"
+            prole = Color.fg.blu + 'admin' + Color.reset if user == project_admin else 'member'
+            out_str += f" ({prole})"
+        out_str += "\n" + Color.dim + '=' * 80 + Color.reset + "\n"
 
         # Print project metadata
         table_metadata = PrettyTable()
@@ -185,13 +185,13 @@ class Printer(object):
         table_metadata.field_names = ['meta','value']
         table_metadata.align['meta'] = 'r'
         table_metadata.align['value'] = 'l'
-        table_metadata.add_row(['ID:', project.id])
-        table_metadata.add_row(['Admin:', project_admin])
-        table_metadata.add_row(['Contact:', project_contact])
-        table_metadata.add_row(['Type:', project_type])
-        table_metadata.add_row(['Created:', project_created])
-        table_metadata.add_row(['Enddate:', project_enddate])
-        table_metadata.add_row(['Description:', project.description])
+        table_metadata.add_row([Color.fg.CYN + 'ID:' + Color.reset, project.id])
+        table_metadata.add_row([Color.fg.CYN + 'Admin:' + Color.reset, project_admin])
+        table_metadata.add_row([Color.fg.CYN + 'Contact:' + Color.reset, project_contact])
+        table_metadata.add_row([Color.fg.CYN + 'Type:' + Color.reset, project_type])
+        table_metadata.add_row([Color.fg.CYN + 'Created:' + Color.reset, project_created])
+        table_metadata.add_row([Color.fg.CYN + 'Enddate:' + Color.reset, project_enddate])
+        table_metadata.add_row([Color.fg.CYN + 'Description:' + Color.reset, project.description])
         if len(project_roles) > 0:
             users = dict()
             users['user'] = []
@@ -217,10 +217,10 @@ class Printer(object):
                 volume_list.append("%d (%s)" % (volumes[region], region))
                 image_list.append("%d (%s)" % (images[region], region))
                 instance_list.append("%d (%s)" % (instances[region], region))
-            table_metadata.add_row(['Zones:', zones])
-            table_metadata.add_row(['Volumes:', ', '.join(volume_list)])
-            table_metadata.add_row(['Images:', ', '.join(image_list)])
-            table_metadata.add_row(['Instances:', ', '.join(instance_list)])
+            table_metadata.add_row([Color.fg.ylw + 'Zones:' + Color.reset,     zones])
+            table_metadata.add_row([Color.fg.ylw + 'Volumes:' + Color.reset,   ', '.join(volume_list)])
+            table_metadata.add_row([Color.fg.ylw + 'Images:' + Color.reset,    ', '.join(image_list)])
+            table_metadata.add_row([Color.fg.ylw + 'Instances:' + Color.reset, ', '.join(instance_list)])
 
         out_str += table_metadata.get_string() + "\n"
         return out_str
