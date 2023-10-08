@@ -185,13 +185,13 @@ class Printer(object):
         table_metadata.field_names = ['meta','value']
         table_metadata.align['meta'] = 'r'
         table_metadata.align['value'] = 'l'
-        table_metadata.add_row([Color.fg.cyn + 'ID:' + Color.reset, project.id])
-        table_metadata.add_row([Color.fg.cyn + 'Admin:' + Color.reset, project_admin])
-        table_metadata.add_row([Color.fg.cyn + 'Contact:' + Color.reset, project_contact])
-        table_metadata.add_row([Color.fg.cyn + 'Type:' + Color.reset, project_type])
-        table_metadata.add_row([Color.fg.cyn + 'Created:' + Color.reset, project_created])
-        table_metadata.add_row([Color.fg.cyn + 'Enddate:' + Color.reset, project_enddate])
-        table_metadata.add_row([Color.fg.cyn + 'Description:' + Color.reset, project.description])
+        table_metadata.add_row([Color.fg.blu + 'ID:' + Color.reset, project.id])
+        table_metadata.add_row([Color.fg.blu + 'Admin:' + Color.reset, project_admin])
+        table_metadata.add_row([Color.fg.blu + 'Contact:' + Color.reset, project_contact])
+        table_metadata.add_row([Color.fg.blu + 'Type:' + Color.reset, project_type])
+        table_metadata.add_row([Color.fg.blu + 'Created:' + Color.reset, project_created])
+        table_metadata.add_row([Color.fg.blu + 'Enddate:' + Color.reset, project_enddate])
+        table_metadata.add_row([Color.fg.blu + 'Description:' + Color.reset, project.description])
         if len(project_roles) > 0:
             users = dict()
             users['user'] = []
@@ -200,11 +200,11 @@ class Printer(object):
             for role in project_roles:
                 user = role['group'].replace('-group', '').replace('-disabled', ' **DISABLED**')
                 users[role['role']].append(user)
-            table_metadata.add_row([Color.fg.mgn + 'Users:' + Color.reset, "\n".join(users['user'])])
+            table_metadata.add_row([Color.fg.red + 'Users:' + Color.reset, "\n".join(users['user'])])
             if len(users['superuser']) > 0:
-                table_metadata.add_row([Color.fg.mgn + 'Superusers:' + Color.reset, "\n".join(users['superuser'])])
+                table_metadata.add_row([Color.fg.red + 'Superusers:' + Color.reset, "\n".join(users['superuser'])])
             if len(users['object']) > 0:
-                table_metadata.add_row([Color.fg.mgn + 'Object Users:' + Color.reset, "\n".join(users['object'])])
+                table_metadata.add_row([Color.fg.red + 'Object Users:' + Color.reset, "\n".join(users['object'])])
         if not options.detail:
             zones     = Printer._count_project_zones(project, options, logger)
             volumes   = Printer._count_project_volumes(project, options, logger, regions)
