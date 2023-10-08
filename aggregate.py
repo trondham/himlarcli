@@ -115,8 +115,8 @@ def action_instances():
             'HYPERVISOR NAME',
             'INSTANCE NAME',
             'INSTANCE ID',
-            'INSTANCE STATUS',
-            'INSTANCE FLAVOR',
+            'STATUS',
+            'FLAVOR',
         ]
         output['align'] = [
             'l',
@@ -138,12 +138,21 @@ def action_instances():
             continue
         instances = nova.get_instances(options.aggregate)
         if options.format == 'table':
+            # status color
+            if i.status == 'ACTIVE':
+                instance_status = Color.fg.red + i.status + Color.reset
+            elif i.status == 'SHUTOFF':
+                instance_status = Color.fg.GRN + i.status + Color.reset
+            elif i.status == 'PAUSED':
+                instance_status = Color.fg.BLU + i.status + Color.reset
+            else:
+                instance_status = Color.fg.YLW + i.status + Color.reset
             for i in instances:
                 output[counter] = [
                     Color.fg.ylw + nova.get_compute_host(i) + Color.reset,
                     Color.fg.CYN + i.name + Color.reset,
                     Color.dim + i.id + Color.reset,
-                    Color.fg.GRN + i.status + Color.reset,
+                    instance_status,
                     Color.fg.WHT + i.flavor['original_name'] + Color.reset,
                 ]
                 counter += 1
