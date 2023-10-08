@@ -191,7 +191,7 @@ class Printer(object):
         table_metadata.add_row([Color.fg.blu + 'Type:' + Color.reset, project_type])
         table_metadata.add_row([Color.fg.blu + 'Created:' + Color.reset, project_created])
         table_metadata.add_row([Color.fg.blu + 'Enddate:' + Color.reset, project_enddate])
-        table_metadata.add_row([Color.fg.blu + 'Description:' + Color.reset, project.description])
+        table_metadata.add_row([Color.fg.blu + 'Description:' + Color.reset, project.description], divider=True)
         if len(project_roles) > 0:
             users = dict()
             users['user'] = []
