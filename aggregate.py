@@ -114,11 +114,13 @@ def action_instances():
         output['header'] = [
             'HYPERVISOR NAME',
             'INSTANCE NAME',
+            'PROJECT',
             'INSTANCE ID',
             'STATUS',
             'FLAVOR',
         ]
         output['align'] = [
+            'l',
             'l',
             'l',
             'l',
@@ -139,6 +141,12 @@ def action_instances():
         instances = nova.get_instances(options.aggregate)
         if options.format == 'table':
             for i in instances:
+                project = kc.get_by_id('project', i.tenant_id)
+                if project is None:
+                    project_name = Color.fg.red + "None" + Color.reset
+                else:
+                    project_name = Color.fg.cyn + project.name + Color.reset
+                
                 # status color
                 if i.status == 'ACTIVE':
                     instance_status = Color.fg.red + i.status + Color.reset
@@ -148,9 +156,11 @@ def action_instances():
                     instance_status = Color.fg.BLU + i.status + Color.reset
                 else:
                     instance_status = Color.fg.YLW + i.status + Color.reset
+
                 output[counter] = [
                     Color.fg.ylw + nova.get_compute_host(i) + Color.reset,
                     Color.fg.CYN + i.name + Color.reset,
+                    project_name,
                     Color.dim + i.id + Color.reset,
                     instance_status,
                     Color.fg.WHT + i.flavor['original_name'] + Color.reset,
