@@ -33,10 +33,12 @@ def action_list():
         output = {}
         output['header'] = [
             'NAME',
+            'REGION',
             'HOSTS',
             'AVAILABILITY ZONE',
         ]
         output['align'] = [
+            'l',
             'l',
             'r',
             'l',
@@ -50,6 +52,7 @@ def action_list():
             for aggr in aggregates:
                 output[counter] = [
                     Color.fg.ylw + aggr.name + Color.reset,
+                    region,
                     len(aggr.hosts),
                     Color.fg.CYN + aggr.metadata['availability_zone'] + Color.reset,
                 ]
@@ -84,7 +87,7 @@ def action_orphan_instances():
         nova = himutils.get_client(Nova, options, logger, region)
         aggregate = nova.get_aggregate(options.aggregate)
         if not aggregate:
-            printer.output_msg('no aggregate {} found in {}'.format(options.aggregate, region))
+            himutils.warning(f"No aggregate {options.aggregate} found in {region}")
             continue
         instances = nova.get_instances(options.aggregate)
         printer.output_dict({'header': 'Instance list (id, host, status, flavor)'})
@@ -237,5 +240,5 @@ def action_start_instance():
 # Run local function with the same name as the action (Note: - => _)
 action = locals().get('action_' + options.action.replace('-', '_'))
 if not action:
-    himutils.sys_error("Function action_%s() not implemented" % options.action)
+    himutils.fatal(f"Function action_{options.action}() not implemented")
 action()
