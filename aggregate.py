@@ -112,13 +112,17 @@ def action_instances():
     if options.format == 'table':
         output = {}
         output['header'] = [
-            'NAME',
-            'HOSTS',
-            'AVAILABILITY ZONE',
+            'HYPERVISOR NAME',
+            'INSTANCE NAME',
+            'INSTANCE ID',
+            'INSTANCE STATUS',
+            'INSTANCE FLAVOR',
         ]
         output['align'] = [
             'l',
-            'r',
+            'l',
+            'l',
+            'l',
             'l',
         ]
         output['sortby'] = 0
