@@ -4,7 +4,6 @@
 import utils
 import re
 from collections import OrderedDict
-from prettytable import PrettyTable
 from himlarcli.keystone import Keystone
 from himlarcli.designate import Designate
 from himlarcli import utils as himutils
