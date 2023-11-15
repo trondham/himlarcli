@@ -3,13 +3,14 @@
 
 import utils
 import re
+from collections import OrderedDict
+from prettytable import PrettyTable
 from himlarcli.keystone import Keystone
 from himlarcli.designate import Designate
 from himlarcli import utils as himutils
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
-from collections import OrderedDict
-from prettytable import PrettyTable
+from himlarcli.color import Color
 
 himutils.is_virtual_env()
 
@@ -71,7 +72,7 @@ def action_blacklist_list():
                 if not isinstance(b, dict):
                     b = b.to_dict()
                 output[counter] = [
-                    Color.fg.WHT + b['pattern'] + Color.reset,
+                    Color.fg.WHT + Color.bold + b['pattern'] + Color.reset,
                     Color.fg.GRN + b['description'] + Color.reset,
                     Color.dim + b['id'] + Color.reset,
                 ]
@@ -81,6 +82,7 @@ def action_blacklist_list():
         header = 'Blacklisted DNS domains (pattern, description, id)'
         printer.output_dict({'header': header})
         output = OrderedDict()
+        outputs = ['pattern','description','id']
         if isinstance(blacklists, list):
             for b in blacklists:
                 if not isinstance(b, dict):
