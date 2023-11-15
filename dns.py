@@ -70,9 +70,13 @@ def action_blacklist_list():
             for b in blacklists:
                 if not isinstance(b, dict):
                     b = b.to_dict()
+                if b['description'] == 'BULK IMPORT FROM IANA':
+                    desc_color = Color.fg.GRN
+                else:
+                    desc_color = Color.fg.blu
                 output[counter] = [
                     Color.fg.WHT + Color.bold + b['pattern'] + Color.reset,
-                    Color.fg.GRN + b['description'] + Color.reset,
+                    desc_color + b['description'] + Color.reset,
                     Color.dim + b['id'] + Color.reset,
                 ]
                 counter += 1
