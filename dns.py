@@ -51,23 +51,34 @@ def __diff_arrays(first, second):
 def action_blacklist_list():
     designateclient = Designate(options.config, debug=options.debug, log=logger)
     blacklists = designateclient.list_blacklists()
-    outputs = ['pattern','description','id']
-    if options.pretty:
-        x = PrettyTable()
-        x.field_names = outputs
-        x.align['pattern'] = 'l'
-        x.align['description'] = 'l'
+    if options.format == 'table':
+        output = {}
+        output['header'] = [
+            'PATTERN',
+            'DESCRIPTION',
+            'ID',
+        ]
+        output['align'] = [
+            'l',
+            'l',
+            'l',
+        ]
+        output['sortby'] = 0
+        counter = 0
+
         if isinstance(blacklists, list):
             for b in blacklists:
                 if not isinstance(b, dict):
                     b = b.to_dict()
-                array = []
-                for o in outputs:
-                    array.append(b[o])
-                x.add_row(array)
-        print(x)
+                output[counter] = [
+                    Color.fg.WHT + b['pattern'] + Color.reset,
+                    Color.fg.GRN + b['description'] + Color.reset,
+                    Color.dim + b['id'] + Color.reset,
+                ]
+                counter += 1
+        printer.output_dict(output, sort=True, one_line=False)
     else:
-        header = 'Blacklisted DNS domains (%s)' % (', '.join(outputs))
+        header = 'Blacklisted DNS domains (pattern, description, id)'
         printer.output_dict({'header': header})
         output = OrderedDict()
         if isinstance(blacklists, list):
