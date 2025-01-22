@@ -6,6 +6,8 @@ tests.is_virtual_env()
 from himlarcli.keystone import Keystone
 from himlarcli.nova import Nova
 from himlarcli import utils as himutils
+from himlarcli.parser import Parser
+from himlarcli.printer import Printer
 
 parser = Parser()
 options = parser.parse_args()
