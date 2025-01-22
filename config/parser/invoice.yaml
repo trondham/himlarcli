@@ -1,0 +1,13 @@
+---
+desc:   'Invoice management for NREC'
+actions:
+  'list':            'List stuff. Use -f to filter result by project type'
+opt_args:
+  '--domain':
+    'dest':     'domain'
+    'help':     'openstack domain to use'
+    'default':  'Dataporten'
+  '--region':
+    'sub':      ['list']
+    'dest':     'region'
+    'help':     'specify region'
