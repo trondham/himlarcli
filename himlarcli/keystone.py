@@ -834,17 +834,26 @@ class Keystone(Client):
 
     def provision_dataporten(self, email, password):
         """
-        Create a api user and demo project for a dataporten user.
-        Version: 2018-6
+        Create an API user and demo project for a dataporten user.
+        Version: 2025-10
         """
-        self.logger.debug('=> provsion new dataporten user %s', email)
+        self.logger.debug('=> provision new dataporten user %s', email)
         self.create_user(name=email, email=email, password=password)
-        project_name = self.get_project_name(email)
-        desc = "Personal demo project for %s. Resources might be terminated at any time" % email.lower()
-        project = self.create_project(project_name=project_name,
-                                      admin=email.lower(),
-                                      type='demo',
-                                      description=desc)
+        demo_domains = [
+            'uio\.no$',     # UiO
+            'uib\.no$',     # UiB
+            'vetinst\.no$', # Veterinærinstituttet
+        ]
+        reg_lst = []
+        for raw_regex in demo_domains:
+            reg_lst.append(re.compile(raw_regex))
+        if any(compiled_reg.match(email) for compiled_reg in reg_lst):
+            project_name = self.get_project_name(email)
+            desc = "Personal demo project for %s. Resources might be terminated at any time" % email.lower()
+            project = self.create_project(project_name=project_name,
+                                          admin=email.lower(),
+                                          type='demo',
+                                          description=desc)
 
     def set_identity_provider(self, name, remote_id, description):
         """
