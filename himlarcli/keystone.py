@@ -4,6 +4,7 @@ from himlarcli.nova import Nova
 from himlarcli.neutron import Neutron
 from himlarcli.glance import Glance
 from himlarcli.designate import Designate
+from himlarcli import utils as himutils
 from keystoneclient import client as keystoneclient
 import keystoneauth1.exceptions as exceptions
 import random
@@ -839,13 +840,12 @@ class Keystone(Client):
         """
         self.logger.debug('=> provision new dataporten user %s', email)
         self.create_user(name=email, email=email, password=password)
-        demo_domains = [
-            'uio\.no$',     # UiO
-            'uib\.no$',     # UiB
-            'vetinst\.no$', # Veterinærinstituttet
-        ]
+        config_filename = 'config/resource_access.yaml'
+        if not himutils.file_exists(config_filename, logger):
+            himutils.fatal(f"Could not find config file {config_filename}")
+        resource_access = himutils.load_config(config_filename)
         reg_lst = []
-        for raw_regex in demo_domains:
+        for raw_regex in resource_access['allowed_email_domains']:
             reg_lst.append(re.compile(raw_regex))
         if any(compiled_reg.match(email) for compiled_reg in reg_lst):
             project_name = self.get_project_name(email)

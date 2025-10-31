@@ -1,0 +1,8 @@
+---
+# List of email domains (regexp) that are allowed to have demo projects
+# and generelly consume resources
+
+allowed_email_domains:
+  - '.*@uio\.no$'
+  - '.*@(:?.+\.)uib\.no$'
+  - '.*@vetinst\.no$'
