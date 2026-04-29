@@ -6,7 +6,7 @@ class Slack:
 
     def __init__(self, config_path, debug=False, log=None):
         self.config_path = config_path
-        self.config = utils.get_config(config_path)
+        self.config = utils.get_himlarcli_config(config_path)
         self.logger = utils.get_logger(__name__, self.config, debug, log)
         self.dry_run = False
         self.webhook_url = self.get_config('slack_publish', 'url')
