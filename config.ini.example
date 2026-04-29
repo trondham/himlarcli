@@ -40,5 +40,11 @@ from_addr=no-reply@uib.no
 server=ldap.uib.no
 base_dn=dc=uib,dc=no
 
+# For use with publish_status.py
+[slack_publish]
+url=https://hooks.slack.com/services/...
+user=slack_user
+channel=#iaas
+
 [log]
 path=./
