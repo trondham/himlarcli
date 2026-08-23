@@ -8,8 +8,9 @@ region=vagrant
 domain=mgmt.vagrant.iaas.intern
 compute_api_version=2.79
 volume_api_version=3.50
-# Prefix for the account part of the object storage url. Only needed if the
-# object-store endpoint in the service catalog has no account part
+# Prefix for the account part of the object storage url. Only set this if the
+# object-store endpoint in the service catalog has no account part, but the
+# object storage still accepts an account in the url (rgw swift account in url)
 #object_account_prefix=AUTH_
 #keystone_cachain=/opt/himlar/provision/ca/certs/ca.cert.pem
 #keystone_cachain=<absolute path to himlar>/provision/ca/certs/ca.cert.pem

@@ -16,9 +16,10 @@ class Swift(Client):
 
     service_type = 'object-store'
 
-    """ Default prefix for the account part of the storage url. Only used if
-        the endpoint in the service catalog has no account part """
-    account_prefix = 'AUTH_'
+    """ Prefix for the account part of the storage url. Only used if the
+        endpoint in the service catalog has no account part, and then only if
+        it is set with 'object_account_prefix' in config.ini """
+    account_prefix = None
 
     """ Number of items to fetch in each listing request """
     page_size = 1000
@@ -40,6 +41,7 @@ class Swift(Client):
                                               self.account_prefix)
         self.endpoint = self.__get_endpoint()
         self.connections = dict()
+        self.logged_errors = list()
         self.debug_log('use object-store endpoint %s in %s'
                        % (self.endpoint, self.region))
 
@@ -49,18 +51,28 @@ class Swift(Client):
         return self.__new_connection(self.endpoint)
 
     def get_account_url(self, project_id):
-        """ Return the storage url for the object storage account of a project
+        """ Return the storage url for the object storage account of a project.
+            Return None if the account can not be addressed in the url. The
+            account is then decided by the token alone, and we can not reach
+            the object storage of another project.
             version: 2026-08 """
         if not self.endpoint:
             return None
         match = self.account_re.match(self.endpoint.rstrip('/'))
         if not match:
-            self.log_error('Swift: unknown storage url format: %s' % self.endpoint)
+            self.__log_once('Swift: unknown storage url format: %s' % self.endpoint)
             return None
         # Reuse the account prefix from the catalog endpoint if it has one
         prefix = match.group('prefix')
         if prefix is None:
             prefix = self.account_prefix
+        if prefix is None:
+            self.__log_once('Swift: the object-store endpoint %s in %s has no '
+                            'account in the url (rgw swift account in url = '
+                            'false). Object storage for other projects can not '
+                            'be reached, and will NOT be deleted!'
+                            % (self.endpoint, self.region))
+            return None
         return '%s/%s%s' % (match.group('base'), prefix, project_id)
 
     def get_connection(self, project_id, refresh=False):
@@ -220,6 +232,14 @@ class Swift(Client):
                                       preauthtoken=self.sess.get_token(),
                                       cacert=self.cacert,
                                       retries=3)
+
+    def __log_once(self, message):
+        """ Log an error only once per client, to avoid the same message for
+            every project when we loop over many projects """
+        if message in self.logged_errors:
+            return
+        self.logged_errors.append(message)
+        self.log_error(message)
 
     def __log_client_exception(self, exception, project_id, action):
         """ A 404 means that the project has no object storage account, i.e.
