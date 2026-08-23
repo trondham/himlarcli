@@ -28,7 +28,7 @@ source bin/activate            # from repo root; virtualenv lives in the repo
 
 ## Architecture
 
-**Service client layer** (`himlarcli/*.py`). `himlarcli/client.py` defines the abstract `Client` base: it loads `config.ini`, builds a Keystone v3 auth session, sets up logging, and holds `dry_run`. Every OpenStack service wrapper subclasses it — `Keystone`, `Nova`, `Cinder`, `Neutron`, `Glance`, `Designate`, `Placement`, `Gnocchi` — plus non-OpenStack integrations (`Foreman`, `LdapClient`, `Sensu`/`SensuGo`, `MQClient`, `Slack`/`Slack2`, `Twitter`, `StatsdClient`, `Mail`, `State`/`GlobalState`). Subclasses implement `get_client()` returning the underlying SDK client.
+**Service client layer** (`himlarcli/*.py`). `himlarcli/client.py` defines the abstract `Client` base: it loads `config.ini`, builds a Keystone v3 auth session, sets up logging, and holds `dry_run`. Every OpenStack service wrapper subclasses it — `Keystone`, `Nova`, `Cinder`, `Neutron`, `Glance`, `Designate`, `Swift`, `Placement`, `Gnocchi` — plus non-OpenStack integrations (`Foreman`, `LdapClient`, `Sensu`/`SensuGo`, `MQClient`, `Slack`/`Slack2`, `Twitter`, `StatsdClient`, `Mail`, `State`/`GlobalState`). Subclasses implement `get_client()` returning the underlying SDK client.
 
 - **Region awareness**: a client sets `USE_REGION = True` (e.g. `Nova`) when its resources are per-region. `Client._get_client()` and `utils.get_client()` propagate the region only to such clients. Commands that span regions loop over `kc.find_regions()` / `utils.get_regions()` and build a fresh client per region.
 - **Dry-run**: `set_dry_run(True)` is threaded through from the `--dry-run` flag; write operations check `self.dry_run` and log via `log_dry_run()` instead of mutating.

@@ -3,6 +3,9 @@ desc:           'Manage swift object storage'
 actions:
   'grant':      'Grant all users of a project access to use object storage'
   'revoke':     'Revoke all users of a project access to use object storage'
+  'show':       'Show object storage usage for a project'
+  'list':       'List all containers owned by a project'
+  'purge':      'Delete all containers and objects owned by a project'
 opt_args:
   '--domain':
     'dest':     'domain'
@@ -16,6 +19,13 @@ opt_args:
     'dest':     'users'
     'help':     'email of a valid openstack user (can be used multiple times)'
     'action':   'append'
+  '--force':
+    'sub':      ['purge']
+    'dest':     'force'
+    'help':     'skip interactive confirmation'
+    'action':   'store_const'
+    'const':    true
+    'default':  false
   'project':
-   'sub':       ['grant', 'revoke']
+   'sub':       ['grant', 'revoke', 'show', 'list', 'purge']
    'metavar':   'project'

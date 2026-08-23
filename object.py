@@ -4,6 +4,7 @@ from himlarcli import tests as tests
 tests.is_virtual_env()
 
 from himlarcli.keystone import Keystone
+from himlarcli.swift import Swift
 from himlarcli.parser import Parser
 from himlarcli.printer import Printer
 from himlarcli import utils as himutils
@@ -77,6 +78,61 @@ def action_revoke():
             rc = ksclient.revoke_role(email=email, project_name=options.project, role_name='object')
             if rc == ksclient.ReturnCode.OK:
                 himutils.info(f"Revoked object access in {options.project} for {email}")
+
+def action_show():
+    # Get project, make sure it is valid
+    project = ksclient.get_project_by_name(project_name=options.project)
+    if not project:
+        himutils.fatal(f'Project not found: {options.project}')
+
+    printer.output_dict({'header': f'Object storage usage for {options.project}'})
+    for region in regions:
+        swiftclient = himutils.get_client(Swift, options, logger, region)
+        account = swiftclient.get_account(project.id)
+        if not account:
+            continue
+        account['region'] = region
+        printer.output_dict(account, sort=True, one_line=True)
+
+def action_list():
+    # Get project, make sure it is valid
+    project = ksclient.get_project_by_name(project_name=options.project)
+    if not project:
+        himutils.fatal(f'Project not found: {options.project}')
+
+    printer.output_dict({'header': f'Containers in {options.project} (bytes, count, name, region)'})
+    count = 0
+    for region in regions:
+        swiftclient = himutils.get_client(Swift, options, logger, region)
+        for container in swiftclient.list_containers(project.id):
+            output = {
+                'name': container['name'],
+                'count': container['count'],
+                'bytes': container['bytes'],
+                'region': region,
+            }
+            count += 1
+            printer.output_dict(output, sort=True, one_line=True)
+    printer.output_dict({'header': 'Container list count', 'count': count})
+
+def action_purge():
+    # Get project, make sure it is valid
+    project = ksclient.get_project_by_name(project_name=options.project)
+    if not project:
+        himutils.fatal(f'Project not found: {options.project}')
+
+    question = f'Delete all containers and objects in project {options.project}'
+    if not options.force and not himutils.confirm_action(question):
+        return
+
+    for region in regions:
+        swiftclient = himutils.get_client(Swift, options, logger, region)
+        result = swiftclient.purge_project_objects(project.id)
+        if not result['containers']:
+            continue
+        printer.output_msg('DELETED {} container(s) with {} object(s) ({} bytes) in {}'.
+                           format(result['containers'], result['objects'],
+                                  result['bytes'], region))
 
 # Run local function with the same name as the action
 action = locals().get('action_' + options.action)

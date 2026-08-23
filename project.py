@@ -566,6 +566,7 @@ def action_quarantine():
             attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
             attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
             attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
+            attachment_payload += Printer.prettyprint_project_objects(project, options, logger, regions)
 
             # Construct mail content
             subject = '[NREC] Project "%s" is scheduled for deletion' % project.name

@@ -49,6 +49,7 @@ def action_show():
         sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
         sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
+        sys.stdout.write(Printer.prettyprint_project_objects(project, options, logger, regions))
 
 def action_list():
     search_filter = dict()
@@ -67,6 +68,7 @@ def action_list():
             sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
             sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
             sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
+            sys.stdout.write(Printer.prettyprint_project_objects(project, options, logger, regions))
 
         # Print some vertical space and increase project counter
         print("\n\n")
@@ -214,6 +216,7 @@ def action_user():
             sys.stdout.write(Printer.prettyprint_project_volumes(project, options, logger, regions))
             sys.stdout.write(Printer.prettyprint_project_images(project, options, logger, regions))
             sys.stdout.write(Printer.prettyprint_project_instances(project, options, logger, regions))
+            sys.stdout.write(Printer.prettyprint_project_objects(project, options, logger, regions))
 
         # Print some vertical space and increase project counter
         print("\n\n")
@@ -313,6 +316,7 @@ def action_mail():
             attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
             attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
             attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
+            attachment_payload += Printer.prettyprint_project_objects(project, options, logger, regions)
 
             # Add some vertical space
             attachment_payload += "\n\n"
@@ -436,6 +440,7 @@ def action_enddate():
                     attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
                     attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
                     attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
+                    attachment_payload += Printer.prettyprint_project_objects(project, options, logger, regions)
 
                     # Construct mail content
                     subject = '[NREC] Project "%s" expires in %d days' % (project.name, days)
@@ -553,6 +558,7 @@ def action_quarantine():
                         attachment_payload += Printer.prettyprint_project_volumes(project, options, logger, regions)
                         attachment_payload += Printer.prettyprint_project_images(project, options, logger, regions)
                         attachment_payload += Printer.prettyprint_project_instances(project, options, logger, regions)
+                        attachment_payload += Printer.prettyprint_project_objects(project, options, logger, regions)
 
                         # Construct mail content
                         subject = '[NREC] Project "%s" will be deleted in %d days' % (project.name, 90 - days)

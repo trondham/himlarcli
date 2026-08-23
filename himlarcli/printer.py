@@ -3,6 +3,7 @@ from himlarcli.nova import Nova
 from himlarcli.cinder import Cinder
 from himlarcli.designate import Designate
 from himlarcli.glance import Glance
+from himlarcli.swift import Swift
 from himlarcli import utils
 from himlarcli.color import Color
 from prettytable import PrettyTable
@@ -223,17 +224,21 @@ class Printer(object):
             volumes   = Printer._count_project_volumes(project, options, logger, regions)
             images    = Printer._count_project_images(project, options, logger, regions)
             instances = Printer._count_project_instances(project, options, logger, regions)
-            volume_list   = []
-            image_list    = []
-            instance_list = []
+            containers = Printer._count_project_containers(project, options, logger, regions)
+            volume_list    = []
+            image_list     = []
+            instance_list  = []
+            container_list = []
             for region in regions:
                 volume_list.append("%d (%s)" % (volumes[region], region))
                 image_list.append("%d (%s)" % (images[region], region))
                 instance_list.append("%d (%s)" % (instances[region], region))
-            table_metadata.add_row([Color.fg.ylw + 'Zones:' + Color.reset,     zones])
-            table_metadata.add_row([Color.fg.ylw + 'Volumes:' + Color.reset,   ', '.join(volume_list)])
-            table_metadata.add_row([Color.fg.ylw + 'Images:' + Color.reset,    ', '.join(image_list)])
-            table_metadata.add_row([Color.fg.ylw + 'Instances:' + Color.reset, ', '.join(instance_list)])
+                container_list.append("%d (%s)" % (containers[region], region))
+            table_metadata.add_row([Color.fg.ylw + 'Zones:' + Color.reset,      zones])
+            table_metadata.add_row([Color.fg.ylw + 'Volumes:' + Color.reset,    ', '.join(volume_list)])
+            table_metadata.add_row([Color.fg.ylw + 'Images:' + Color.reset,     ', '.join(image_list)])
+            table_metadata.add_row([Color.fg.ylw + 'Instances:' + Color.reset,  ', '.join(instance_list)])
+            table_metadata.add_row([Color.fg.ylw + 'Containers:' + Color.reset, ', '.join(container_list)])
 
         out_str += table_metadata.get_string() + "\n"
         return out_str
@@ -305,6 +310,40 @@ class Printer(object):
                                           region])
             out_str += "\n  Images (%d): \n" % images_total
             out_str += table_images.get_string() + "\n"
+
+        return out_str
+
+    @staticmethod
+    def prettyprint_project_objects(project, options, logger, regions):
+        out_str = ''
+        containers_total = 0
+        containers = dict()
+
+        # Get containers
+        for region in regions:
+            # Initiate Swift object
+            sc = utils.get_client(Swift, options, logger, region)
+
+            # Get a list of containers in project
+            containers[region] = sc.list_containers(project.id)
+            containers_total += len(containers[region])
+
+        # Print containers table
+        if containers_total > 0:
+            table_containers = PrettyTable()
+            table_containers.field_names = ['name', 'objects', 'size', 'region']
+            table_containers.align['name'] = 'l'
+            table_containers.align['objects'] = 'r'
+            table_containers.align['size'] = 'r'
+            table_containers.align['region'] = 'l'
+            for region in regions:
+                for container in containers[region]:
+                    table_containers.add_row([container['name'],
+                                              container['count'],
+                                              "%d KiB" % (int(container['bytes']) / 1024),
+                                              region])
+            out_str += "\n  Object storage containers (%d): \n" % containers_total
+            out_str += table_containers.get_string() + "\n"
 
         return out_str
 
@@ -460,6 +499,20 @@ class Printer(object):
             volumes[region] = len(cc.get_volumes(search_opts={'project_id': project.id}))
 
         return volumes
+
+    @staticmethod
+    def _count_project_containers(project, options, logger, regions):
+        containers = dict()
+
+        # Get containers
+        for region in regions:
+            # Initiate Swift object
+            sc = utils.get_client(Swift, options, logger, region)
+
+            # Get a count of containers in project
+            containers[region] = len(sc.list_containers(project.id))
+
+        return containers
 
     @staticmethod
     def _count_project_instances(project, options, logger, regions):

@@ -4,6 +4,7 @@ from himlarcli.nova import Nova
 from himlarcli.neutron import Neutron
 from himlarcli.glance import Glance
 from himlarcli.designate import Designate
+from himlarcli.swift import Swift
 from keystoneclient import client as keystoneclient
 import keystoneauth1.exceptions as exceptions
 import random
@@ -381,6 +382,9 @@ class Keystone(Client):
 
         # Delete volume
         self.__delete_volumes(project, region)
+
+        # Delete object storage containers
+        self.__delete_objects(project, region)
 
         self.debug_log('delete project %s' % project_name)
         if not self.dry_run:
@@ -1134,6 +1138,18 @@ class Keystone(Client):
         for region in regions:
             cc = self._get_client(Cinder, region)
             cc.purge_project_volumes(project.id)
+
+    def __delete_objects(self, project, region):
+        """ Use swift client to delete all object storage containers for a
+            project in one or all regions
+            version: 2026-08 """
+        regions = [region] if not isinstance(region, list) else region
+        for region in regions:
+            sc = self._get_client(Swift, region)
+            result = sc.purge_project_objects(project.id)
+            if result['containers']:
+                self.debug_log('DELETED %s container(s) with %s object(s) in %s'
+                               % (result['containers'], result['objects'], region))
 
     def __list_compute_quota(self, project):
         self.novaclient = Nova(config_path=self.config_path,
